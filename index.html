@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeliDips · Dashboard de Precios</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F5F2ED; --surface:#FDFBF8; --border:#E8E2D9;
+  --text:#1A1714; --muted:#7A7269;
+  --red:#C8102E; --red-light:#F2E8E5;
+  --green:#2A6040; --green-light:#E5F0EB;
+  --warn:#B8860B; --warn-light:#FDF6E3;
+  --blue:#1565C0; --blue-light:#E3F2FD;
+  --neutral:#4A4540;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOADING */
+#loadingScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity 0.5s;}
+#loadingScreen.hidden{opacity:0;pointer-events:none;}
+.load-logo{font-family:'DM Serif Display',serif;font-size:2.5rem;color:white;margin-bottom:8px;}
+.load-sub{font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:40px;}
+.load-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+.load-msg{font-size:13px;color:rgba(255,255,255,0.7);margin-top:16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ERROR */
+#errorScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px;text-align:center;}
+#errorScreen.show{display:flex;}
+.err-icon{font-size:48px;margin-bottom:16px;}
+.err-title{font-size:20px;font-weight:600;margin-bottom:8px;}
+.err-msg{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:400px;line-height:1.6;}
+.err-btn{padding:12px 24px;background:var(--red);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.header-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--red);letter-spacing:-0.5px;}
+.header-logo span{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.last-update{font-size:11px;color:var(--muted);}
+.refresh-btn{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;color:var(--neutral);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.refresh-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* NAV */
+.nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;padding:0 24px;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-tab{padding:14px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;user-select:none;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
+
+/* FILTERS */
+.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filter-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.filter-select{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none;}
+.filter-select:focus{border-color:var(--red);}
+
+/* SECTIONS */
+.section{display:none;padding:24px;}
+.section.active{display:block;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.kpi-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:8px;}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--text);line-height:1;margin-bottom:6px;}
+.kpi-sub{font-size:12px;color:var(--muted);}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:6px;}
+.delta-up{background:var(--green-light);color:var(--green);}
+.delta-down{background:var(--red-light);color:var(--red);}
+.delta-neutral{background:#f0f0f0;color:var(--muted);}
+
+/* SECTION TITLE */
+.section-title{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+/* CHART CARD */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.chart-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.chart-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.chart-wrap{position:relative;height:260px;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr;}}
+
+/* INSIGHT BOX */
+.insight{background:var(--warn-light);border:1px solid #E8D28A;border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.6;margin-top:12px;}
+.insight.green{background:var(--green-light);border-color:#A8D5B5;}
+.insight.red{background:var(--red-light);border-color:#E8A5A5;}
+.insight strong{display:block;margin-bottom:4px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);}
+thead tr{background:var(--bg);}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAF8F5;}
+.price-num{font-weight:600;font-variant-numeric:tabular-nums;}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-warn{background:var(--warn-light);color:var(--warn);}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.our-brand{color:var(--red);font-weight:600;}
+
+/* GAP CARD */
+.gap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.gap-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;}
+.gap-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:12px;}
+.gap-row:last-child{border-bottom:none;}
+.gap-brand{flex:1;font-size:13px;font-weight:500;}
+.gap-price{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;min-width:70px;text-align:right;}
+.gap-pct{font-size:12px;font-weight:600;min-width:55px;text-align:right;}
+.gap-bar-wrap{flex:2;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.gap-bar{height:100%;border-radius:3px;transition:width 0.5s ease;}
+
+/* STATUS DOTS */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0;}
+.dot-green{background:var(--green);}
+.dot-red{background:var(--red);}
+.dot-warn{background:var(--warn);}
+.dot-gray{background:#ccc;}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty .icon{font-size:40px;margin-bottom:12px;}
+
+/* OFFER TAGS */
+.offer-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#FFF3E0;color:#E65100;}
+.absent-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#F3EEF9;color:#6B3FA0;}
+.nostock-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--blue-light);color:var(--blue);}
+
+.divider{height:1px;background:var(--border);margin:20px 0;}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div class="load-logo">DeliDips</div>
+  <div class="load-sub">Dashboard de Precios</div>
+  <div class="load-spinner"></div>
+  <div class="load-msg" id="loadMsg">Conectando con Google Sheets...</div>
+</div>
+
+<!-- ERROR -->
+<div id="errorScreen">
+  <div class="err-icon">📡</div>
+  <div class="err-title">No se pudo conectar</div>
+  <div class="err-msg" id="errorMsg">No fue posible obtener los datos. Verificá que el Apps Script esté publicado correctamente.</div>
+  <button class="err-btn" onclick="location.reload()">Reintentar</button>
+</div>
+
+<!-- MAIN -->
+<div id="mainApp" style="display:none">
+
+  <div class="header">
+    <div>
+      <div class="header-logo">DeliDips <span>· Dashboard de Precios en Góndola</span></div>
+    </div>
+    <div class="header-right">
+      <div class="last-update" id="lastUpdate">—</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-tab active" onclick="showTab('resumen')">📊 Resumen</div>
+    <div class="nav-tab" onclick="showTab('salsas')">🥫 Salsas Kansas</div>
+    <div class="nav-tab" onclick="showTab('hummus')">🫙 Kyros Hummus</div>
+    <div class="nav-tab" onclick="showTab('panes')">🍞 Panificados</div>
+    <div class="nav-tab" onclick="showTab('competencia')">⚡ Competencia</div>
+    <div class="nav-tab" onclick="showTab('detalle')">🔍 Detalle</div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Filtrar:</span>
+    <select class="filter-select" id="filterCadena" onchange="applyFilters()">
+      <option value="">Todas las cadenas</option>
+    </select>
+    <select class="filter-select" id="filterFecha" onchange="applyFilters()">
+      <option value="">Todas las fechas</option>
+    </select>
+    <select class="filter-select" id="filterZona" onchange="applyFilters()">
+      <option value="">Todas las zonas</option>
+    </select>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="section active" id="sec-resumen">
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Evolución Salsas Kansas</div>
+        <div class="chart-sub">Precio promedio por fecha de visita</div>
+        <div class="chart-wrap"><canvas id="chartSalsasEvol"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Evolución Kyros Hummus</div>
+        <div class="chart-sub">Precio promedio por fecha de visita</div>
+        <div class="chart-wrap"><canvas id="chartHummusEvol"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Cobertura por cadena</div>
+      <div class="chart-sub">Productos relevados vs ausentes vs sin stock</div>
+      <div id="coberturaTable"></div>
+    </div>
+  </div>
+
+  <!-- SALSAS -->
+  <div class="section" id="sec-salsas">
+    <div class="section-title">Salsas Kansas</div>
+    <div class="section-sub">Precios por variedad y comparativa vs competencia</div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Precio por variedad Kansas</div>
+        <div class="chart-sub">Último precio registrado por SKU</div>
+        <div class="chart-wrap"><canvas id="chartSalsasSku"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Precio promedio vs competencia</div>
+        <div class="chart-sub">Kansas vs marcas competidoras</div>
+        <div class="chart-wrap"><canvas id="chartSalsasComp"></canvas></div>
+      </div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-title">Gap de precio — Kansas vs competencia</div>
+      <div id="gapSalsas"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Evolución Kansas Salsas por fecha</div>
+      <div class="chart-sub">Precio promedio todas las cadenas</div>
+      <div class="chart-wrap"><canvas id="chartSalsasEvol2"></canvas></div>
+    </div>
+    <div class="tbl-wrap"><table id="tablaSalsas"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- HUMMUS -->
+  <div class="section" id="sec-hummus">
+    <div class="section-title">Kyros Hummus</div>
+    <div class="section-sub">Precios por sabor y comparativa vs competencia</div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Precio por sabor Kyros</div>
+        <div class="chart-sub">Último precio registrado por SKU</div>
+        <div class="chart-wrap"><canvas id="chartHummusSku"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Precio promedio vs competencia</div>
+        <div class="chart-sub">Kyros vs marcas competidoras</div>
+        <div class="chart-wrap"><canvas id="chartHummusComp"></canvas></div>
+      </div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-title">Gap de precio — Kyros vs competencia</div>
+      <div id="gapHummus"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Evolución Kyros por fecha</div>
+      <div class="chart-sub">Precio promedio todas las cadenas</div>
+      <div class="chart-wrap"><canvas id="chartHummusEvol2"></canvas></div>
+    </div>
+    <div class="tbl-wrap"><table id="tablaHummus"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- PANES -->
+  <div class="section" id="sec-panes">
+    <div class="section-title">Panificados Kansas</div>
+    <div class="section-sub">Precios por variedad y comparativa vs competencia</div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Precio por variedad Kansas</div>
+        <div class="chart-sub">Último precio registrado por SKU</div>
+        <div class="chart-wrap"><canvas id="chartPanesSku"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Precio promedio vs competencia</div>
+        <div class="chart-sub">Kansas Panes vs competidores</div>
+        <div class="chart-wrap"><canvas id="chartPanesComp"></canvas></div>
+      </div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-title">Gap de precio — Kansas Panes vs competencia</div>
+      <div id="gapPanes"></div>
+    </div>
+    <div class="tbl-wrap"><table id="tablaPanes"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- COMPETENCIA -->
+  <div class="section" id="sec-competencia">
+    <div class="section-title">Vista de Competencia</div>
+    <div class="section-sub">Precios de todas las marcas competidoras por categoría</div>
+    <div class="chart-card">
+      <div class="chart-title">Precio promedio por marca — Salsas</div>
+      <div class="chart-wrap" style="height:320px"><canvas id="chartCompSalsas"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Precio promedio por marca — Hummus</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chartCompHummus"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Precio promedio por marca — Panificados</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chartCompPanes"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DETALLE -->
+  <div class="section" id="sec-detalle">
+    <div class="section-title">Detalle por producto</div>
+    <div class="section-sub">Filtrá por marca y producto para ver el precio en cada cadena</div>
+    <div class="filters" style="margin:0 0 16px;padding:0;border:none;background:none;flex-wrap:wrap;">
+      <select class="filter-select" id="detalleCategoria" onchange="renderDetalle()" style="padding:8px 16px;font-size:13px">
+        <option value="">Todas las categorías</option>
+        <option value="Salsas Kansas">Salsas Kansas</option>
+        <option value="Kyros Hummus">Kyros Hummus</option>
+        <option value="Panificados Kansas">Panificados Kansas</option>
+      </select>
+      <select class="filter-select" id="detalleMarca" onchange="renderDetalle()" style="padding:8px 16px;font-size:13px">
+        <option value="">Todas las marcas</option>
+      </select>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title" id="detalleChartTitle">Precio por cadena</div>
+      <div class="chart-sub">Último precio registrado por cadena</div>
+      <div class="chart-wrap"><canvas id="chartDetalle"></canvas></div>
+    </div>
+    <div class="tbl-wrap"><table id="tablaDetalle"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Oferta</th><th>Dinámica</th><th>Estado</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+</div><!-- end mainApp -->
+
+<script>
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwK8xo2bUjubMXVRDtt_MkZ-OYtUG2GGKiWOlOartAKnt-7E5FXfLTJgGcAsNRfu_Zmbw/exec';
+
+const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
+const CAT_SALSAS = 'Salsas Kansas';
+const CAT_HUMMUS = 'Kyros Hummus';
+const CAT_PANES = 'Panificados Kansas';
+
+let allRows = [];
+let filteredRows = [];
+let charts = {};
+let meta = {};
+
+// ---- LOAD ----
+async function loadData() {
+  setMsg('Conectando con Google Sheets...');
+  try {
+    const res = await fetch(WEBAPP_URL + '?v=' + Date.now());
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Error del servidor');
+
+    allRows = json.rows.map(r => ({
+      ...r,
+      precio_regular: parseFloat(r.precio_regular) || 0,
+      precio_oferta: parseFloat(r.precio_oferta) || 0,
+      fecha: String(r.fecha || r.timestamp || '').substring(0, 10),
+      categoria: String(r['categoría'] || r.categoria || ''),
+      es_kansas: String(r.es_kansas || '').toUpperCase() === 'SI',
+      en_oferta: String(r.en_oferta || '').toUpperCase() === 'SI',
+    })).filter(r => r.precio_regular > 0 || r.estado === 'No visto' || r.estado === 'Sin stock');
+
+    meta = json.meta || {};
+    fillFilters();
+    applyFilters();
+    showApp();
+    updateLastUpdate();
+  } catch(e) {
+    console.error(e);
+    showError(e.message);
+  }
+}
+
+function setMsg(msg) { document.getElementById('loadMsg').textContent = msg; }
+
+function showApp() {
+  document.getElementById('loadingScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display = 'block';
+}
+
+function showError(msg) {
+  document.getElementById('loadingScreen').classList.add('hidden');
+  const err = document.getElementById('errorScreen');
+  err.classList.add('show');
+  document.getElementById('errorMsg').textContent = msg || 'Error desconocido';
+}
+
+function updateLastUpdate() {
+  const dates = allRows.map(r => r.fecha).filter(Boolean).sort();
+  const last = dates[dates.length - 1];
+  document.getElementById('lastUpdate').textContent = last ? 'Última carga: ' + formatDate(last) : '';
+}
+
+// ---- FILTERS ----
+function fillFilters() {
+  const cadenas = [...new Set(allRows.map(r => r.cadena).filter(Boolean))].sort();
+  const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort().reverse();
+  const zonas = [...new Set(allRows.map(r => r.zona).filter(Boolean))].sort();
+  const marcas = [...new Set(allRows.map(r => r.marca).filter(Boolean))].sort();
+
+  fill('filterCadena', cadenas, 'Todas las cadenas');
+  fill('filterFecha', fechas, 'Todas las fechas');
+  fill('filterZona', zonas, 'Todas las zonas');
+  fill('detalleMarca', marcas, 'Todas las marcas');
+}
+
+function fill(id, values, placeholder) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${placeholder}</option>` +
+    values.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+}
+
+function applyFilters() {
+  const cadena = document.getElementById('filterCadena').value;
+  const fecha = document.getElementById('filterFecha').value;
+  const zona = document.getElementById('filterZona').value;
+
+  filteredRows = allRows.filter(r =>
+    (!cadena || r.cadena === cadena) &&
+    (!fecha || r.fecha === fecha) &&
+    (!zona || r.zona === zona)
+  );
+
+  buildAll();
+}
+
+// ---- TABS ----
+function showTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach((el, i) => {
+    el.classList.toggle('active', ['resumen','salsas','hummus','panes','competencia','detalle'][i] === tab);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+}
+
+// ---- BUILD ALL ----
+function buildAll() {
+  renderKPIs();
+  renderEvolChart('chartSalsasEvol', CAT_SALSAS, true);
+  renderEvolChart('chartHummusEvol', CAT_HUMMUS, true);
+  renderCobertura();
+  renderCategoria('salsas', CAT_SALSAS);
+  renderCategoria('hummus', CAT_HUMMUS);
+  renderCategoria('panes', CAT_PANES);
+  renderCompetencia();
+  renderDetalle();
+}
+
+// ---- HELPERS ----
+function byCat(rows, cat) { return rows.filter(r => r.categoria === cat && r.precio_regular > 0); }
+function byKansas(rows, cat) { return byCat(rows, cat).filter(r => r.es_kansas); }
+function byComp(rows, cat) { return byCat(rows, cat).filter(r => !r.es_kansas); }
+function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function avgPrice(rows) { return avg(rows.map(r => r.precio_regular).filter(r => r > 0)); }
+function fmt(v) { return v > 0 ? '$' + Math.round(v).toLocaleString('es-AR') : '—'; }
+function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
+function lastByKey(rows, keyFn) {
+  const map = {};
+  rows.forEach(r => { map[keyFn(r)] = r; });
+  return Object.values(map);
+}
+
+function pctDelta(a, b) {
+  if (!a || !b) return null;
+  return ((b - a) / a * 100).toFixed(1);
+}
+
+function deltaHtml(pct) {
+  if (pct === null) return '';
+  const n = parseFloat(pct);
+  if (n > 0) return `<span class="kpi-delta delta-up">▲ +${pct}%</span>`;
+  if (n < 0) return `<span class="kpi-delta delta-down">▼ ${pct}%</span>`;
+  return `<span class="kpi-delta delta-neutral">= ${pct}%</span>`;
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// ---- KPIs ----
+function renderKPIs() {
+  const salsasRows = byCat(filteredRows, CAT_SALSAS);
+  const hummusRows = byCat(filteredRows, CAT_HUMMUS);
+  const panesRows = byCat(filteredRows, CAT_PANES);
+
+  const avgS = avgPrice(salsasRows.filter(r=>r.es_kansas));
+  const avgH = avgPrice(hummusRows.filter(r=>r.es_kansas));
+  const avgP = avgPrice(panesRows.filter(r=>r.es_kansas));
+  const totalOfertas = filteredRows.filter(r=>r.en_oferta).length;
+  const totalAusentes = filteredRows.filter(r=>r.estado==='No visto'||r.estado==='Sin stock').length;
+  const totalRegistros = filteredRows.length;
+
+  const kpis = [
+    { label:'Kansas Salsas — Precio prom.', value:fmt(avgS), sub:'Promedio todas las cadenas' },
+    { label:'Kyros Hummus — Precio prom.', value:fmt(avgH), sub:'Promedio todas las cadenas' },
+    { label:'Panificados — Precio prom.', value:fmt(avgP), sub:'Promedio todas las cadenas' },
+    { label:'Productos en oferta', value:totalOfertas, sub:'De '+totalRegistros+' registros totales' },
+    { label:'Sin presencia / Sin stock', value:totalAusentes, sub:'Productos no encontrados' },
+    { label:'Registros totales', value:totalRegistros, sub:[...new Set(filteredRows.map(r=>r.cadena).filter(Boolean))].length+' cadenas relevadas' },
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ---- EVOL CHART ----
+function renderEvolChart(id, cat, isKansas) {
+  destroyChart(id);
+  const rows = isKansas
+    ? byCat(filteredRows, cat).filter(r => r.es_kansas)
+    : byCat(filteredRows, cat);
+
+  const fechas = [...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();
+  if (!fechas.length) return;
+
+  const marcas = [...new Set(rows.map(r=>r.marca).filter(Boolean))];
+  const datasets = marcas.map((m, i) => ({
+    label: m,
+    data: fechas.map(f => {
+      const rs = rows.filter(r => r.marca === m && r.fecha === f);
+      return rs.length ? Math.round(avgPrice(rs)) : null;
+    }),
+    borderColor: PALETTE[i % PALETTE.length],
+    backgroundColor: PALETTE[i % PALETTE.length] + '22',
+    tension: 0.3,
+    fill: false,
+    spanGaps: true,
+    pointRadius: 4,
+  }));
+
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels: fechas.map(formatDate), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+      scales: {
+        y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid: { color:'#E8E2D9' } },
+        x: { ticks: { font:{size:10} }, grid: { color:'#E8E2D9' } }
+      }
+    }
+  });
+}
+
+// ---- COBERTURA ----
+function renderCobertura() {
+  const cadenas = [...new Set(filteredRows.map(r=>r.cadena).filter(Boolean))].sort();
+  const cats = [CAT_SALSAS, CAT_HUMMUS, CAT_PANES];
+  const labels = ['Salsas Kansas', 'Kyros Hummus', 'Panificados'];
+
+  let html = `<div class="tbl-wrap"><table><thead><tr><th>Categoría</th>`;
+  cadenas.forEach(c => html += `<th>${c}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  cats.forEach((cat, ci) => {
+    html += `<tr><td style="font-weight:500">${labels[ci]}</td>`;
+    cadenas.forEach(cadena => {
+      const rows = filteredRows.filter(r => r.categoria === cat && r.cadena === cadena);
+      const ok = rows.filter(r => r.precio_regular > 0).length;
+      const of = rows.filter(r => r.en_oferta).length;
+      const abs = rows.filter(r => r.estado === 'No visto').length;
+      const nst = rows.filter(r => r.estado === 'Sin stock').length;
+      if (!rows.length) {
+        html += `<td><span class="dot dot-gray"></span><span style="font-size:12px;color:var(--muted)">Sin datos</span></td>`;
+      } else {
+        html += `<td>
+          <span class="dot ${ok>0?'dot-green':'dot-red'}"></span>
+          <span style="font-size:12px">${ok} precios</span>
+          ${of>0?`<br><span class="offer-tag">🏷️ ${of} ofertas</span>`:''}
+          ${abs>0?`<br><span class="absent-tag">👁️ ${abs} ausentes</span>`:''}
+          ${nst>0?`<br><span class="nostock-tag">📦 ${nst} sin stock</span>`:''}
+        </td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  document.getElementById('coberturaTable').innerHTML = html;
+}
+
+// ---- CATEGORÍA ----
+function renderCategoria(tab, cat) {
+  const rows = byCat(filteredRows, cat);
+  const kRows = rows.filter(r => r.es_kansas);
+  const cRows = rows.filter(r => !r.es_kansas);
+
+  // SKU chart (Kansas only)
+  const skuId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Sku';
+  destroyChart(skuId);
+  const skuMap = {};
+  kRows.forEach(r => {
+    if (!skuMap[r.producto] || r.fecha > skuMap[r.producto].fecha) skuMap[r.producto] = r;
+  });
+  const skuLabels = Object.keys(skuMap);
+  const skuData = skuLabels.map(k => skuMap[k].precio_regular);
+
+  if (skuLabels.length && document.getElementById(skuId)) {
+    charts[skuId] = new Chart(document.getElementById(skuId), {
+      type: 'bar',
+      data: {
+        labels: skuLabels,
+        datasets: [{ data: skuData, backgroundColor: '#C8102E', borderRadius: 6 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
+          x: { ticks: { font:{size:10} }, grid:{display:false} }
+        }
+      }
+    });
+  }
+
+  // Comp chart (brand avg)
+  const compId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Comp';
+  destroyChart(compId);
+  const brandMap = {};
+  rows.forEach(r => {
+    if (!brandMap[r.marca]) brandMap[r.marca] = [];
+    if (r.precio_regular > 0) brandMap[r.marca].push(r.precio_regular);
+  });
+  const brandLabels = Object.keys(brandMap).sort((a,b) => avg(brandMap[b]) - avg(brandMap[a]));
+  const brandData = brandLabels.map(b => Math.round(avg(brandMap[b])));
+  const brandColors = brandLabels.map(b => {
+    const isK = rows.find(r=>r.marca===b)?.es_kansas;
+    return isK ? '#C8102E' : '#D0C9C0';
+  });
+
+  if (brandLabels.length && document.getElementById(compId)) {
+    charts[compId] = new Chart(document.getElementById(compId), {
+      type: 'bar',
+      data: {
+        labels: brandLabels,
+        datasets: [{ data: brandData, backgroundColor: brandColors, borderRadius: 6 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
+          y: { ticks: { font:{size:10} }, grid:{display:false} }
+        }
+      }
+    });
+  }
+
+  // Evol chart 2
+  const evolId2 = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Evol2';
+  if (document.getElementById(evolId2)) renderEvolChart(evolId2, cat, true);
+
+  // Gap
+  renderGap('gap' + tab.charAt(0).toUpperCase()+tab.slice(1), rows);
+
+  // Table
+  renderTable('tabla' + tab.charAt(0).toUpperCase()+tab.slice(1), rows);
+}
+
+// ---- GAP ----
+function renderGap(id, rows) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const kRows = rows.filter(r => r.es_kansas && r.precio_regular > 0);
+  const kAvg = avgPrice(kRows);
+  if (!kAvg) { el.innerHTML = '<div class="empty"><div class="icon">📊</div>Sin datos suficientes</div>'; return; }
+
+  const brandMap = {};
+  rows.filter(r => !r.es_kansas && r.precio_regular > 0).forEach(r => {
+    if (!brandMap[r.marca]) brandMap[r.marca] = [];
+    brandMap[r.marca].push(r.precio_regular);
+  });
+
+  const maxPrice = Math.max(kAvg, ...Object.values(brandMap).map(v => avg(v)));
+
+  let html = `<div class="gap-row">
+    <div class="gap-brand our-brand">● Nuestro precio promedio</div>
+    <div class="gap-price our-brand">${fmt(kAvg)}</div>
+    <div class="gap-pct">—</div>
+    <div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxPrice*100)}%;background:var(--red)"></div></div>
+  </div>`;
+
+  Object.entries(brandMap)
+    .sort((a,b) => avg(b[1]) - avg(a[1]))
+    .forEach(([marca, prices]) => {
+      const p = avg(prices);
+      const diff = ((kAvg - p) / p * 100).toFixed(1);
+      const isBelow = kAvg < p;
+      const color = isBelow ? 'var(--green)' : '#D0C9C0';
+      const label = isBelow ? `▼ ${Math.abs(diff)}% más barato` : `▲ ${Math.abs(diff)}% más caro`;
+      const pctClass = isBelow ? 'color:var(--green)' : 'color:var(--red)';
+      html += `<div class="gap-row">
+        <div class="gap-brand">${marca}</div>
+        <div class="gap-price">${fmt(p)}</div>
+        <div class="gap-pct" style="${pctClass};font-size:11px">${label}</div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxPrice*100)}%;background:${color}"></div></div>
+      </div>`;
+    });
+
+  el.innerHTML = html;
+}
+
+// ---- TABLE ----
+function renderTable(id, rows) {
+  const tbody = document.querySelector('#' + id + ' tbody');
+  if (!tbody) return;
+  // Last record per marca+producto+cadena
+  const last = lastByKey(rows, r => r.marca+'||'+r.producto+'||'+r.cadena);
+  if (!last.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>`; return; }
+
+  tbody.innerHTML = last.sort((a,b) => (a.es_kansas===b.es_kansas)?0:a.es_kansas?-1:1).map(r => {
+    const isK = r.es_kansas;
+    const estado = r.estado || 'Disponible';
+    let estadoTag = '';
+    if (estado === 'No visto') estadoTag = '<span class="absent-tag">👁️ No visto</span>';
+    else if (estado === 'Sin stock') estadoTag = '<span class="nostock-tag">📦 Sin stock</span>';
+    return `<tr>
+      <td class="${isK?'our-brand':''}">${r.marca}</td>
+      <td style="font-size:12px">${r.producto}</td>
+      <td style="font-size:12px">${r.cadena}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.zona||'—'}</td>
+      <td class="price-num">${r.precio_regular>0?fmt(r.precio_regular):'—'}</td>
+      <td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.dinamica||'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${estadoTag||formatDate(r.fecha)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- COMPETENCIA ----
+function renderCompetencia() {
+  [
+    ['chartCompSalsas', CAT_SALSAS],
+    ['chartCompHummus', CAT_HUMMUS],
+    ['chartCompPanes', CAT_PANES]
+  ].forEach(([id, cat]) => {
+    destroyChart(id);
+    const rows = byCat(filteredRows, cat);
+    const brandMap = {};
+    rows.forEach(r => {
+      if (!brandMap[r.marca]) brandMap[r.marca] = [];
+      if (r.precio_regular > 0) brandMap[r.marca].push(r.precio_regular);
+    });
+    const labels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
+    const data = labels.map(b => Math.round(avg(brandMap[b])));
+    const colors = labels.map(b => rows.find(r=>r.marca===b)?.es_kansas ? '#C8102E' : '#B0A898');
+
+    const ctx = document.getElementById(id);
+    if (!ctx || !labels.length) return;
+    charts[id] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
+          y: { ticks: { font:{size:10} }, grid:{display:false} }
+        }
+      }
+    });
+  });
+}
+
+// ---- DETALLE ----
+function renderDetalle() {
+  const cat = document.getElementById('detalleCategoria').value;
+  const marca = document.getElementById('detalleMarca').value;
+
+  let rows = filteredRows.filter(r => r.precio_regular > 0);
+  if (cat) rows = rows.filter(r => r.categoria === cat);
+  if (marca) rows = rows.filter(r => r.marca === marca);
+
+  // Update marcas dropdown
+  const marcas = [...new Set(
+    filteredRows.filter(r => !cat || r.categoria === cat).map(r => r.marca).filter(Boolean)
+  )].sort();
+  fill('detalleMarca', marcas, 'Todas las marcas');
+  if (marca) document.getElementById('detalleMarca').value = marca;
+
+  // Chart: price by cadena for selected brand
+  destroyChart('chartDetalle');
+  const cadenas = [...new Set(rows.map(r => r.cadena).filter(Boolean))].sort();
+  const chartRows = marca ? rows.filter(r => r.marca === marca) : rows;
+  const productos = [...new Set(chartRows.map(r => r.producto).filter(Boolean))];
+
+  document.getElementById('detalleChartTitle').textContent =
+    marca ? `${marca} — precio por cadena` : 'Precio promedio por cadena';
+
+  const datasets = productos.slice(0, 8).map((p, i) => ({
+    label: p,
+    data: cadenas.map(c => {
+      const rs = chartRows.filter(r => r.producto === p && r.cadena === c && r.precio_regular > 0);
+      return rs.length ? Math.round(avgPrice(rs)) : null;
+    }),
+    backgroundColor: PALETTE[i % PALETTE.length] + 'CC',
+    borderColor: PALETTE[i % PALETTE.length],
+    borderRadius: 6,
+  }));
+
+  const ctx = document.getElementById('chartDetalle');
+  if (ctx && cadenas.length) {
+    charts['chartDetalle'] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: cadenas, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font:{size:11}, boxWidth:12 } } },
+        scales: {
+          y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
+          x: { ticks: { font:{size:11} }, grid:{display:false} }
+        }
+      }
+    });
+  }
+
+  // Table
+  const last = lastByKey(rows, r => r.marca+'||'+r.producto+'||'+r.cadena);
+  const tbody = document.querySelector('#tablaDetalle tbody');
+  if (!tbody) return;
+  if (!last.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>`; return; }
+  tbody.innerHTML = last.map(r => {
+    const isK = r.es_kansas;
+    const estado = r.estado || 'Disponible';
+    return `<tr>
+      <td class="${isK?'our-brand':''}" style="font-size:12px">${r.marca}</td>
+      <td style="font-size:12px">${r.producto}</td>
+      <td style="font-size:12px">${r.cadena}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.zona||'—'}</td>
+      <td class="price-num">${fmt(r.precio_regular)}</td>
+      <td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.dinamica||'—'}</td>
+      <td>${estado!=='Disponible'?`<span class="${estado==='No visto'?'absent-tag':'nostock-tag'}">${estado}</span>`:''}</td>
+      <td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- START ----
+loadData();
+</script>
+</body>
+</html>
