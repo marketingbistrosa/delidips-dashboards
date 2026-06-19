@@ -241,6 +241,11 @@ tr:hover td{background:#FAF8F5;}
       <div class="chart-sub">Precio promedio todas las cadenas</div>
       <div class="chart-wrap"><canvas id="chartSalsasEvol2"></canvas></div>
     </div>
+    <div class="chart-card">
+      <div class="chart-title">Precio por gramo — Kansas vs competencia</div>
+      <div class="chart-sub">$/gr agrupado por tipo de salsa · barras rojas = Kansas · gris = competencia</div>
+      <div id="chartSalsasPorGramo" style="padding-top:8px"></div>
+    </div>
     <div class="tbl-wrap"><table id="tablaSalsas"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
@@ -269,6 +274,11 @@ tr:hover td{background:#FAF8F5;}
       <div class="chart-sub">Precio promedio todas las cadenas</div>
       <div class="chart-wrap"><canvas id="chartHummusEvol2"></canvas></div>
     </div>
+    <div class="chart-card">
+      <div class="chart-title">Precio por gramo — Kyros vs competencia</div>
+      <div class="chart-sub">$/gr agrupado por sabor · barras rojas = Kyros · gris = competencia</div>
+      <div id="chartHummusPorGramo" style="padding-top:8px"></div>
+    </div>
     <div class="tbl-wrap"><table id="tablaHummus"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
@@ -291,6 +301,11 @@ tr:hover td{background:#FAF8F5;}
     <div class="gap-card">
       <div class="gap-title">Gap de precio — Kansas Panes vs competencia</div>
       <div id="gapPanes"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Precio por gramo — Kansas Panes vs competencia</div>
+      <div class="chart-sub">$/gr agrupado por tipo de pan · barras rojas = Kansas · gris = competencia</div>
+      <div id="chartPanesPorGramo" style="padding-top:8px"></div>
     </div>
     <div class="tbl-wrap"><table id="tablaPanes"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
@@ -442,6 +457,114 @@ function showTab(tab) {
   });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + tab).classList.add('active');
+}
+
+// ---- PRECIO POR GRAMO ----
+function extractGrams(nombre) {
+  if (!nombre) return null;
+  // Match patterns like 280GR, 280 GR, 280g, 295 G, 230gr, etc.
+  const match = String(nombre).toUpperCase().match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/);
+  if (match) return parseInt(match[1]);
+  // Also try at end of string
+  const match2 = String(nombre).toUpperCase().match(/(\d+)\s*G(?:R(?:S)?)?$/);
+  if (match2) return parseInt(match2[1]);
+  return null;
+}
+
+function detectTipo(producto) {
+  const p = String(producto).toUpperCase();
+  if (p.includes('KETCHUP')) return 'Ketchup';
+  if (p.includes('MAYONESA') || p.includes('MAYO')) return 'Mayonesa';
+  if (p.includes('MOSTAZA')) return 'Mostaza';
+  if (p.includes('CHIMICHURRI')) return 'Chimichurri';
+  if (p.includes('CAESAR') || p.includes('CESAR')) return 'Caesar';
+  if (p.includes('BARBACOA') || p.includes('BBQ')) return 'Barbacoa';
+  if (p.includes('RANCH')) return 'Ranch';
+  if (p.includes('HONEY') || p.includes('MIEL')) return 'Honey Mustard';
+  if (p.includes('AIOLI') || p.includes('ALIOLI')) return 'Aioli';
+  if (p.includes('CHEDDAR')) return 'Cheddar';
+  if (p.includes('VINAGRETA')) return 'Vinagreta';
+  if (p.includes('GOLF')) return 'Golf';
+  if (p.includes('COLESLAW')) return 'Coleslaw';
+  if (p.includes('CLÁSICO') || p.includes('CLASICO')) return 'Hummus Clásico';
+  if (p.includes('PIMENTÓN') || p.includes('PIMENTON')) return 'Hummus Pimentón';
+  if (p.includes('REMOLACHA')) return 'Hummus Remolacha';
+  if (p.includes('AJO')) return 'Hummus Ajo';
+  if (p.includes('OLIVA')) return 'Hummus Oliva';
+  if (p.includes('BABAGANUSH') || p.includes('BABA')) return 'Babaganush';
+  if (p.includes('POROTO')) return 'Hummus Poroto Negro';
+  if (p.includes('HAMBURGUESA') || p.includes('BURGUER')) return 'Pan Hamburguesa';
+  if (p.includes('PANCHO') || p.includes('HOT DOG')) return 'Pan Pancho';
+  if (p.includes('CAMPO')) return 'Pan de Campo';
+  return null;
+}
+
+function renderPorGramo(id, rows) {
+  destroyChart(id);
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+
+  // Last price per marca+producto
+  const last = lastByKey(rows.filter(r => r.precio_regular > 0), r => r.marca + '||' + r.producto);
+
+  // Add gramos, tipo, precio_por_gr
+  const withGrams = last.map(r => {
+    const g = extractGrams(r.producto);
+    const tipo = detectTipo(r.producto);
+    if (!g || g < 50 || g > 5000 || !tipo) return null;
+    return { ...r, gramos: g, tipo, precio_por_gr: parseFloat((r.precio_regular / g).toFixed(2)) };
+  }).filter(Boolean);
+
+  if (!withGrams.length) {
+    wrap.parentElement.innerHTML = '<div class="empty"><div class="icon">📐</div><p>Sin productos con gramaje identificado aún.<br>Se irá completando con las cargas de los repositores.</p></div>';
+    return;
+  }
+
+  // Group by tipo — render one mini chart per tipo
+  const tipos = [...new Set(withGrams.map(r => r.tipo))].sort();
+  const container = wrap.parentElement;
+
+  // Remove canvas, replace with tipo sections
+  container.innerHTML = '';
+
+  tipos.forEach(tipo => {
+    const items = withGrams.filter(r => r.tipo === tipo).sort((a,b) => a.precio_por_gr - b.precio_por_gr);
+    if (!items.length) return;
+
+    const section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:20px';
+
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--border)';
+    title.textContent = tipo;
+    section.appendChild(title);
+
+    // Simple bar rows
+    const maxPG = Math.max(...items.map(r => r.precio_por_gr));
+    items.forEach(r => {
+      const isK = r.es_kansas;
+      const pct = Math.round((r.precio_por_gr / maxPG) * 100);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:6px';
+      row.innerHTML = `
+        <div style="min-width:140px;font-size:12px;font-weight:${isK?'600':'400'};color:${isK?'var(--red)':'var(--dark)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.marca} ${r.producto}">
+          ${r.marca} <span style="font-weight:400;color:var(--muted)">${r.gramos}g</span>
+        </div>
+        <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${isK?'var(--red)':'#B0A898'};border-radius:4px;transition:width 0.5s"></div>
+        </div>
+        <div style="min-width:60px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:${isK?'var(--red)':'var(--dark)'}">
+          $${r.precio_por_gr.toFixed(1)}/g
+        </div>
+        <div style="min-width:70px;text-align:right;font-size:11px;color:var(--muted)">
+          ${r.precio_regular.toLocaleString('es-AR')}
+        </div>
+      `;
+      section.appendChild(row);
+    });
+
+    container.appendChild(section);
+  });
 }
 
 // ---- BUILD ALL ----
@@ -666,6 +789,10 @@ function renderCategoria(tab, cat) {
   // Evol chart 2
   const evolId2 = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Evol2';
   if (document.getElementById(evolId2)) renderEvolChart(evolId2, cat, true);
+
+  // Precio por gramo
+  const porGramoId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'PorGramo';
+  renderPorGramo(porGramoId, rows);
 
   // Gap
   renderGap('gap' + tab.charAt(0).toUpperCase()+tab.slice(1), rows);
