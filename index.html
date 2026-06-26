@@ -138,6 +138,35 @@ tr:hover td{background:#FAF8F5;}
 .absent-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#F3EEF9;color:#6B3FA0;}
 .nostock-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--blue-light);color:var(--blue);}
 
+/* ALERTAS */
+.alertas-wrap { display: flex; flex-direction: column; gap: 8px; }
+.alerta {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  border-left: 4px solid;
+}
+.alerta-red { background: var(--red-light); border-color: var(--red); }
+.alerta-warn { background: var(--warn-light); border-color: var(--warn); }
+.alerta-green { background: var(--green-light); border-color: var(--green); }
+.alerta-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.alerta-content strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.alerta-content span { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+/* INSIGHTS */
+.insights-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.insight-auto {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+}
+.insight-auto .ia-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+.insight-auto .ia-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.insight-auto .ia-text strong { color: var(--red); }
+
+/* DELTA PRECIO */
+.delta-up-sm { color: var(--red); font-size: 11px; font-weight: 600; }
+.delta-down-sm { color: var(--green); font-size: 11px; font-weight: 600; }
+.delta-neutral-sm { color: var(--muted); font-size: 11px; }
+
 .divider{height:1px;background:var(--border);margin:20px 0;}
 </style>
 </head>
@@ -177,6 +206,7 @@ tr:hover td{background:#FAF8F5;}
     <div class="nav-tab" onclick="showTab('salsas')">🥫 Salsas Kansas</div>
     <div class="nav-tab" onclick="showTab('hummus')">🫙 Kyros Hummus</div>
     <div class="nav-tab" onclick="showTab('panes')">🍞 Panificados</div>
+    <div class="nav-tab" onclick="showTab('ecommerce')">🌐 Ecommerce</div>
     <div class="nav-tab" onclick="showTab('competencia')">⚡ Competencia</div>
     <div class="nav-tab" onclick="showTab('detalle')">🔍 Detalle</div>
   </div>
@@ -196,6 +226,10 @@ tr:hover td{background:#FAF8F5;}
 
   <!-- RESUMEN -->
   <div class="section active" id="sec-resumen">
+    <!-- ALERTAS -->
+    <div id="alertasPanel" style="margin-bottom:16px"></div>
+    <!-- INSIGHTS -->
+    <div id="insightsPanel" style="margin-bottom:16px"></div>
     <div class="kpi-grid" id="kpiGrid"></div>
     <div class="grid-2">
       <div class="chart-card">
@@ -310,6 +344,29 @@ tr:hover td{background:#FAF8F5;}
     <div class="tbl-wrap"><table id="tablaPanes"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
+  <!-- ECOMMERCE -->
+  <div class="section" id="sec-ecommerce">
+    <div class="section-title">Precios Ecommerce</div>
+    <div class="section-sub">Precios relevados en plataformas online de cada cadena — pueden diferir de góndola física</div>
+    <div id="ecommerceComparativa" style="margin-bottom:16px"></div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Ecommerce vs Góndola — Salsas Kansas</div>
+        <div class="chart-sub">Precio promedio por canal</div>
+        <div class="chart-wrap"><canvas id="chartEcomSalsas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ecommerce vs Góndola — Kyros Hummus</div>
+        <div class="chart-sub">Precio promedio por canal</div>
+        <div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table id="tablaEcommerce">
+      <thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
   <!-- COMPETENCIA -->
   <div class="section" id="sec-competencia">
     <div class="section-title">Vista de Competencia</div>
@@ -354,7 +411,7 @@ tr:hover td{background:#FAF8F5;}
 </div><!-- end mainApp -->
 
 <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwK8xo2bUjubMXVRDtt_MkZ-OYtUG2GGKiWOlOartAKnt-7E5FXfLTJgGcAsNRfu_Zmbw/exec';
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz_1JCBFjkZvipPKWo-PPUaU_5eKRNTIZpaWfqdUD-oyaBzHVtqVvqfKkFWi4o5WhSvHQ/exec';
 
 const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
 const CAT_SALSAS = 'Salsas Kansas';
@@ -382,6 +439,7 @@ async function loadData() {
       categoria: String(r['categoría'] || r.categoria || ''),
       es_kansas: String(r.es_kansas || '').toUpperCase() === 'SI',
       en_oferta: String(r.en_oferta || '').toUpperCase() === 'SI',
+      canal: String(r.canal || 'gondola').toLowerCase(),
     })).filter(r => r.precio_regular > 0 || r.estado === 'No visto' || r.estado === 'Sin stock');
 
     meta = json.meta || {};
@@ -453,20 +511,49 @@ function applyFilters() {
 // ---- TABS ----
 function showTab(tab) {
   document.querySelectorAll('.nav-tab').forEach((el, i) => {
-    el.classList.toggle('active', ['resumen','salsas','hummus','panes','competencia','detalle'][i] === tab);
+    el.classList.toggle('active', ['resumen','salsas','hummus','panes','ecommerce','competencia','detalle'][i] === tab);
   });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + tab).classList.add('active');
+  if (tab === 'ecommerce') renderEcommerce();
 }
 
 // ---- PRECIO POR GRAMO ----
+// ---- GRAMAJE EXACTO POR SKU PROPIO ----
+const GRAMAJE_SKU = {
+  // KYROS
+  'CLÁSICO': 230, 'CLASICO': 230,
+  'CON ACEITE DE OLIVA': 230, 'OLIVA': 230,
+  'PIMENTÓN': 230, 'PIMENTON': 230,
+  'POROTO NEGRO': 230,
+  'AJO AHUMADO': 230,
+  'REMOLACHA': 230,
+  'BABAGANUSH': 230,
+  'TAHINI': 300,
+  // KANSAS SALSAS
+  'CAESAR': 260,
+  'CHEDDAR SAUCE': 265,
+  'AIOLI SAUCE': 265,
+  'BARBACOA': 295,
+  'HONEY MUSTARD': 280,
+  'VINAGRETA': 270,
+  'CHIMICHURRI': 280,
+  'KETCHUP CURRY': 295,
+  'KETCHUP SPICY': 295,
+  'KETCHUP AMERICAN': 295,
+};
+
 function extractGrams(nombre) {
   if (!nombre) return null;
-  // Match patterns like 280GR, 280 GR, 280g, 295 G, 230gr, etc.
-  const match = String(nombre).toUpperCase().match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/);
+  const upper = String(nombre).toUpperCase().trim();
+  // Check exact SKU lookup first
+  for (const [key, gr] of Object.entries(GRAMAJE_SKU)) {
+    if (upper.includes(key.toUpperCase())) return gr;
+  }
+  // Then try to parse from name
+  const match = upper.match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/);
   if (match) return parseInt(match[1]);
-  // Also try at end of string
-  const match2 = String(nombre).toUpperCase().match(/(\d+)\s*G(?:R(?:S)?)?$/);
+  const match2 = upper.match(/(\d+)\s*G(?:R(?:S)?)?$/);
   if (match2) return parseInt(match2[1]);
   return null;
 }
@@ -567,8 +654,258 @@ function renderPorGramo(id, rows) {
   });
 }
 
+// ---- ALERTAS ----
+function renderAlertas() {
+  const el = document.getElementById('alertasPanel');
+  if (!el) return;
+  const alertas = [];
+
+  // 1. Productos sin presencia en más de 2 cadenas
+  const CADENAS_LIST = ['JUMBO','COTO','CARREFOUR','CHANGO MAS','DISCO TORTUGAS','LIBERTAD'];
+  const cats = [CAT_SALSAS, CAT_HUMMUS, CAT_PANES];
+  cats.forEach(cat => {
+    const kRows = filteredRows.filter(r => r.es_kansas && r.categoria === cat);
+    const productos = [...new Set(kRows.map(r => r.producto))];
+    productos.forEach(prod => {
+      const ausente = CADENAS_LIST.filter(c => {
+        const r = kRows.find(r => r.producto === prod && r.cadena === c);
+        return r && (r.estado === 'No visto' || r.estado === 'Sin stock');
+      });
+      if (ausente.length >= 2) {
+        alertas.push({ tipo: 'red', icon: '🚨', titulo: `${prod} ausente en ${ausente.length} cadenas`, detalle: ausente.join(', ') });
+      }
+    });
+  });
+
+  // 2. Precio de competencia bajó más de 10% vs nuestro precio
+  const fechas = [...new Set(filteredRows.map(r => r.fecha).filter(Boolean))].sort();
+  if (fechas.length >= 2) {
+    const ultima = fechas[fechas.length - 1];
+    const penultima = fechas[fechas.length - 2];
+    cats.forEach(cat => {
+      const kUlt = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.fecha === ultima && r.precio_regular > 0));
+      const kPen = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.fecha === penultima && r.precio_regular > 0));
+      if (kUlt && kPen) {
+        const delta = ((kUlt - kPen) / kPen * 100);
+        const catLabel = cat === CAT_SALSAS ? 'Salsas Kansas' : cat === CAT_HUMMUS ? 'Kyros Hummus' : 'Panificados';
+        if (delta > 10) alertas.push({ tipo: 'warn', icon: '⚠️', titulo: `${catLabel}: precio subió ${delta.toFixed(1)}% vs relevamiento anterior`, detalle: `${fmt(kPen)} → ${fmt(kUlt)}` });
+        if (delta < -10) alertas.push({ tipo: 'green', icon: '✅', titulo: `${catLabel}: precio bajó ${Math.abs(delta).toFixed(1)}% vs relevamiento anterior`, detalle: `${fmt(kPen)} → ${fmt(kUlt)}` });
+      }
+    });
+  }
+
+  // 3. Competidor con precio menor al nuestro en misma categoría
+  cats.forEach(cat => {
+    const kAvg = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0));
+    if (!kAvg) return;
+    const compMap = {};
+    filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0).forEach(r => {
+      if (!compMap[r.marca]) compMap[r.marca] = [];
+      compMap[r.marca].push(r.precio_regular);
+    });
+    const masBaratos = Object.entries(compMap)
+      .map(([m, ps]) => ({ marca: m, avg: avg(ps) }))
+      .filter(c => c.avg < kAvg * 0.85)
+      .sort((a, b) => a.avg - b.avg);
+    if (masBaratos.length) {
+      const catLabel = cat === CAT_SALSAS ? 'Salsas' : cat === CAT_HUMMUS ? 'Hummus' : 'Panes';
+      alertas.push({ tipo: 'warn', icon: '💡', titulo: `${masBaratos[0].marca} es ${Math.round((1 - masBaratos[0].avg/kAvg)*100)}% más barato en ${catLabel}`, detalle: `Precio promedio: ${fmt(masBaratos[0].avg)} vs nuestro ${fmt(kAvg)}` });
+    }
+  });
+
+  if (!alertas.length) {
+    el.innerHTML = `<div class="alerta alerta-green"><div class="alerta-icon">✅</div><div class="alerta-content"><strong>Sin alertas activas</strong><span>Todo dentro de parámetros normales</span></div></div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="alertas-wrap">${alertas.map(a => `
+    <div class="alerta alerta-${a.tipo}">
+      <div class="alerta-icon">${a.icon}</div>
+      <div class="alerta-content"><strong>${a.titulo}</strong><span>${a.detalle}</span></div>
+    </div>`).join('')}</div>`;
+}
+
+// ---- INSIGHTS AUTOMÁTICOS ----
+function renderInsights() {
+  const el = document.getElementById('insightsPanel');
+  if (!el) return;
+  const insights = [];
+
+  const cats = [
+    { cat: CAT_SALSAS, label: 'Salsas Kansas', brand: 'Kansas' },
+    { cat: CAT_HUMMUS, label: 'Kyros Hummus', brand: 'Kyros' },
+    { cat: CAT_PANES, label: 'Panificados', brand: 'Kansas Panes' },
+  ];
+
+  cats.forEach(({ cat, label, brand }) => {
+    const kRows = filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0);
+    const cRows = filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0);
+    const kAvg = avgPrice(kRows);
+    const cAvg = avgPrice(cRows);
+
+    if (kAvg && cAvg) {
+      const diff = ((kAvg - cAvg) / cAvg * 100);
+      const isBarato = diff < 0;
+      insights.push({
+        label: `Posicionamiento ${label}`,
+        text: `<strong>${brand}</strong> está ${isBarato ? Math.abs(diff).toFixed(1)+'% más barato' : diff.toFixed(1)+'% más caro'} que el promedio de la categoría (${fmt(kAvg)} vs ${fmt(cAvg)})`
+      });
+    }
+
+    // Mejor y peor cadena
+    const porCadena = {};
+    kRows.forEach(r => {
+      if (!porCadena[r.cadena]) porCadena[r.cadena] = [];
+      porCadena[r.cadena].push(r.precio_regular);
+    });
+    const cadenaData = Object.entries(porCadena).map(([c, ps]) => ({ cadena: c, avg: avg(ps) })).sort((a, b) => a.avg - b.avg);
+    if (cadenaData.length >= 2) {
+      insights.push({
+        label: `Precio por cadena — ${label}`,
+        text: `Más barato en <strong>${cadenaData[0].cadena}</strong> (${fmt(cadenaData[0].avg)}) · Más caro en <strong>${cadenaData[cadenaData.length-1].cadena}</strong> (${fmt(cadenaData[cadenaData.length-1].avg)})`
+      });
+    }
+  });
+
+  // Oferta más relevada
+  const ofertaMap = {};
+  filteredRows.filter(r => r.en_oferta).forEach(r => {
+    const k = r.marca + ' ' + r.producto;
+    ofertaMap[k] = (ofertaMap[k] || 0) + 1;
+  });
+  const topOferta = Object.entries(ofertaMap).sort((a, b) => b[1] - a[1])[0];
+  if (topOferta) {
+    insights.push({ label: 'Producto más en oferta', text: `<strong>${topOferta[0]}</strong> fue relevado en oferta ${topOferta[1]} veces` });
+  }
+
+  if (!insights.length) {
+    el.innerHTML = '';
+    return;
+  }
+
+  el.innerHTML = `<div class="insights-wrap">${insights.map(i => `
+    <div class="insight-auto">
+      <div class="ia-label">${i.label}</div>
+      <div class="ia-text">${i.text}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ---- DELTA SEMANAL en tabla ----
+function getPrevPrice(marca, producto, cadena, currentFecha) {
+  const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort();
+  const idx = fechas.indexOf(currentFecha);
+  if (idx <= 0) return null;
+  const prevFecha = fechas[idx - 1];
+  const prev = allRows.find(r => r.marca === marca && r.producto === producto && r.cadena === cadena && r.fecha === prevFecha && r.precio_regular > 0);
+  return prev ? prev.precio_regular : null;
+}
+
+function deltaIcon(current, prev) {
+  if (!prev || !current) return '';
+  const diff = ((current - prev) / prev * 100);
+  if (Math.abs(diff) < 1) return '';
+  if (diff > 0) return `<span class="delta-up-sm">↑ +${diff.toFixed(1)}%</span>`;
+  return `<span class="delta-down-sm">↓ ${diff.toFixed(1)}%</span>`;
+}
+
+// ---- ECOMMERCE ----
+function renderEcommerce() {
+  const ecomRows = allRows.filter(r => String(r.canal||'').toLowerCase() === 'ecommerce' && r.precio_regular > 0);
+  const gondolaRows = allRows.filter(r => String(r.canal||'').toLowerCase() !== 'ecommerce' && r.precio_regular > 0);
+
+  // Comparativa cards
+  const compEl = document.getElementById('ecommerceComparativa');
+  const cats = [
+    { cat: CAT_SALSAS, label: 'Salsas Kansas' },
+    { cat: CAT_HUMMUS, label: 'Kyros Hummus' },
+    { cat: CAT_PANES, label: 'Panificados' },
+  ];
+
+  if (!ecomRows.length) {
+    compEl.innerHTML = `<div class="insight" style="background:var(--blue-light);border-color:#90CAF9">
+      <strong>🌐 Sin datos de ecommerce aún</strong>
+      Usá la app y seleccioná "Ecommerce" al cargar precios desde las webs de las cadenas. Los datos aparecerán aquí automáticamente.
+    </div>`;
+  } else {
+    const cards = cats.map(({ cat, label }) => {
+      const eAvg = avgPrice(ecomRows.filter(r => r.es_kansas && r.categoria === cat));
+      const gAvg = avgPrice(gondolaRows.filter(r => r.es_kansas && r.categoria === cat));
+      if (!eAvg) return '';
+      const diff = gAvg ? ((eAvg - gAvg) / gAvg * 100) : null;
+      const diffText = diff !== null
+        ? `<div class="kpi-delta ${diff > 0 ? 'delta-up' : 'delta-down'}" style="margin-top:6px">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}% vs góndola</div>`
+        : '';
+      return `<div class="kpi-card">
+        <div class="kpi-label">${label} — Web</div>
+        <div class="kpi-value">${fmt(eAvg)}</div>
+        <div class="kpi-sub">Precio promedio ecommerce</div>
+        ${diffText}
+      </div>`;
+    }).filter(Boolean);
+    compEl.innerHTML = `<div class="kpi-grid">${cards.join('')}</div>`;
+  }
+
+  // Charts ecom vs gondola per category
+  [
+    ['chartEcomSalsas', CAT_SALSAS],
+    ['chartEcomHummus', CAT_HUMMUS],
+  ].forEach(([id, cat]) => {
+    destroyChart(id);
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    const cadenas = [...new Set(allRows.map(r => r.cadena).filter(Boolean))].sort();
+    const eData = cadenas.map(c => Math.round(avgPrice(ecomRows.filter(r => r.es_kansas && r.categoria === cat && r.cadena === c))) || null);
+    const gData = cadenas.map(c => Math.round(avgPrice(gondolaRows.filter(r => r.es_kansas && r.categoria === cat && r.cadena === c))) || null);
+
+    charts[id] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: cadenas,
+        datasets: [
+          { label: '🌐 Ecommerce', data: eData, backgroundColor: '#1565C0CC', borderRadius: 4 },
+          { label: '🛒 Góndola', data: gData, backgroundColor: '#C8102ECC', borderRadius: 4 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+        scales: {
+          y: { ticks: { callback: v => '$' + v.toLocaleString('es-AR'), font: { size: 10 } }, grid: { color: '#E8E2D9' } },
+          x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+  });
+
+  // Table: ecom vs gondola price comparison
+  const tbody = document.querySelector('#tablaEcommerce tbody');
+  if (!tbody) return;
+  const lastEcom = lastByKey(ecomRows, r => r.marca + '||' + r.producto + '||' + r.cadena);
+  if (!lastEcom.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce aún</td></tr>'; return; }
+
+  tbody.innerHTML = lastEcom.map(r => {
+    const gondola = gondolaRows.filter(rx => rx.marca === r.marca && rx.producto === r.producto && rx.cadena === r.cadena && rx.precio_regular > 0);
+    const gAvg = gondola.length ? Math.round(avgPrice(gondola)) : null;
+    const diff = gAvg && r.precio_regular ? ((r.precio_regular - gAvg) / gAvg * 100) : null;
+    const diffHtml = diff !== null
+      ? `<span class="${diff > 0 ? 'delta-up-sm' : 'delta-down-sm'}">${diff > 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}%</span>`
+      : '<span style="color:var(--muted);font-size:11px">Sin dato</span>';
+    return `<tr>
+      <td class="${r.es_kansas ? 'our-brand' : ''}" style="font-size:12px">${r.marca}</td>
+      <td style="font-size:12px">${r.producto}</td>
+      <td style="font-size:12px">${r.cadena}</td>
+      <td class="price-num">${fmt(r.precio_regular)}</td>
+      <td class="price-num">${gAvg ? fmt(gAvg) : '—'}</td>
+      <td>${diffHtml}</td>
+      <td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td>
+    </tr>`;
+  }).join('');
+}
+
 // ---- BUILD ALL ----
 function buildAll() {
+  renderAlertas();
+  renderInsights();
   renderKPIs();
   renderEvolChart('chartSalsasEvol', CAT_SALSAS, true);
   renderEvolChart('chartHummusEvol', CAT_HUMMUS, true);
@@ -859,12 +1196,14 @@ function renderTable(id, rows) {
     let estadoTag = '';
     if (estado === 'No visto') estadoTag = '<span class="absent-tag">👁️ No visto</span>';
     else if (estado === 'Sin stock') estadoTag = '<span class="nostock-tag">📦 Sin stock</span>';
+    const prev = getPrevPrice(r.marca, r.producto, r.cadena, r.fecha);
+    const delta = deltaIcon(r.precio_regular, prev);
     return `<tr>
       <td class="${isK?'our-brand':''}">${r.marca}</td>
       <td style="font-size:12px">${r.producto}</td>
       <td style="font-size:12px">${r.cadena}</td>
       <td style="font-size:12px;color:var(--muted)">${r.zona||'—'}</td>
-      <td class="price-num">${r.precio_regular>0?fmt(r.precio_regular):'—'}</td>
+      <td class="price-num">${r.precio_regular>0?fmt(r.precio_regular):'—'} ${delta}</td>
       <td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td>
       <td style="font-size:11px;color:var(--muted)">${r.dinamica||'—'}</td>
       <td style="font-size:11px;color:var(--muted)">${estadoTag||formatDate(r.fecha)}</td>
