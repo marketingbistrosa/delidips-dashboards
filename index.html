@@ -212,20 +212,34 @@ tr:hover td{background:#FAF8F5;}
   </div>
 
   <div class="filters">
-    <span class="filter-label">Filtrar:</span>
+    <span class="filter-label">Mes:</span>
+    <select class="filter-select" id="filterMes" onchange="applyFilters()" style="font-weight:600;border-color:var(--red);color:var(--red)">
+      <option value="">Todos los meses</option>
+    </select>
+    <span class="filter-label" style="margin-left:8px">Cadena:</span>
     <select class="filter-select" id="filterCadena" onchange="applyFilters()">
       <option value="">Todas las cadenas</option>
     </select>
-    <select class="filter-select" id="filterFecha" onchange="applyFilters()">
-      <option value="">Todas las fechas</option>
-    </select>
     <select class="filter-select" id="filterZona" onchange="applyFilters()">
       <option value="">Todas las zonas</option>
+    </select>
+    <select class="filter-select" id="filterFecha" onchange="applyFilters()" style="display:none">
+      <option value="">Todas las fechas</option>
     </select>
   </div>
 
   <!-- RESUMEN -->
   <div class="section active" id="sec-resumen">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--text)">Resumen — <span id="resumenMesLabel" style="color:var(--red)">Mes actual</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Usá el selector de mes para ver períodos anteriores o comparar</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="cambiarMes(-1)" style="padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif" title="Mes anterior">← Anterior</button>
+        <button onclick="cambiarMes(1)" style="padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif" title="Mes siguiente">Siguiente →</button>
+      </div>
+    </div>
     <!-- ALERTAS -->
     <div id="alertasPanel" style="margin-bottom:16px"></div>
     <!-- INSIGHTS -->
@@ -474,11 +488,37 @@ function updateLastUpdate() {
 }
 
 // ---- FILTERS ----
+const MES_NAMES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function fechaToMes(fecha) {
+  if (!fecha || fecha.length < 7) return null;
+  const parts = fecha.split('-');
+  if (parts.length < 2) return null;
+  return parts[0] + '-' + parts[1]; // "2026-05"
+}
+
+function mesLabel(ym) {
+  if (!ym) return ym;
+  const [y, m] = ym.split('-');
+  return (MES_NAMES[parseInt(m)] || m) + ' ' + y;
+}
+
 function fillFilters() {
   const cadenas = [...new Set(allRows.map(r => r.cadena).filter(Boolean))].sort();
   const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort().reverse();
   const zonas = [...new Set(allRows.map(r => r.zona).filter(Boolean))].sort();
   const marcas = [...new Set(allRows.map(r => r.marca).filter(Boolean))].sort();
+
+  // Build mes options from fechas
+  const meses = [...new Set(fechas.map(fechaToMes).filter(Boolean))].sort().reverse();
+  const mesSel = document.getElementById('filterMes');
+  if (mesSel) {
+    const curMes = mesSel.value;
+    mesSel.innerHTML = '<option value="">Todos los meses</option>' +
+      meses.map(m => `<option value="${m}" ${m===curMes?'selected':''}>${mesLabel(m)}</option>`).join('');
+    // Default to latest month
+    if (!curMes && meses.length) mesSel.value = meses[0];
+  }
 
   fill('filterCadena', cadenas, 'Todas las cadenas');
   fill('filterFecha', fechas, 'Todas las fechas');
@@ -498,12 +538,18 @@ function applyFilters() {
   const cadena = document.getElementById('filterCadena').value;
   const fecha = document.getElementById('filterFecha').value;
   const zona = document.getElementById('filterZona').value;
+  const mes = document.getElementById('filterMes')?.value || '';
 
   filteredRows = allRows.filter(r =>
     (!cadena || r.cadena === cadena) &&
     (!fecha || r.fecha === fecha) &&
-    (!zona || r.zona === zona)
+    (!zona || r.zona === zona) &&
+    (!mes || fechaToMes(r.fecha) === mes)
   );
+
+  // Update mes label in resumen header
+  const mesEl = document.getElementById('resumenMesLabel');
+  if (mesEl) mesEl.textContent = mes ? mesLabel(mes) : 'Todos los períodos';
 
   buildAll();
 }
@@ -1319,6 +1365,20 @@ function renderDetalle() {
       <td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td>
     </tr>`;
   }).join('');
+}
+
+// ---- NAVEGACION MES ----
+function cambiarMes(dir) {
+  const sel = document.getElementById('filterMes');
+  if (!sel || !sel.options.length) return;
+  const opts = [...sel.options].map(o => o.value).filter(Boolean).sort();
+  const cur = sel.value || opts[opts.length - 1];
+  const idx = opts.indexOf(cur);
+  const newIdx = Math.max(0, Math.min(opts.length - 1, idx - dir)); // -1 = anterior (más viejo), +1 = siguiente (más nuevo)
+  if (opts[newIdx]) {
+    sel.value = opts[newIdx];
+    applyFilters();
+  }
 }
 
 // ---- START ----
