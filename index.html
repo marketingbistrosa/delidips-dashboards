@@ -904,17 +904,17 @@ function renderSemaforo() {
 // ═══ EVOL CHART (resumen) ═══
 function renderEvolChart(id, cat, exclBaba=false) {
   destroyChart(id);
-  // Usar allRows para mostrar toda la historia, no solo filteredRows
   let rows = allRows.filter(r=>r.es_kansas&&r.categoria===cat&&r.precio_regular>0&&!isGastro(r));
   if (exclBaba) rows = rows.filter(r=>!r.esBaba);
-  const fechas = [...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();
-  if (!fechas.length) return;
+  // Agrupar por MES (no por fecha individual)
+  const meses = [...new Set(rows.map(r=>fechaToMes(r.fecha)).filter(Boolean))].sort();
+  if (!meses.length) return;
   const ctx = document.getElementById(id); if (!ctx) return;
   const color = cat===CAT_HUMMUS?'#D9662E':'#C8102E';
   charts[id] = new Chart(ctx, {
     type:'line',
-    data:{ labels:fechas.map(formatDate), datasets:[{label:cat,data:fechas.map(f=>{const rs=rows.filter(r=>r.fecha===f);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:color,backgroundColor:color+'18',tension:.3,fill:true,spanGaps:true,pointRadius:2,borderWidth:2}] },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:8},maxTicksLimit:8},grid:{display:false}}}}
+    data:{ labels:meses.map(mesLabel), datasets:[{label:cat,data:meses.map(m=>{const rs=rows.filter(r=>fechaToMes(r.fecha)===m);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:color,backgroundColor:color+'18',tension:.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}] },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}
   });
 }
 
@@ -1101,9 +1101,10 @@ function renderSalsasEvol2() {
   const cadena=document.getElementById('fltSalsasEvolCadena')?.value||'';
   const rows=filteredRows.filter(r=>r.es_kansas&&r.categoria===CAT_SALSAS&&r.precio_regular>0&&(!cadena||r.cadena===cadena));
   destroyChart('chartSalsasEvol2');
-  const fechas=[...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();if(!fechas.length)return;
+  const mesesS=[...new Set(rows.map(r=>fechaToMes(r.fecha)).filter(Boolean))].sort();
+  if(!mesesS.length)return;
   const ctx=document.getElementById('chartSalsasEvol2');if(!ctx)return;
-  charts['chartSalsasEvol2']=new Chart(ctx,{type:'line',data:{labels:fechas.map(formatDate),datasets:[{label:'Kansas Salsas',data:fechas.map(f=>{const rs=rows.filter(r=>r.fecha===f);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:'#C8102E',backgroundColor:'#C8102E22',tension:.3,fill:true,spanGaps:true,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{color:'#E8E2D9'}}}}});
+  charts['chartSalsasEvol2']=new Chart(ctx,{type:'line',data:{labels:mesesS.map(mesLabel),datasets:[{label:'Kansas Salsas',data:mesesS.map(m=>{const rs=rows.filter(r=>fechaToMes(r.fecha)===m);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:'#C8102E',backgroundColor:'#C8102E22',tension:.3,fill:true,spanGaps:true,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
 }
 
 function renderTablaSalsas() {
@@ -1187,9 +1188,10 @@ function renderHummusEvol2() {
   const cadena=document.getElementById('fltHummusEvolCadena')?.value||'';
   const rows=filteredRows.filter(r=>r.es_kansas&&r.categoria===CAT_HUMMUS&&!r.esBaba&&r.precio_regular>0&&(!cadena||r.cadena===cadena));
   destroyChart('chartHummusEvol2');
-  const fechas=[...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();if(!fechas.length)return;
+  const mesesH=[...new Set(rows.map(r=>fechaToMes(r.fecha)).filter(Boolean))].sort();
+  if(!mesesH.length)return;
   const ctx=document.getElementById('chartHummusEvol2');if(!ctx)return;
-  charts['chartHummusEvol2']=new Chart(ctx,{type:'line',data:{labels:fechas.map(formatDate),datasets:[{label:'Kyros Hummus',data:fechas.map(f=>{const rs=rows.filter(r=>r.fecha===f);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:'#D9662E',backgroundColor:'#D9662E22',tension:.3,fill:true,spanGaps:true,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{color:'#E8E2D9'}}}}});
+  charts['chartHummusEvol2']=new Chart(ctx,{type:'line',data:{labels:mesesH.map(mesLabel),datasets:[{label:'Kyros Hummus',data:mesesH.map(m=>{const rs=rows.filter(r=>fechaToMes(r.fecha)===m);return rs.length?Math.round(avgPrice(rs)):null;}),borderColor:'#D9662E',backgroundColor:'#D9662E22',tension:.3,fill:true,spanGaps:true,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
 }
 
 function renderTablaHummus() {
