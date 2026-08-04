@@ -15,13 +15,13 @@
   --green:#2A6040; --green-light:#E5F0EB;
   --warn:#B8860B; --warn-light:#FDF6E3;
   --blue:#1565C0; --blue-light:#E3F2FD;
+  --purple:#6B3FA0; --purple-light:#F0EAF9;
   --neutral:#4A4540;
   --radius:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* LOADING */
 #loadingScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity 0.5s;}
 #loadingScreen.hidden{opacity:0;pointer-events:none;}
 .load-logo{font-family:'DM Serif Display',serif;font-size:2.5rem;color:white;margin-bottom:8px;}
@@ -30,7 +30,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .load-msg{font-size:13px;color:rgba(255,255,255,0.7);margin-top:16px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ERROR */
 #errorScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px;text-align:center;}
 #errorScreen.show{display:flex;}
 .err-icon{font-size:48px;margin-bottom:16px;}
@@ -38,141 +37,133 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .err-msg{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:400px;line-height:1.6;}
 .err-btn{padding:12px 24px;background:var(--red);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-/* HEADER */
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
-.header-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--red);letter-spacing:-0.5px;}
-.header-logo span{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.header-logo{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--red);}
+.header-logo span{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--muted);margin-left:8px;}
 .header-right{display:flex;align-items:center;gap:12px;}
 .last-update{font-size:11px;color:var(--muted);}
-.refresh-btn{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;color:var(--neutral);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.refresh-btn{padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:white;color:var(--neutral);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
 .refresh-btn:hover{border-color:var(--red);color:var(--red);}
 
-/* NAV */
 .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;padding:0 24px;}
 .nav::-webkit-scrollbar{display:none;}
-.nav-tab{padding:14px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;user-select:none;}
+.nav-tab{padding:12px 14px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;user-select:none;}
 .nav-tab:hover{color:var(--text);}
 .nav-tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
 
-/* FILTERS */
-.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .filter-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.filter-select{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none;}
+.filter-select{padding:5px 10px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none;}
 .filter-select:focus{border-color:var(--red);}
+.section-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
 
-/* SECTIONS */
-.section{display:none;padding:24px;}
+.section{display:none;padding:20px 24px;}
 .section.active{display:block;}
 
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
-.kpi-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:8px;}
-.kpi-value{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--text);line-height:1;margin-bottom:6px;}
-.kpi-sub{font-size:12px;color:var(--muted);}
-.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:6px;}
+/* KPI compacto */
+.kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.kpi-chip{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;flex:1;min-width:160px;}
+.kpi-chip .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;}
+.kpi-chip .kpi-value{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--text);line-height:1;}
+.kpi-chip .kpi-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.kpi-card .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px;}
+.kpi-card .kpi-value{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--text);line-height:1;margin-bottom:4px;}
+.kpi-card .kpi-sub{font-size:11px;color:var(--muted);}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:5px;}
 .delta-up{background:var(--green-light);color:var(--green);}
 .delta-down{background:var(--red-light);color:var(--red);}
 .delta-neutral{background:#f0f0f0;color:var(--muted);}
 
-/* SECTION TITLE */
-.section-title{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:4px;}
-.section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:3px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
 
-/* CHART CARD */
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
-.chart-title{font-size:14px;font-weight:600;margin-bottom:4px;}
-.chart-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
-.chart-wrap{position:relative;height:260px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap;}
+.chart-title{font-size:13px;font-weight:600;}
+.chart-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.chart-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.chart-wrap{position:relative;height:240px;}
+.chart-wrap.tall{height:300px;}
 
-/* GRID */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 @media(max-width:700px){.grid-2{grid-template-columns:1fr;}}
 
-/* INSIGHT BOX */
-.insight{background:var(--warn-light);border:1px solid #E8D28A;border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.6;margin-top:12px;}
+/* Sub-tabs dentro de sección */
+.sub-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto;}
+.sub-tab{padding:8px 16px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.sub-tab:hover{color:var(--text);}
+.sub-tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
+.sub-content{display:none;}
+.sub-content.active{display:block;}
+
+/* Gourmet badge */
+.gourmet-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:var(--purple-light);color:var(--purple);margin-left:4px;}
+
+.insight{background:var(--warn-light);border:1px solid #E8D28A;border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.6;margin-top:10px;}
 .insight.green{background:var(--green-light);border-color:#A8D5B5;}
 .insight.red{background:var(--red-light);border-color:#E8A5A5;}
-.insight strong{display:block;margin-bottom:4px;}
+.insight.purple{background:var(--purple-light);border-color:#C4B0E0;}
 
-/* TABLE */
 .tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);}
 thead tr{background:var(--bg);}
-th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);white-space:nowrap;}
-td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#FAF8F5;}
 .price-num{font-weight:600;font-variant-numeric:tabular-nums;}
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;}
 .badge-red{background:var(--red-light);color:var(--red);}
 .badge-green{background:var(--green-light);color:var(--green);}
 .badge-warn{background:var(--warn-light);color:var(--warn);}
-.badge-blue{background:var(--blue-light);color:var(--blue);}
 .our-brand{color:var(--red);font-weight:600;}
 
-/* GAP CARD */
-.gap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
-.gap-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;}
-.gap-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:12px;}
+.gap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.gap-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;}
+.gap-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);gap:10px;}
 .gap-row:last-child{border-bottom:none;}
-.gap-brand{flex:1;font-size:13px;font-weight:500;}
-.gap-price{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;min-width:70px;text-align:right;}
-.gap-pct{font-size:12px;font-weight:600;min-width:55px;text-align:right;}
-.gap-bar-wrap{flex:2;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.gap-brand{flex:1;font-size:12px;font-weight:500;}
+.gap-price{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;min-width:65px;text-align:right;}
+.gap-pct{font-size:11px;font-weight:600;min-width:80px;text-align:right;}
+.gap-bar-wrap{flex:2;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
 .gap-bar{height:100%;border-radius:3px;transition:width 0.5s ease;}
 
-/* STATUS DOTS */
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
 .dot-green{background:var(--green);}
 .dot-red{background:var(--red);}
 .dot-warn{background:var(--warn);}
 .dot-gray{background:#ccc;}
 
-/* EMPTY STATE */
-.empty{text-align:center;padding:60px 20px;color:var(--muted);}
-.empty .icon{font-size:40px;margin-bottom:12px;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .icon{font-size:32px;margin-bottom:10px;}
+.offer-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;background:#FFF3E0;color:#E65100;}
+.absent-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;background:#F3EEF9;color:#6B3FA0;}
+.nostock-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;background:var(--blue-light);color:var(--blue);}
 
-/* OFFER TAGS */
-.offer-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#FFF3E0;color:#E65100;}
-.absent-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#F3EEF9;color:#6B3FA0;}
-.nostock-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--blue-light);color:var(--blue);}
+.alertas-wrap{display:flex;flex-direction:column;gap:7px;}
+.alerta{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;border-left:3px solid;}
+.alerta-red{background:var(--red-light);border-color:var(--red);}
+.alerta-warn{background:var(--warn-light);border-color:var(--warn);}
+.alerta-green{background:var(--green-light);border-color:var(--green);}
+.alerta-icon{font-size:16px;flex-shrink:0;}
+.alerta-content strong{display:block;font-size:12px;font-weight:600;margin-bottom:1px;}
+.alerta-content span{font-size:11px;color:var(--muted);line-height:1.5;}
 
-/* ALERTAS */
-.alertas-wrap { display: flex; flex-direction: column; gap: 8px; }
-.alerta {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 12px 16px; border-radius: var(--radius-sm);
-  border-left: 4px solid;
-}
-.alerta-red { background: var(--red-light); border-color: var(--red); }
-.alerta-warn { background: var(--warn-light); border-color: var(--warn); }
-.alerta-green { background: var(--green-light); border-color: var(--green); }
-.alerta-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.alerta-content strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-.alerta-content span { font-size: 12px; color: var(--mid); line-height: 1.5; }
+.insights-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;}
+.insight-auto{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.insight-auto .ia-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;}
+.insight-auto .ia-text{font-size:12px;line-height:1.5;color:var(--text);}
+.insight-auto .ia-text strong{color:var(--red);}
 
-/* INSIGHTS */
-.insights-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
-.insight-auto {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 14px 16px;
-}
-.insight-auto .ia-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
-.insight-auto .ia-text { font-size: 13px; line-height: 1.5; color: var(--text); }
-.insight-auto .ia-text strong { color: var(--red); }
-
-/* DELTA PRECIO */
-.delta-up-sm { color: var(--red); font-size: 11px; font-weight: 600; }
-.delta-down-sm { color: var(--green); font-size: 11px; font-weight: 600; }
-.delta-neutral-sm { color: var(--muted); font-size: 11px; }
-
-.divider{height:1px;background:var(--border);margin:20px 0;}
+.delta-up-sm{color:var(--red);font-size:11px;font-weight:600;}
+.delta-down-sm{color:var(--green);font-size:11px;font-weight:600;}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loadingScreen">
   <div class="load-logo">DeliDips</div>
   <div class="load-sub">Dashboard de Precios</div>
@@ -180,21 +171,17 @@ tr:hover td{background:#FAF8F5;}
   <div class="load-msg" id="loadMsg">Conectando con Google Sheets...</div>
 </div>
 
-<!-- ERROR -->
 <div id="errorScreen">
   <div class="err-icon">📡</div>
   <div class="err-title">No se pudo conectar</div>
-  <div class="err-msg" id="errorMsg">No fue posible obtener los datos. Verificá que el Apps Script esté publicado correctamente.</div>
+  <div class="err-msg" id="errorMsg">No fue posible obtener los datos.</div>
   <button class="err-btn" onclick="location.reload()">Reintentar</button>
 </div>
 
-<!-- MAIN -->
 <div id="mainApp" style="display:none">
 
   <div class="header">
-    <div>
-      <div class="header-logo">DeliDips <span>· Dashboard de Precios en Góndola</span></div>
-    </div>
+    <div class="header-logo">DeliDips <span>· Precios en Góndola</span></div>
     <div class="header-right">
       <div class="last-update" id="lastUpdate">—</div>
       <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
@@ -216,235 +203,433 @@ tr:hover td{background:#FAF8F5;}
     <select class="filter-select" id="filterMes" onchange="applyFilters()" style="font-weight:600;border-color:var(--red);color:var(--red)">
       <option value="">Todos los meses</option>
     </select>
-    <span class="filter-label" style="margin-left:8px">Cadena:</span>
-    <select class="filter-select" id="filterCadena" onchange="applyFilters()">
-      <option value="">Todas las cadenas</option>
-    </select>
-    <select class="filter-select" id="filterZona" onchange="applyFilters()">
-      <option value="">Todas las zonas</option>
-    </select>
-    <select class="filter-select" id="filterFecha" onchange="applyFilters()" style="display:none">
-      <option value="">Todas las fechas</option>
-    </select>
+    <span class="filter-label" style="margin-left:6px">Cadena:</span>
+    <select class="filter-select" id="filterCadena" onchange="applyFilters()"><option value="">Todas</option></select>
+    <select class="filter-select" id="filterZona" onchange="applyFilters()"><option value="">Todas las zonas</option></select>
+    <select class="filter-select" id="filterFecha" onchange="applyFilters()" style="display:none"><option value="">Todas las fechas</option></select>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button onclick="cambiarMes(-1)" style="padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:white;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">← Anterior</button>
+      <span id="resumenMesLabel" style="font-size:12px;font-weight:600;color:var(--red);align-self:center;min-width:90px;text-align:center"></span>
+      <button onclick="cambiarMes(1)" style="padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:white;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Siguiente →</button>
+    </div>
   </div>
 
-  <!-- RESUMEN -->
+  <!-- ═══ RESUMEN ═══ -->
   <div class="section active" id="sec-resumen">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--text)">Resumen — <span id="resumenMesLabel" style="color:var(--red)">Mes actual</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">Usá el selector de mes para ver períodos anteriores o comparar</div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="cambiarMes(-1)" style="padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif" title="Mes anterior">← Anterior</button>
-        <button onclick="cambiarMes(1)" style="padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:white;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif" title="Mes siguiente">Siguiente →</button>
-      </div>
-    </div>
-    <!-- ALERTAS -->
-    <div id="alertasPanel" style="margin-bottom:16px"></div>
-    <!-- INSIGHTS -->
-    <div id="insightsPanel" style="margin-bottom:16px"></div>
-    <div class="kpi-grid" id="kpiGrid"></div>
+    <div id="alertasPanel" style="margin-bottom:12px"></div>
+    <div id="insightsPanel" style="margin-bottom:12px"></div>
+    <!-- KPIs compactos: solo 3 precios prom + 1 alerta stock -->
+    <div class="kpi-row" id="kpiRow"></div>
     <div class="grid-2">
       <div class="chart-card">
-        <div class="chart-title">Evolución Salsas Kansas</div>
-        <div class="chart-sub">Precio promedio por fecha de visita</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Salsas Kansas — Evolución</div><div class="chart-sub">Precio prom. por fecha de visita</div></div>
+        </div>
         <div class="chart-wrap"><canvas id="chartSalsasEvol"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Evolución Kyros Hummus</div>
-        <div class="chart-sub">Precio promedio por fecha de visita</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Kyros Hummus — Evolución</div><div class="chart-sub">Precio prom. por fecha de visita</div></div>
+        </div>
         <div class="chart-wrap"><canvas id="chartHummusEvol"></canvas></div>
       </div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Cobertura por cadena</div>
-      <div class="chart-sub">Productos relevados vs ausentes vs sin stock</div>
+      <div class="chart-title" style="margin-bottom:10px">Cobertura por cadena</div>
       <div id="coberturaTable"></div>
     </div>
   </div>
 
-  <!-- SALSAS -->
+  <!-- ═══ SALSAS ═══ -->
   <div class="section" id="sec-salsas">
     <div class="section-title">Salsas Kansas</div>
     <div class="section-sub">Precios por variedad y comparativa vs competencia</div>
-    <div class="grid-2">
-      <div class="chart-card">
-        <div class="chart-title">Precio por variedad Kansas</div>
-        <div class="chart-sub">Último precio registrado por SKU</div>
-        <div class="chart-wrap"><canvas id="chartSalsasSku"></canvas></div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="showSubTab('salsas','general',this)">Vista general</div>
+      <div class="sub-tab" onclick="showSubTab('salsas','producto',this)">Producto vs producto</div>
+      <div class="sub-tab" onclick="showSubTab('salsas','evol',this)">Evolución</div>
+      <div class="sub-tab" onclick="showSubTab('salsas','tabla',this)">Tabla detalle</div>
+    </div>
+
+    <!-- SALSAS: General -->
+    <div class="sub-content active" id="salsas-general">
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Precio por variedad Kansas</div><div class="chart-sub">Último precio por SKU</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltSalsasSkuCadena" onchange="renderSalsasGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartSalsasSku"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Kansas vs competencia</div><div class="chart-sub">Precio promedio por marca</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltSalsasCompCadena" onchange="renderSalsasGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartSalsasComp"></canvas></div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-title">Gap de precio — Kansas vs competencia</div>
+        <div id="gapSalsas"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Precio promedio vs competencia</div>
-        <div class="chart-sub">Kansas vs marcas competidoras</div>
-        <div class="chart-wrap"><canvas id="chartSalsasComp"></canvas></div>
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr agrupado por tipo · rojo = Kansas · gris = competencia</div></div>
+        </div>
+        <div id="chartSalsasPorGramo" style="padding-top:4px"></div>
       </div>
     </div>
-    <div class="gap-card">
-      <div class="gap-title">Gap de precio — Kansas vs competencia</div>
-      <div id="gapSalsas"></div>
+
+    <!-- SALSAS: Producto vs producto -->
+    <div class="sub-content" id="salsas-producto">
+      <div class="section-filters">
+        <span class="filter-label">Tipo de salsa:</span>
+        <select class="filter-select" id="fltSalsasTipo" onchange="renderSalsasVsProducto()" style="font-size:12px">
+          <option value="">Todos</option>
+        </select>
+        <span class="filter-label" style="margin-left:8px">Cadena:</span>
+        <select class="filter-select" id="fltSalsasVsCadena" onchange="renderSalsasVsProducto()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Comparativa por tipo de salsa</div><div class="chart-sub">Kansas vs equivalente de competencia — mismo tipo de producto</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chartSalsasVsProducto"></canvas></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:14px"><table id="tablaSalsasVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Evolución Kansas Salsas por fecha</div>
-      <div class="chart-sub">Precio promedio todas las cadenas</div>
-      <div class="chart-wrap"><canvas id="chartSalsasEvol2"></canvas></div>
+
+    <!-- SALSAS: Evolución -->
+    <div class="sub-content" id="salsas-evol">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Evolución Kansas Salsas</div><div class="chart-sub">Precio promedio por fecha</div></div>
+          <div class="chart-filters">
+            <select class="filter-select" id="fltSalsasEvolCadena" onchange="renderSalsasEvol2()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartSalsasEvol2"></canvas></div>
+      </div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Precio por gramo — Kansas vs competencia</div>
-      <div class="chart-sub">$/gr agrupado por tipo de salsa · barras rojas = Kansas · gris = competencia</div>
-      <div id="chartSalsasPorGramo" style="padding-top:8px"></div>
+
+    <!-- SALSAS: Tabla -->
+    <div class="sub-content" id="salsas-tabla">
+      <div class="section-filters">
+        <span class="filter-label">Variedad:</span>
+        <select class="filter-select" id="fltSalsasTablaProducto" onchange="renderTablaSalsas()" style="font-size:12px"><option value="">Todas</option></select>
+        <span class="filter-label" style="margin-left:6px">Cadena:</span>
+        <select class="filter-select" id="fltSalsasTablaCadena" onchange="renderTablaSalsas()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="tbl-wrap"><table id="tablaSalsas"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="tbl-wrap"><table id="tablaSalsas"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
-  <!-- HUMMUS -->
+  <!-- ═══ HUMMUS ═══ -->
   <div class="section" id="sec-hummus">
     <div class="section-title">Kyros Hummus</div>
     <div class="section-sub">Precios por sabor y comparativa vs competencia</div>
-    <div class="grid-2">
-      <div class="chart-card">
-        <div class="chart-title">Precio por sabor Kyros</div>
-        <div class="chart-sub">Último precio registrado por SKU</div>
-        <div class="chart-wrap"><canvas id="chartHummusSku"></canvas></div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="showSubTab('hummus','general',this)">Vista general</div>
+      <div class="sub-tab" onclick="showSubTab('hummus','producto',this)">Sabor vs sabor</div>
+      <div class="sub-tab" onclick="showSubTab('hummus','ranking',this)">Ranking competencia</div>
+      <div class="sub-tab" onclick="showSubTab('hummus','evol',this)">Evolución</div>
+      <div class="sub-tab" onclick="showSubTab('hummus','tabla',this)">Tabla detalle</div>
+    </div>
+
+    <!-- HUMMUS: General -->
+    <div class="sub-content active" id="hummus-general">
+      <div class="insight purple" style="margin-bottom:14px">
+        <strong>🏷️ Marcas gourmet vs competidores directos</strong>
+        Marcas como ONNEG, THOLEM y SANTA MARIA tienen packagings premium y precios superiores — no compiten directamente con Kyros. En los gráficos aparecen marcadas con <span class="gourmet-badge">Gourmet</span> para diferenciarlas. La comparativa estratégica real es contra KAMMAR, CUSINE &amp; CO y marcas propias de cadena.
+      </div>
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Precio por sabor Kyros</div><div class="chart-sub">Último precio por SKU</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltHummusSkuCadena" onchange="renderHummusGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartHummusSku"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Kyros vs competencia directa</div><div class="chart-sub">Solo marcas competidoras (excluye gourmet)</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltHummusCompCadena" onchange="renderHummusGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+              <select class="filter-select" id="fltHummusCompGourmet" onchange="renderHummusGeneral()" style="font-size:11px">
+                <option value="directa">Solo competencia directa</option>
+                <option value="todas">Todas las marcas</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartHummusComp"></canvas></div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-title">Gap de precio — Kyros vs competencia</div>
+        <div id="gapHummus"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Precio promedio vs competencia</div>
-        <div class="chart-sub">Kyros vs marcas competidoras</div>
-        <div class="chart-wrap"><canvas id="chartHummusComp"></canvas></div>
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr · rojo = Kyros · gris = competencia directa · violeta = gourmet</div></div>
+        </div>
+        <div id="chartHummusPorGramo" style="padding-top:4px"></div>
       </div>
     </div>
-    <div class="gap-card">
-      <div class="gap-title">Gap de precio — Kyros vs competencia</div>
-      <div id="gapHummus"></div>
+
+    <!-- HUMMUS: Sabor vs sabor -->
+    <div class="sub-content" id="hummus-producto">
+      <div class="section-filters">
+        <span class="filter-label">Sabor:</span>
+        <select class="filter-select" id="fltHummusSabor" onchange="renderHummusVsProducto()" style="font-size:12px"><option value="">Todos</option></select>
+        <span class="filter-label" style="margin-left:8px">Cadena:</span>
+        <select class="filter-select" id="fltHummusVsCadena" onchange="renderHummusVsProducto()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Comparativa por sabor / tipo</div><div class="chart-sub">Kyros vs equivalente de competencia por sabor</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chartHummusVsProducto"></canvas></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:14px"><table id="tablaHummusVs"><thead><tr><th>Sabor/Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kyros</th><th>Segmento</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Evolución Kyros por fecha</div>
-      <div class="chart-sub">Precio promedio todas las cadenas</div>
-      <div class="chart-wrap"><canvas id="chartHummusEvol2"></canvas></div>
+
+    <!-- HUMMUS: Ranking -->
+    <div class="sub-content" id="hummus-ranking">
+      <div class="section-filters">
+        <span class="filter-label">Cadena:</span>
+        <select class="filter-select" id="fltHummusRankingCadena" onchange="renderHummusRanking()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Ranking de marcas por precio promedio</div><div class="chart-sub">Kyros en rojo · competencia directa en gris · gourmet en violeta</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chartHummusRanking"></canvas></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:14px"><table id="tablaHummusRanking"><thead><tr><th>#</th><th>Marca</th><th>Segmento</th><th>Precio prom.</th><th>vs Kyros</th><th>Cadenas presentes</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Precio por gramo — Kyros vs competencia</div>
-      <div class="chart-sub">$/gr agrupado por sabor · barras rojas = Kyros · gris = competencia</div>
-      <div id="chartHummusPorGramo" style="padding-top:8px"></div>
+
+    <!-- HUMMUS: Evolución -->
+    <div class="sub-content" id="hummus-evol">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Evolución Kyros Hummus</div><div class="chart-sub">Precio promedio por fecha</div></div>
+          <div class="chart-filters">
+            <select class="filter-select" id="fltHummusEvolCadena" onchange="renderHummusEvol2()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartHummusEvol2"></canvas></div>
+      </div>
     </div>
-    <div class="tbl-wrap"><table id="tablaHummus"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+
+    <!-- HUMMUS: Tabla -->
+    <div class="sub-content" id="hummus-tabla">
+      <div class="section-filters">
+        <span class="filter-label">Sabor:</span>
+        <select class="filter-select" id="fltHummusTablaProducto" onchange="renderTablaHummus()" style="font-size:12px"><option value="">Todos</option></select>
+        <span class="filter-label" style="margin-left:6px">Cadena:</span>
+        <select class="filter-select" id="fltHummusTablaCadena" onchange="renderTablaHummus()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="tbl-wrap"><table id="tablaHummus"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+    </div>
   </div>
 
-  <!-- PANES -->
+  <!-- ═══ PANES ═══ -->
   <div class="section" id="sec-panes">
     <div class="section-title">Panificados Kansas</div>
-    <div class="section-sub">Precios por variedad y comparativa vs competencia</div>
-    <div class="grid-2">
-      <div class="chart-card">
-        <div class="chart-title">Precio por variedad Kansas</div>
-        <div class="chart-sub">Último precio registrado por SKU</div>
-        <div class="chart-wrap"><canvas id="chartPanesSku"></canvas></div>
+    <div class="section-sub">Precios por variedad y comparativa vs competencia — solo productos de panificados</div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="showSubTab('panes','general',this)">Vista general</div>
+      <div class="sub-tab" onclick="showSubTab('panes','producto',this)">Producto vs producto</div>
+      <div class="sub-tab" onclick="showSubTab('panes','tabla',this)">Tabla detalle</div>
+    </div>
+
+    <!-- PANES: General -->
+    <div class="sub-content active" id="panes-general">
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Precio por variedad Kansas</div><div class="chart-sub">Último precio por SKU</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltPanesSkuCadena" onchange="renderPanesGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartPanesSku"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Kansas Panes vs competencia</div><div class="chart-sub">Precio promedio por marca — solo panificados</div></div>
+            <div class="chart-filters">
+              <select class="filter-select" id="fltPanesCompCadena" onchange="renderPanesGeneral()" style="font-size:11px"><option value="">Todas las cadenas</option></select>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartPanesComp"></canvas></div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-title">Gap de precio — Kansas Panes vs competencia</div>
+        <div id="gapPanes"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Precio promedio vs competencia</div>
-        <div class="chart-sub">Kansas Panes vs competidores</div>
-        <div class="chart-wrap"><canvas id="chartPanesComp"></canvas></div>
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr agrupado por tipo de pan · rojo = Kansas · gris = competencia</div></div>
+        </div>
+        <div id="chartPanesPorGramo" style="padding-top:4px"></div>
       </div>
     </div>
-    <div class="gap-card">
-      <div class="gap-title">Gap de precio — Kansas Panes vs competencia</div>
-      <div id="gapPanes"></div>
+
+    <!-- PANES: Producto vs producto -->
+    <div class="sub-content" id="panes-producto">
+      <div class="section-filters">
+        <span class="filter-label">Tipo de pan:</span>
+        <select class="filter-select" id="fltPanesTipo" onchange="renderPanesVsProducto()" style="font-size:12px">
+          <option value="">Todos</option>
+          <option value="Pan Hamburguesa">Pan Hamburguesa</option>
+          <option value="Pan Pancho">Pan Pancho</option>
+          <option value="Pan de Campo">Pan de Campo</option>
+        </select>
+        <span class="filter-label" style="margin-left:8px">Cadena:</span>
+        <select class="filter-select" id="fltPanesVsCadena" onchange="renderPanesVsProducto()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Kansas vs competencia — por tipo de pan</div><div class="chart-sub">Comparativa directa: Pan de Hamburguesa Kansas vs Pan de Hamburguesa de la competencia, etc.</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chartPanesVsProducto"></canvas></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:14px"><table id="tablaPanesVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Precio por gramo — Kansas Panes vs competencia</div>
-      <div class="chart-sub">$/gr agrupado por tipo de pan · barras rojas = Kansas · gris = competencia</div>
-      <div id="chartPanesPorGramo" style="padding-top:8px"></div>
+
+    <!-- PANES: Tabla -->
+    <div class="sub-content" id="panes-tabla">
+      <div class="section-filters">
+        <span class="filter-label">Tipo:</span>
+        <select class="filter-select" id="fltPanesTablaProducto" onchange="renderTablaPanes()" style="font-size:12px"><option value="">Todos</option></select>
+        <span class="filter-label" style="margin-left:6px">Cadena:</span>
+        <select class="filter-select" id="fltPanesTablaCadena" onchange="renderTablaPanes()" style="font-size:12px"><option value="">Todas</option></select>
+      </div>
+      <div class="tbl-wrap"><table id="tablaPanes"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="tbl-wrap"><table id="tablaPanes"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Dinámica</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
-  <!-- ECOMMERCE -->
+  <!-- ═══ ECOMMERCE ═══ -->
   <div class="section" id="sec-ecommerce">
-    <div class="section-title">Precios Ecommerce</div>
-    <div class="section-sub">Precios relevados en plataformas online de cada cadena — pueden diferir de góndola física</div>
-    <div id="ecommerceComparativa" style="margin-bottom:16px"></div>
-    <div class="grid-2">
-      <div class="chart-card">
-        <div class="chart-title">Ecommerce vs Góndola — Salsas Kansas</div>
-        <div class="chart-sub">Precio promedio por canal</div>
-        <div class="chart-wrap"><canvas id="chartEcomSalsas"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">Ecommerce vs Góndola — Kyros Hummus</div>
-        <div class="chart-sub">Precio promedio por canal</div>
-        <div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div>
-      </div>
+    <div class="section-title">Ecommerce & Gastronomía</div>
+    <div class="section-sub">Precios en plataformas online y canales gastronómicos</div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="showSubTab('ecom','online',this)">🌐 Ecommerce cadenas</div>
+      <div class="sub-tab" onclick="showSubTab('ecom','gastro',this)">🍽️ Gastronomía</div>
     </div>
-    <div class="tbl-wrap"><table id="tablaEcommerce">
-      <thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead>
-      <tbody></tbody>
-    </table></div>
+
+    <div class="sub-content active" id="ecom-online">
+      <div id="ecommerceComparativa" style="margin-bottom:14px"></div>
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-title">Ecommerce vs Góndola — Salsas</div>
+          <div class="chart-wrap"><canvas id="chartEcomSalsas"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Ecommerce vs Góndola — Hummus</div>
+          <div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="tablaEcommerce">
+        <thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+
+    <div class="sub-content" id="ecom-gastro">
+      <div class="insight purple" style="margin-bottom:14px">
+        <strong>🍽️ Canal gastronómico</strong>
+        <strong>Pazzy</strong> — venta online exclusiva, relevamiento frecuente.<br>
+        <strong>Kaliz</strong> — canal gastronómico, relevamiento cada 6 meses.<br>
+        Estos precios corresponden a venta directa al sector gastronómico y no son comparables con precios de góndola de supermercado.
+      </div>
+      <div id="gastroKpis" style="margin-bottom:14px"></div>
+      <div class="tbl-wrap"><table id="tablaGastro">
+        <thead><tr><th>Plataforma</th><th>Marca</th><th>Producto</th><th>Precio</th><th>Canal</th><th>Frecuencia relev.</th><th>Fecha</th></tr></thead>
+        <tbody id="tablaGastroBody"><tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos gastronómicos cargados aún.<br><span style="font-size:11px">Usá la app de carga y seleccioná "Gastronomía · Pazzy" o "Gastronomía · Kaliz"</span></td></tr></tbody>
+      </table></div>
+    </div>
   </div>
 
-  <!-- COMPETENCIA -->
+  <!-- ═══ COMPETENCIA ═══ -->
   <div class="section" id="sec-competencia">
     <div class="section-title">Vista de Competencia</div>
-    <div class="section-sub">Precios de todas las marcas competidoras por categoría</div>
+    <div class="section-sub">Precios de todas las marcas por categoría</div>
+    <div class="section-filters">
+      <span class="filter-label">Cadena:</span>
+      <select class="filter-select" id="fltCompCadena" onchange="renderCompetencia()" style="font-size:12px"><option value="">Todas</option></select>
+    </div>
     <div class="chart-card">
       <div class="chart-title">Precio promedio por marca — Salsas</div>
-      <div class="chart-wrap" style="height:320px"><canvas id="chartCompSalsas"></canvas></div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chartCompSalsas"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">Precio promedio por marca — Hummus</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="chartCompHummus"></canvas></div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartCompHummus"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">Precio promedio por marca — Panificados</div>
-      <div class="chart-wrap" style="height:240px"><canvas id="chartCompPanes"></canvas></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="chartCompPanes"></canvas></div>
     </div>
   </div>
 
-  <!-- DETALLE -->
+  <!-- ═══ DETALLE ═══ -->
   <div class="section" id="sec-detalle">
     <div class="section-title">Detalle por producto</div>
-    <div class="section-sub">Filtrá por marca y producto para ver el precio en cada cadena</div>
-    <div class="filters" style="margin:0 0 16px;padding:0;border:none;background:none;flex-wrap:wrap;">
-      <select class="filter-select" id="detalleCategoria" onchange="renderDetalle()" style="padding:8px 16px;font-size:13px">
+    <div class="section-sub">Filtrá por categoría, marca y producto</div>
+    <div class="section-filters">
+      <select class="filter-select" id="detalleCategoria" onchange="renderDetalle()" style="font-size:12px">
         <option value="">Todas las categorías</option>
         <option value="Salsas Kansas">Salsas Kansas</option>
         <option value="Kyros Hummus">Kyros Hummus</option>
         <option value="Panificados Kansas">Panificados Kansas</option>
       </select>
-      <select class="filter-select" id="detalleMarca" onchange="renderDetalle()" style="padding:8px 16px;font-size:13px">
-        <option value="">Todas las marcas</option>
-      </select>
+      <select class="filter-select" id="detalleMarca" onchange="renderDetalle()" style="font-size:12px"><option value="">Todas las marcas</option></select>
+      <select class="filter-select" id="detalleProducto" onchange="renderDetalle()" style="font-size:12px"><option value="">Todos los productos</option></select>
+      <select class="filter-select" id="detalleCadena" onchange="renderDetalle()" style="font-size:12px"><option value="">Todas las cadenas</option></select>
     </div>
     <div class="chart-card">
       <div class="chart-title" id="detalleChartTitle">Precio por cadena</div>
-      <div class="chart-sub">Último precio registrado por cadena</div>
       <div class="chart-wrap"><canvas id="chartDetalle"></canvas></div>
     </div>
     <div class="tbl-wrap"><table id="tablaDetalle"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Zona</th><th>Precio</th><th>Oferta</th><th>Dinámica</th><th>Estado</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
   </div>
 
-</div><!-- end mainApp -->
+</div>
 
 <script>
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzV6gtIzP9HRVX14SoQKAWeNlMg-tUmd8wDJSyrdiT2RWojEeFN-Lowp9nGLwKuYQOnKA/exec';
-
 const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
 const CAT_SALSAS = 'Salsas Kansas';
 const CAT_HUMMUS = 'Kyros Hummus';
 const CAT_PANES = 'Panificados Kansas';
 
-let allRows = [];
-let filteredRows = [];
-let charts = {};
-let meta = {};
+// Marcas gourmet de hummus que no compiten directamente con Kyros
+const HUMMUS_GOURMET = ['ONNEG','THOLEM','SANTA MARIA','PAMPAGOURMET'];
+const CAT_GASTRO = ['Gastronomía · Pazzy','Gastronomía · Kaliz','gastro','gastronomia'];
 
-// ---- LOAD ----
+let allRows = [], filteredRows = [], charts = {}, meta = {};
+
+// ═══ LOAD ═══
 async function loadData() {
   setMsg('Conectando con Google Sheets...');
   try {
     const res = await fetch(WEBAPP_URL + '?v=' + Date.now());
     const json = await res.json();
     if (json.status !== 'ok') throw new Error(json.message || 'Error del servidor');
-
     allRows = json.rows.map(r => ({
       ...r,
       precio_regular: parseFloat(r.precio_regular) || 0,
@@ -455,83 +640,91 @@ async function loadData() {
       en_oferta: String(r.en_oferta || '').toUpperCase() === 'SI',
       canal: String(r.canal || 'gondola').toLowerCase(),
     })).filter(r => r.precio_regular > 0 || r.estado === 'No visto' || r.estado === 'Sin stock');
-
     meta = json.meta || {};
     fillFilters();
     applyFilters();
     showApp();
     updateLastUpdate();
-  } catch(e) {
-    console.error(e);
-    showError(e.message);
-  }
+  } catch(e) { console.error(e); showError(e.message); }
 }
 
 function setMsg(msg) { document.getElementById('loadMsg').textContent = msg; }
-
-function showApp() {
-  document.getElementById('loadingScreen').classList.add('hidden');
-  document.getElementById('mainApp').style.display = 'block';
-}
-
-function showError(msg) {
-  document.getElementById('loadingScreen').classList.add('hidden');
-  const err = document.getElementById('errorScreen');
-  err.classList.add('show');
-  document.getElementById('errorMsg').textContent = msg || 'Error desconocido';
-}
-
+function showApp() { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('mainApp').style.display = 'block'; }
+function showError(msg) { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('errorScreen').classList.add('show'); document.getElementById('errorMsg').textContent = msg || 'Error desconocido'; }
 function updateLastUpdate() {
   const dates = allRows.map(r => r.fecha).filter(Boolean).sort();
   const last = dates[dates.length - 1];
   document.getElementById('lastUpdate').textContent = last ? 'Última carga: ' + formatDate(last) : '';
 }
 
-// ---- FILTERS ----
+// ═══ FILTERS ═══
 const MES_NAMES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-function fechaToMes(fecha) {
-  if (!fecha || fecha.length < 7) return null;
-  const parts = fecha.split('-');
-  if (parts.length < 2) return null;
-  return parts[0] + '-' + parts[1]; // "2026-05"
-}
-
-function mesLabel(ym) {
-  if (!ym) return ym;
-  const [y, m] = ym.split('-');
-  return (MES_NAMES[parseInt(m)] || m) + ' ' + y;
-}
+function fechaToMes(f) { if (!f || f.length < 7) return null; const p = f.split('-'); return p[0] + '-' + p[1]; }
+function mesLabel(ym) { if (!ym) return ym; const [y,m] = ym.split('-'); return (MES_NAMES[parseInt(m)] || m) + ' ' + y; }
 
 function fillFilters() {
   const cadenas = [...new Set(allRows.map(r => r.cadena).filter(Boolean))].sort();
   const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort().reverse();
   const zonas = [...new Set(allRows.map(r => r.zona).filter(Boolean))].sort();
-  const marcas = [...new Set(allRows.map(r => r.marca).filter(Boolean))].sort();
-
-  // Build mes options from fechas
   const meses = [...new Set(fechas.map(fechaToMes).filter(Boolean))].sort().reverse();
+
   const mesSel = document.getElementById('filterMes');
   if (mesSel) {
-    const curMes = mesSel.value;
-    mesSel.innerHTML = '<option value="">Todos los meses</option>' +
-      meses.map(m => `<option value="${m}" ${m===curMes?'selected':''}>${mesLabel(m)}</option>`).join('');
-    // Default to latest month
-    if (!curMes && meses.length) mesSel.value = meses[0];
+    const cur = mesSel.value;
+    mesSel.innerHTML = '<option value="">Todos los meses</option>' + meses.map(m => `<option value="${m}" ${m===cur?'selected':''}>${mesLabel(m)}</option>`).join('');
+    if (!cur && meses.length) mesSel.value = meses[0];
   }
 
-  fill('filterCadena', cadenas, 'Todas las cadenas');
+  fill('filterCadena', cadenas, 'Todas');
   fill('filterFecha', fechas, 'Todas las fechas');
   fill('filterZona', zonas, 'Todas las zonas');
+
+  // Filtros de sección
+  fill('fltSalsasSkuCadena', cadenas, 'Todas las cadenas');
+  fill('fltSalsasCompCadena', cadenas, 'Todas las cadenas');
+  fill('fltSalsasEvolCadena', cadenas, 'Todas las cadenas');
+  fill('fltSalsasVsCadena', cadenas, 'Todas');
+  fill('fltSalsasTablaCadena', cadenas, 'Todas');
+  fill('fltHummusSkuCadena', cadenas, 'Todas las cadenas');
+  fill('fltHummusCompCadena', cadenas, 'Todas las cadenas');
+  fill('fltHummusEvolCadena', cadenas, 'Todas las cadenas');
+  fill('fltHummusVsCadena', cadenas, 'Todas');
+  fill('fltHummusRankingCadena', cadenas, 'Todas');
+  fill('fltHummusTablaCadena', cadenas, 'Todas');
+  fill('fltPanesSkuCadena', cadenas, 'Todas las cadenas');
+  fill('fltPanesCompCadena', cadenas, 'Todas las cadenas');
+  fill('fltPanesVsCadena', cadenas, 'Todas');
+  fill('fltPanesTablaCadena', cadenas, 'Todas');
+  fill('fltCompCadena', cadenas, 'Todas');
+  fill('detalleCadena', cadenas, 'Todas las cadenas');
+
+  // Tipos de salsa
+  const tiposSalsas = [...new Set(allRows.filter(r => r.categoria === CAT_SALSAS).map(r => detectTipo(r.producto)).filter(Boolean))].sort();
+  fill('fltSalsasTipo', tiposSalsas, 'Todos');
+
+  // Sabores hummus
+  const saboresHummus = [...new Set(allRows.filter(r => r.categoria === CAT_HUMMUS).map(r => detectTipo(r.producto)).filter(Boolean))].sort();
+  fill('fltHummusSabor', saboresHummus, 'Todos');
+
+  // Variedades para tablas
+  const varSalsas = [...new Set(allRows.filter(r => r.categoria === CAT_SALSAS && r.es_kansas).map(r => r.producto).filter(Boolean))].sort();
+  fill('fltSalsasTablaProducto', varSalsas, 'Todas');
+  const varHummus = [...new Set(allRows.filter(r => r.categoria === CAT_HUMMUS && r.es_kansas).map(r => r.producto).filter(Boolean))].sort();
+  fill('fltHummusTablaProducto', varHummus, 'Todos');
+  const varPanes = [...new Set(allRows.filter(r => r.categoria === CAT_PANES && r.es_kansas).map(r => r.producto).filter(Boolean))].sort();
+  fill('fltPanesTablaProducto', varPanes, 'Todos');
+
+  // Detalle marcas y productos
+  const marcas = [...new Set(allRows.map(r => r.marca).filter(Boolean))].sort();
   fill('detalleMarca', marcas, 'Todas las marcas');
+  fill('detalleProducto', [], 'Todos los productos');
 }
 
 function fill(id, values, placeholder) {
   const sel = document.getElementById(id);
   if (!sel) return;
   const cur = sel.value;
-  sel.innerHTML = `<option value="">${placeholder}</option>` +
-    values.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+  sel.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
 }
 
 function applyFilters() {
@@ -540,21 +733,29 @@ function applyFilters() {
   const zona = document.getElementById('filterZona').value;
   const mes = document.getElementById('filterMes')?.value || '';
 
+  // Excluir filas de gastronomía de filteredRows principales
   filteredRows = allRows.filter(r =>
     (!cadena || r.cadena === cadena) &&
     (!fecha || r.fecha === fecha) &&
     (!zona || r.zona === zona) &&
-    (!mes || fechaToMes(r.fecha) === mes)
+    (!mes || fechaToMes(r.fecha) === mes) &&
+    !isGastro(r)
   );
 
-  // Update mes label in resumen header
   const mesEl = document.getElementById('resumenMesLabel');
-  if (mesEl) mesEl.textContent = mes ? mesLabel(mes) : 'Todos los períodos';
-
+  if (mesEl) mesEl.textContent = mes ? mesLabel(mes) : 'Todos';
   buildAll();
 }
 
-// ---- TABS ----
+function isGastro(r) {
+  const c = String(r.cadena || '').toLowerCase();
+  const canal = String(r.canal || '').toLowerCase();
+  return CAT_GASTRO.some(g => c.includes(g.toLowerCase()) || canal.includes(g.toLowerCase()));
+}
+
+function isGourmet(marca) { return HUMMUS_GOURMET.some(g => String(marca || '').toUpperCase().includes(g)); }
+
+// ═══ TABS ═══
 function showTab(tab) {
   document.querySelectorAll('.nav-tab').forEach((el, i) => {
     el.classList.toggle('active', ['resumen','salsas','hummus','panes','ecommerce','competencia','detalle'][i] === tab);
@@ -562,50 +763,60 @@ function showTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + tab).classList.add('active');
   if (tab === 'ecommerce') renderEcommerce();
+  if (tab === 'competencia') renderCompetencia();
+  if (tab === 'salsas') { renderSalsasGeneral(); renderSalsasVsProducto(); }
+  if (tab === 'hummus') { renderHummusGeneral(); renderHummusVsProducto(); renderHummusRanking(); }
+  if (tab === 'panes') { renderPanesGeneral(); renderPanesVsProducto(); }
 }
 
-// ---- PRECIO POR GRAMO ----
-// ---- GRAMAJE EXACTO POR SKU PROPIO ----
-const GRAMAJE_SKU = {
-  // KYROS
-  'CLÁSICO': 230, 'CLASICO': 230,
-  'CON ACEITE DE OLIVA': 230, 'OLIVA': 230,
-  'PIMENTÓN': 230, 'PIMENTON': 230,
-  'POROTO NEGRO': 230,
-  'AJO AHUMADO': 230,
-  'REMOLACHA': 230,
-  'BABAGANUSH': 230,
-  'TAHINI': 300,
-  // KANSAS SALSAS
-  'CAESAR': 260,
-  'CHEDDAR SAUCE': 265,
-  'AIOLI SAUCE': 265,
-  'BARBACOA': 295,
-  'HONEY MUSTARD': 280,
-  'VINAGRETA': 270,
-  'CHIMICHURRI': 280,
-  'KETCHUP CURRY': 295,
-  'KETCHUP SPICY': 295,
-  'KETCHUP AMERICAN': 295,
-};
-
-function extractGrams(nombre) {
-  if (!nombre) return null;
-  const upper = String(nombre).toUpperCase().trim();
-  // Check exact SKU lookup first
-  for (const [key, gr] of Object.entries(GRAMAJE_SKU)) {
-    if (upper.includes(key.toUpperCase())) return gr;
-  }
-  // Then try to parse from name
-  const match = upper.match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/);
-  if (match) return parseInt(match[1]);
-  const match2 = upper.match(/(\d+)\s*G(?:R(?:S)?)?$/);
-  if (match2) return parseInt(match2[1]);
-  return null;
+function showSubTab(section, sub, btn) {
+  const container = document.getElementById('sec-' + section);
+  container.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  container.querySelectorAll('.sub-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(section + '-' + sub)?.classList.add('active');
+  // Render cuando se activa
+  if (section === 'salsas' && sub === 'general') renderSalsasGeneral();
+  if (section === 'salsas' && sub === 'producto') renderSalsasVsProducto();
+  if (section === 'salsas' && sub === 'evol') renderSalsasEvol2();
+  if (section === 'salsas' && sub === 'tabla') renderTablaSalsas();
+  if (section === 'hummus' && sub === 'general') renderHummusGeneral();
+  if (section === 'hummus' && sub === 'producto') renderHummusVsProducto();
+  if (section === 'hummus' && sub === 'ranking') renderHummusRanking();
+  if (section === 'hummus' && sub === 'evol') renderHummusEvol2();
+  if (section === 'hummus' && sub === 'tabla') renderTablaHummus();
+  if (section === 'panes' && sub === 'general') renderPanesGeneral();
+  if (section === 'panes' && sub === 'producto') renderPanesVsProducto();
+  if (section === 'panes' && sub === 'tabla') renderTablaPanes();
+  if (section === 'ecom' && sub === 'gastro') renderGastro();
 }
 
+// ═══ HELPERS ═══
+function byCat(rows, cat) { return rows.filter(r => r.categoria === cat && r.precio_regular > 0); }
+function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function avgPrice(rows) { return avg(rows.map(r => r.precio_regular).filter(v => v > 0)); }
+function fmt(v) { return v > 0 ? '$' + Math.round(v).toLocaleString('es-AR') : '—'; }
+function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
+function lastByKey(rows, keyFn) { const map = {}; rows.forEach(r => { map[keyFn(r)] = r; }); return Object.values(map); }
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+function getPrevPrice(marca, producto, cadena, currentFecha) {
+  const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort();
+  const idx = fechas.indexOf(currentFecha);
+  if (idx <= 0) return null;
+  const prevFecha = fechas[idx - 1];
+  const prev = allRows.find(r => r.marca === marca && r.producto === producto && r.cadena === cadena && r.fecha === prevFecha && r.precio_regular > 0);
+  return prev ? prev.precio_regular : null;
+}
+function deltaIcon(current, prev) {
+  if (!prev || !current) return '';
+  const diff = ((current - prev) / prev * 100);
+  if (Math.abs(diff) < 1) return '';
+  return diff > 0 ? `<span class="delta-up-sm">↑ +${diff.toFixed(1)}%</span>` : `<span class="delta-down-sm">↓ ${diff.toFixed(1)}%</span>`;
+}
+
+// Tipo de producto
 function detectTipo(producto) {
-  const p = String(producto).toUpperCase();
+  const p = String(producto || '').toUpperCase();
   if (p.includes('KETCHUP')) return 'Ketchup';
   if (p.includes('MAYONESA') || p.includes('MAYO')) return 'Mayonesa';
   if (p.includes('MOSTAZA')) return 'Mostaza';
@@ -626,329 +837,28 @@ function detectTipo(producto) {
   if (p.includes('OLIVA')) return 'Hummus Oliva';
   if (p.includes('BABAGANUSH') || p.includes('BABA')) return 'Babaganush';
   if (p.includes('POROTO')) return 'Hummus Poroto Negro';
+  if (p.includes('GARBANZO') || p.includes('ARVEJAS')) return 'Hummus Garbanzo';
+  if (p.includes('LENTEJAS')) return 'Hummus Lentejas';
   if (p.includes('HAMBURGUESA') || p.includes('BURGUER')) return 'Pan Hamburguesa';
   if (p.includes('PANCHO') || p.includes('HOT DOG')) return 'Pan Pancho';
   if (p.includes('CAMPO')) return 'Pan de Campo';
+  if (p.includes('MOLDE') || p.includes('BLANCO')) return 'Pan Molde';
   return null;
 }
 
-function renderPorGramo(id, rows) {
-  destroyChart(id);
-  const wrap = document.getElementById(id);
-  if (!wrap) return;
-
-  // Last price per marca+producto
-  const last = lastByKey(rows.filter(r => r.precio_regular > 0), r => r.marca + '||' + r.producto);
-
-  // Add gramos, tipo, precio_por_gr
-  const withGrams = last.map(r => {
-    const g = extractGrams(r.producto);
-    const tipo = detectTipo(r.producto);
-    if (!g || g < 50 || g > 5000 || !tipo) return null;
-    return { ...r, gramos: g, tipo, precio_por_gr: parseFloat((r.precio_regular / g).toFixed(2)) };
-  }).filter(Boolean);
-
-  if (!withGrams.length) {
-    wrap.parentElement.innerHTML = '<div class="empty"><div class="icon">📐</div><p>Sin productos con gramaje identificado aún.<br>Se irá completando con las cargas de los repositores.</p></div>';
-    return;
-  }
-
-  // Group by tipo — render one mini chart per tipo
-  const tipos = [...new Set(withGrams.map(r => r.tipo))].sort();
-  const container = wrap.parentElement;
-
-  // Remove canvas, replace with tipo sections
-  container.innerHTML = '';
-
-  tipos.forEach(tipo => {
-    const items = withGrams.filter(r => r.tipo === tipo).sort((a,b) => a.precio_por_gr - b.precio_por_gr);
-    if (!items.length) return;
-
-    const section = document.createElement('div');
-    section.style.cssText = 'margin-bottom:20px';
-
-    const title = document.createElement('div');
-    title.style.cssText = 'font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--border)';
-    title.textContent = tipo;
-    section.appendChild(title);
-
-    // Simple bar rows
-    const maxPG = Math.max(...items.map(r => r.precio_por_gr));
-    items.forEach(r => {
-      const isK = r.es_kansas;
-      const pct = Math.round((r.precio_por_gr / maxPG) * 100);
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:6px';
-      row.innerHTML = `
-        <div style="min-width:140px;font-size:12px;font-weight:${isK?'600':'400'};color:${isK?'var(--red)':'var(--dark)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.marca} ${r.producto}">
-          ${r.marca} <span style="font-weight:400;color:var(--muted)">${r.gramos}g</span>
-        </div>
-        <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;background:${isK?'var(--red)':'#B0A898'};border-radius:4px;transition:width 0.5s"></div>
-        </div>
-        <div style="min-width:60px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:${isK?'var(--red)':'var(--dark)'}">
-          $${r.precio_por_gr.toFixed(1)}/g
-        </div>
-        <div style="min-width:70px;text-align:right;font-size:11px;color:var(--muted)">
-          ${r.precio_regular.toLocaleString('es-AR')}
-        </div>
-      `;
-      section.appendChild(row);
-    });
-
-    container.appendChild(section);
-  });
+function extractGrams(nombre) {
+  if (!nombre) return null;
+  const upper = String(nombre).toUpperCase().trim();
+  const GRAMAJE_SKU = { 'CLÁSICO':230,'CLASICO':230,'CON ACEITE DE OLIVA':230,'OLIVA':230,'PIMENTÓN':230,'PIMENTON':230,'POROTO NEGRO':230,'AJO AHUMADO':230,'REMOLACHA':230,'BABAGANUSH':230,'TAHINI':300,'CAESAR':260,'CHEDDAR SAUCE':265,'AIOLI SAUCE':265,'BARBACOA':295,'HONEY MUSTARD':280,'VINAGRETA':270,'CHIMICHURRI':280,'KETCHUP CURRY':295,'KETCHUP SPICY':295,'KETCHUP AMERICAN':295 };
+  for (const [key, gr] of Object.entries(GRAMAJE_SKU)) { if (upper.includes(key.toUpperCase())) return gr; }
+  const m = upper.match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/);
+  if (m) return parseInt(m[1]);
+  const m2 = upper.match(/(\d+)\s*G(?:R(?:S)?)?$/);
+  if (m2) return parseInt(m2[1]);
+  return null;
 }
 
-// ---- ALERTAS ----
-function renderAlertas() {
-  const el = document.getElementById('alertasPanel');
-  if (!el) return;
-  const alertas = [];
-
-  // 1. Productos sin presencia en más de 2 cadenas
-  const CADENAS_LIST = ['JUMBO','COTO','CARREFOUR','CHANGO MAS','DISCO TORTUGAS','LIBERTAD'];
-  const cats = [CAT_SALSAS, CAT_HUMMUS, CAT_PANES];
-  cats.forEach(cat => {
-    const kRows = filteredRows.filter(r => r.es_kansas && r.categoria === cat);
-    const productos = [...new Set(kRows.map(r => r.producto))];
-    productos.forEach(prod => {
-      const ausente = CADENAS_LIST.filter(c => {
-        const r = kRows.find(r => r.producto === prod && r.cadena === c);
-        return r && (r.estado === 'No visto' || r.estado === 'Sin stock');
-      });
-      if (ausente.length >= 2) {
-        alertas.push({ tipo: 'red', icon: '🚨', titulo: `${prod} ausente en ${ausente.length} cadenas`, detalle: ausente.join(', ') });
-      }
-    });
-  });
-
-  // 2. Precio de competencia bajó más de 10% vs nuestro precio
-  const fechas = [...new Set(filteredRows.map(r => r.fecha).filter(Boolean))].sort();
-  if (fechas.length >= 2) {
-    const ultima = fechas[fechas.length - 1];
-    const penultima = fechas[fechas.length - 2];
-    cats.forEach(cat => {
-      const kUlt = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.fecha === ultima && r.precio_regular > 0));
-      const kPen = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.fecha === penultima && r.precio_regular > 0));
-      if (kUlt && kPen) {
-        const delta = ((kUlt - kPen) / kPen * 100);
-        const catLabel = cat === CAT_SALSAS ? 'Salsas Kansas' : cat === CAT_HUMMUS ? 'Kyros Hummus' : 'Panificados';
-        if (delta > 10) alertas.push({ tipo: 'warn', icon: '⚠️', titulo: `${catLabel}: precio subió ${delta.toFixed(1)}% vs relevamiento anterior`, detalle: `${fmt(kPen)} → ${fmt(kUlt)}` });
-        if (delta < -10) alertas.push({ tipo: 'green', icon: '✅', titulo: `${catLabel}: precio bajó ${Math.abs(delta).toFixed(1)}% vs relevamiento anterior`, detalle: `${fmt(kPen)} → ${fmt(kUlt)}` });
-      }
-    });
-  }
-
-  // 3. Competidor con precio menor al nuestro en misma categoría
-  cats.forEach(cat => {
-    const kAvg = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0));
-    if (!kAvg) return;
-    const compMap = {};
-    filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0).forEach(r => {
-      if (!compMap[r.marca]) compMap[r.marca] = [];
-      compMap[r.marca].push(r.precio_regular);
-    });
-    const masBaratos = Object.entries(compMap)
-      .map(([m, ps]) => ({ marca: m, avg: avg(ps) }))
-      .filter(c => c.avg < kAvg * 0.85)
-      .sort((a, b) => a.avg - b.avg);
-    if (masBaratos.length) {
-      const catLabel = cat === CAT_SALSAS ? 'Salsas' : cat === CAT_HUMMUS ? 'Hummus' : 'Panes';
-      alertas.push({ tipo: 'warn', icon: '💡', titulo: `${masBaratos[0].marca} es ${Math.round((1 - masBaratos[0].avg/kAvg)*100)}% más barato en ${catLabel}`, detalle: `Precio promedio: ${fmt(masBaratos[0].avg)} vs nuestro ${fmt(kAvg)}` });
-    }
-  });
-
-  if (!alertas.length) {
-    el.innerHTML = `<div class="alerta alerta-green"><div class="alerta-icon">✅</div><div class="alerta-content"><strong>Sin alertas activas</strong><span>Todo dentro de parámetros normales</span></div></div>`;
-    return;
-  }
-
-  el.innerHTML = `<div class="alertas-wrap">${alertas.map(a => `
-    <div class="alerta alerta-${a.tipo}">
-      <div class="alerta-icon">${a.icon}</div>
-      <div class="alerta-content"><strong>${a.titulo}</strong><span>${a.detalle}</span></div>
-    </div>`).join('')}</div>`;
-}
-
-// ---- INSIGHTS AUTOMÁTICOS ----
-function renderInsights() {
-  const el = document.getElementById('insightsPanel');
-  if (!el) return;
-  const insights = [];
-
-  const cats = [
-    { cat: CAT_SALSAS, label: 'Salsas Kansas', brand: 'Kansas' },
-    { cat: CAT_HUMMUS, label: 'Kyros Hummus', brand: 'Kyros' },
-    { cat: CAT_PANES, label: 'Panificados', brand: 'Kansas Panes' },
-  ];
-
-  cats.forEach(({ cat, label, brand }) => {
-    const kRows = filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0);
-    const cRows = filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0);
-    const kAvg = avgPrice(kRows);
-    const cAvg = avgPrice(cRows);
-
-    if (kAvg && cAvg) {
-      const diff = ((kAvg - cAvg) / cAvg * 100);
-      const isBarato = diff < 0;
-      insights.push({
-        label: `Posicionamiento ${label}`,
-        text: `<strong>${brand}</strong> está ${isBarato ? Math.abs(diff).toFixed(1)+'% más barato' : diff.toFixed(1)+'% más caro'} que el promedio de la categoría (${fmt(kAvg)} vs ${fmt(cAvg)})`
-      });
-    }
-
-    // Mejor y peor cadena
-    const porCadena = {};
-    kRows.forEach(r => {
-      if (!porCadena[r.cadena]) porCadena[r.cadena] = [];
-      porCadena[r.cadena].push(r.precio_regular);
-    });
-    const cadenaData = Object.entries(porCadena).map(([c, ps]) => ({ cadena: c, avg: avg(ps) })).sort((a, b) => a.avg - b.avg);
-    if (cadenaData.length >= 2) {
-      insights.push({
-        label: `Precio por cadena — ${label}`,
-        text: `Más barato en <strong>${cadenaData[0].cadena}</strong> (${fmt(cadenaData[0].avg)}) · Más caro en <strong>${cadenaData[cadenaData.length-1].cadena}</strong> (${fmt(cadenaData[cadenaData.length-1].avg)})`
-      });
-    }
-  });
-
-  // Oferta más relevada
-  const ofertaMap = {};
-  filteredRows.filter(r => r.en_oferta).forEach(r => {
-    const k = r.marca + ' ' + r.producto;
-    ofertaMap[k] = (ofertaMap[k] || 0) + 1;
-  });
-  const topOferta = Object.entries(ofertaMap).sort((a, b) => b[1] - a[1])[0];
-  if (topOferta) {
-    insights.push({ label: 'Producto más en oferta', text: `<strong>${topOferta[0]}</strong> fue relevado en oferta ${topOferta[1]} veces` });
-  }
-
-  if (!insights.length) {
-    el.innerHTML = '';
-    return;
-  }
-
-  el.innerHTML = `<div class="insights-wrap">${insights.map(i => `
-    <div class="insight-auto">
-      <div class="ia-label">${i.label}</div>
-      <div class="ia-text">${i.text}</div>
-    </div>`).join('')}</div>`;
-}
-
-// ---- DELTA SEMANAL en tabla ----
-function getPrevPrice(marca, producto, cadena, currentFecha) {
-  const fechas = [...new Set(allRows.map(r => r.fecha).filter(Boolean))].sort();
-  const idx = fechas.indexOf(currentFecha);
-  if (idx <= 0) return null;
-  const prevFecha = fechas[idx - 1];
-  const prev = allRows.find(r => r.marca === marca && r.producto === producto && r.cadena === cadena && r.fecha === prevFecha && r.precio_regular > 0);
-  return prev ? prev.precio_regular : null;
-}
-
-function deltaIcon(current, prev) {
-  if (!prev || !current) return '';
-  const diff = ((current - prev) / prev * 100);
-  if (Math.abs(diff) < 1) return '';
-  if (diff > 0) return `<span class="delta-up-sm">↑ +${diff.toFixed(1)}%</span>`;
-  return `<span class="delta-down-sm">↓ ${diff.toFixed(1)}%</span>`;
-}
-
-// ---- ECOMMERCE ----
-function renderEcommerce() {
-  const ecomRows = allRows.filter(r => String(r.canal||'').toLowerCase() === 'ecommerce' && r.precio_regular > 0);
-  const gondolaRows = allRows.filter(r => String(r.canal||'').toLowerCase() !== 'ecommerce' && r.precio_regular > 0);
-
-  // Comparativa cards
-  const compEl = document.getElementById('ecommerceComparativa');
-  const cats = [
-    { cat: CAT_SALSAS, label: 'Salsas Kansas' },
-    { cat: CAT_HUMMUS, label: 'Kyros Hummus' },
-    { cat: CAT_PANES, label: 'Panificados' },
-  ];
-
-  if (!ecomRows.length) {
-    compEl.innerHTML = `<div class="insight" style="background:var(--blue-light);border-color:#90CAF9">
-      <strong>🌐 Sin datos de ecommerce aún</strong>
-      Usá la app y seleccioná "Ecommerce" al cargar precios desde las webs de las cadenas. Los datos aparecerán aquí automáticamente.
-    </div>`;
-  } else {
-    const cards = cats.map(({ cat, label }) => {
-      const eAvg = avgPrice(ecomRows.filter(r => r.es_kansas && r.categoria === cat));
-      const gAvg = avgPrice(gondolaRows.filter(r => r.es_kansas && r.categoria === cat));
-      if (!eAvg) return '';
-      const diff = gAvg ? ((eAvg - gAvg) / gAvg * 100) : null;
-      const diffText = diff !== null
-        ? `<div class="kpi-delta ${diff > 0 ? 'delta-up' : 'delta-down'}" style="margin-top:6px">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}% vs góndola</div>`
-        : '';
-      return `<div class="kpi-card">
-        <div class="kpi-label">${label} — Web</div>
-        <div class="kpi-value">${fmt(eAvg)}</div>
-        <div class="kpi-sub">Precio promedio ecommerce</div>
-        ${diffText}
-      </div>`;
-    }).filter(Boolean);
-    compEl.innerHTML = `<div class="kpi-grid">${cards.join('')}</div>`;
-  }
-
-  // Charts ecom vs gondola per category
-  [
-    ['chartEcomSalsas', CAT_SALSAS],
-    ['chartEcomHummus', CAT_HUMMUS],
-  ].forEach(([id, cat]) => {
-    destroyChart(id);
-    const ctx = document.getElementById(id);
-    if (!ctx) return;
-    const cadenas = [...new Set(allRows.map(r => r.cadena).filter(Boolean))].sort();
-    const eData = cadenas.map(c => Math.round(avgPrice(ecomRows.filter(r => r.es_kansas && r.categoria === cat && r.cadena === c))) || null);
-    const gData = cadenas.map(c => Math.round(avgPrice(gondolaRows.filter(r => r.es_kansas && r.categoria === cat && r.cadena === c))) || null);
-
-    charts[id] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: cadenas,
-        datasets: [
-          { label: '🌐 Ecommerce', data: eData, backgroundColor: '#1565C0CC', borderRadius: 4 },
-          { label: '🛒 Góndola', data: gData, backgroundColor: '#C8102ECC', borderRadius: 4 },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
-        scales: {
-          y: { ticks: { callback: v => '$' + v.toLocaleString('es-AR'), font: { size: 10 } }, grid: { color: '#E8E2D9' } },
-          x: { ticks: { font: { size: 10 } }, grid: { display: false } }
-        }
-      }
-    });
-  });
-
-  // Table: ecom vs gondola price comparison
-  const tbody = document.querySelector('#tablaEcommerce tbody');
-  if (!tbody) return;
-  const lastEcom = lastByKey(ecomRows, r => r.marca + '||' + r.producto + '||' + r.cadena);
-  if (!lastEcom.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce aún</td></tr>'; return; }
-
-  tbody.innerHTML = lastEcom.map(r => {
-    const gondola = gondolaRows.filter(rx => rx.marca === r.marca && rx.producto === r.producto && rx.cadena === r.cadena && rx.precio_regular > 0);
-    const gAvg = gondola.length ? Math.round(avgPrice(gondola)) : null;
-    const diff = gAvg && r.precio_regular ? ((r.precio_regular - gAvg) / gAvg * 100) : null;
-    const diffHtml = diff !== null
-      ? `<span class="${diff > 0 ? 'delta-up-sm' : 'delta-down-sm'}">${diff > 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}%</span>`
-      : '<span style="color:var(--muted);font-size:11px">Sin dato</span>';
-    return `<tr>
-      <td class="${r.es_kansas ? 'our-brand' : ''}" style="font-size:12px">${r.marca}</td>
-      <td style="font-size:12px">${r.producto}</td>
-      <td style="font-size:12px">${r.cadena}</td>
-      <td class="price-num">${fmt(r.precio_regular)}</td>
-      <td class="price-num">${gAvg ? fmt(gAvg) : '—'}</td>
-      <td>${diffHtml}</td>
-      <td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ---- BUILD ALL ----
+// ═══ BUILD ALL ═══
 function buildAll() {
   renderAlertas();
   renderInsights();
@@ -956,144 +866,103 @@ function buildAll() {
   renderEvolChart('chartSalsasEvol', CAT_SALSAS, true);
   renderEvolChart('chartHummusEvol', CAT_HUMMUS, true);
   renderCobertura();
-  renderCategoria('salsas', CAT_SALSAS);
-  renderCategoria('hummus', CAT_HUMMUS);
-  renderCategoria('panes', CAT_PANES);
+  renderSalsasGeneral();
+  renderHummusGeneral();
+  renderPanesGeneral();
   renderCompetencia();
   renderDetalle();
 }
 
-// ---- HELPERS ----
-function byCat(rows, cat) { return rows.filter(r => r.categoria === cat && r.precio_regular > 0); }
-function byKansas(rows, cat) { return byCat(rows, cat).filter(r => r.es_kansas); }
-function byComp(rows, cat) { return byCat(rows, cat).filter(r => !r.es_kansas); }
-function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
-function avgPrice(rows) { return avg(rows.map(r => r.precio_regular).filter(r => r > 0)); }
-function fmt(v) { return v > 0 ? '$' + Math.round(v).toLocaleString('es-AR') : '—'; }
-function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
-function lastByKey(rows, keyFn) {
-  const map = {};
-  rows.forEach(r => { map[keyFn(r)] = r; });
-  return Object.values(map);
-}
-
-function pctDelta(a, b) {
-  if (!a || !b) return null;
-  return ((b - a) / a * 100).toFixed(1);
-}
-
-function deltaHtml(pct) {
-  if (pct === null) return '';
-  const n = parseFloat(pct);
-  if (n > 0) return `<span class="kpi-delta delta-up">▲ +${pct}%</span>`;
-  if (n < 0) return `<span class="kpi-delta delta-down">▼ ${pct}%</span>`;
-  return `<span class="kpi-delta delta-neutral">= ${pct}%</span>`;
-}
-
-function destroyChart(id) {
-  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
-}
-
-// ---- KPIs ----
+// ═══ KPIs COMPACTOS ═══
 function renderKPIs() {
-  const salsasRows = byCat(filteredRows, CAT_SALSAS);
-  const hummusRows = byCat(filteredRows, CAT_HUMMUS);
-  const panesRows = byCat(filteredRows, CAT_PANES);
-
-  const avgS = avgPrice(salsasRows.filter(r=>r.es_kansas));
-  const avgH = avgPrice(hummusRows.filter(r=>r.es_kansas));
-  const avgP = avgPrice(panesRows.filter(r=>r.es_kansas));
-  const totalOfertas = filteredRows.filter(r=>r.en_oferta).length;
-  const totalAusentes = filteredRows.filter(r=>r.estado==='No visto'||r.estado==='Sin stock').length;
-  const totalRegistros = filteredRows.length;
-
-  const kpis = [
-    { label:'Kansas Salsas — Precio prom.', value:fmt(avgS), sub:'Promedio todas las cadenas' },
-    { label:'Kyros Hummus — Precio prom.', value:fmt(avgH), sub:'Promedio todas las cadenas' },
-    { label:'Panificados — Precio prom.', value:fmt(avgP), sub:'Promedio todas las cadenas' },
-    { label:'Productos en oferta', value:totalOfertas, sub:'De '+totalRegistros+' registros totales' },
-    { label:'Sin presencia / Sin stock', value:totalAusentes, sub:'Productos no encontrados' },
-    { label:'Registros totales', value:totalRegistros, sub:[...new Set(filteredRows.map(r=>r.cadena).filter(Boolean))].length+' cadenas relevadas' },
-  ];
-
-  document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
-    <div class="kpi-card">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.value}</div>
-      <div class="kpi-sub">${k.sub}</div>
-    </div>`).join('');
+  const avgS = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === CAT_SALSAS));
+  const avgH = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === CAT_HUMMUS));
+  const avgP = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === CAT_PANES));
+  const sinStock = filteredRows.filter(r => r.estado === 'No visto' || r.estado === 'Sin stock').length;
+  const total = filteredRows.length;
+  document.getElementById('kpiRow').innerHTML = [
+    { label:'Kansas Salsas', value:fmt(avgS), sub:'precio prom.' },
+    { label:'Kyros Hummus', value:fmt(avgH), sub:'precio prom.' },
+    { label:'Kansas Panes', value:fmt(avgP), sub:'precio prom.' },
+    { label:'Sin presencia', value:sinStock, sub:`de ${total} registros` },
+  ].map(k => `<div class="kpi-chip"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 
-// ---- EVOL CHART ----
+// ═══ ALERTAS ═══
+function renderAlertas() {
+  const el = document.getElementById('alertasPanel'); if (!el) return;
+  const alertas = [];
+  const CADENAS_LIST = ['JUMBO','COTO','CARREFOUR','CHANGO MAS','DISCO TORTUGAS','LIBERTAD'];
+  [CAT_SALSAS, CAT_HUMMUS, CAT_PANES].forEach(cat => {
+    const kRows = filteredRows.filter(r => r.es_kansas && r.categoria === cat);
+    [...new Set(kRows.map(r => r.producto))].forEach(prod => {
+      const ausente = CADENAS_LIST.filter(c => { const r = kRows.find(r => r.producto === prod && r.cadena === c); return r && (r.estado === 'No visto' || r.estado === 'Sin stock'); });
+      if (ausente.length >= 2) alertas.push({ tipo:'red', icon:'🚨', titulo:`${prod} ausente en ${ausente.length} cadenas`, detalle:ausente.join(', ') });
+    });
+    const kAvg = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0));
+    if (!kAvg) return;
+    const compMap = {};
+    filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0).forEach(r => { if (!compMap[r.marca]) compMap[r.marca] = []; compMap[r.marca].push(r.precio_regular); });
+    const masBaratos = Object.entries(compMap).map(([m,ps]) => ({ marca:m, avg:avg(ps) })).filter(c => c.avg < kAvg * 0.85).sort((a,b) => a.avg - b.avg);
+    if (masBaratos.length) {
+      const catLabel = cat === CAT_SALSAS ? 'Salsas' : cat === CAT_HUMMUS ? 'Hummus' : 'Panes';
+      alertas.push({ tipo:'warn', icon:'💡', titulo:`${masBaratos[0].marca} es ${Math.round((1-masBaratos[0].avg/kAvg)*100)}% más barato en ${catLabel}`, detalle:`${fmt(masBaratos[0].avg)} vs nuestro ${fmt(kAvg)}` });
+    }
+  });
+  el.innerHTML = alertas.length
+    ? `<div class="alertas-wrap">${alertas.map(a => `<div class="alerta alerta-${a.tipo}"><div class="alerta-icon">${a.icon}</div><div class="alerta-content"><strong>${a.titulo}</strong><span>${a.detalle}</span></div></div>`).join('')}</div>`
+    : `<div class="alerta alerta-green"><div class="alerta-icon">✅</div><div class="alerta-content"><strong>Sin alertas activas</strong><span>Todo dentro de parámetros normales</span></div></div>`;
+}
+
+// ═══ INSIGHTS ═══
+function renderInsights() {
+  const el = document.getElementById('insightsPanel'); if (!el) return;
+  const insights = [];
+  [{cat:CAT_SALSAS,label:'Salsas Kansas',brand:'Kansas'},{cat:CAT_HUMMUS,label:'Kyros Hummus',brand:'Kyros'},{cat:CAT_PANES,label:'Panificados',brand:'Kansas Panes'}].forEach(({cat,label,brand}) => {
+    const kAvg = avgPrice(filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0));
+    const cAvg = avgPrice(filteredRows.filter(r => !r.es_kansas && r.categoria === cat && r.precio_regular > 0));
+    if (kAvg && cAvg) {
+      const diff = ((kAvg - cAvg) / cAvg * 100);
+      insights.push({ label:`Posicionamiento ${label}`, text:`<strong>${brand}</strong> está ${diff < 0 ? Math.abs(diff).toFixed(1)+'% más barato' : diff.toFixed(1)+'% más caro'} que el promedio (${fmt(kAvg)} vs ${fmt(cAvg)})` });
+    }
+    const porCadena = {};
+    filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0).forEach(r => { if (!porCadena[r.cadena]) porCadena[r.cadena] = []; porCadena[r.cadena].push(r.precio_regular); });
+    const cadData = Object.entries(porCadena).map(([c,ps]) => ({cadena:c,avg:avg(ps)})).sort((a,b) => a.avg - b.avg);
+    if (cadData.length >= 2) insights.push({ label:`Precio por cadena — ${label}`, text:`Más barato en <strong>${cadData[0].cadena}</strong> (${fmt(cadData[0].avg)}) · Más caro en <strong>${cadData[cadData.length-1].cadena}</strong> (${fmt(cadData[cadData.length-1].avg)})` });
+  });
+  el.innerHTML = insights.length ? `<div class="insights-wrap">${insights.map(i => `<div class="insight-auto"><div class="ia-label">${i.label}</div><div class="ia-text">${i.text}</div></div>`).join('')}</div>` : '';
+}
+
+// ═══ EVOL CHART ═══
 function renderEvolChart(id, cat, isKansas) {
   destroyChart(id);
-  const rows = isKansas
-    ? byCat(filteredRows, cat).filter(r => r.es_kansas)
-    : byCat(filteredRows, cat);
-
+  const rows = isKansas ? filteredRows.filter(r => r.es_kansas && r.categoria === cat && r.precio_regular > 0) : filteredRows.filter(r => r.categoria === cat && r.precio_regular > 0);
   const fechas = [...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();
   if (!fechas.length) return;
-
   const marcas = [...new Set(rows.map(r=>r.marca).filter(Boolean))];
-  const datasets = marcas.map((m, i) => ({
-    label: m,
-    data: fechas.map(f => {
-      const rs = rows.filter(r => r.marca === m && r.fecha === f);
-      return rs.length ? Math.round(avgPrice(rs)) : null;
-    }),
-    borderColor: PALETTE[i % PALETTE.length],
-    backgroundColor: PALETTE[i % PALETTE.length] + '22',
-    tension: 0.3,
-    fill: false,
-    spanGaps: true,
-    pointRadius: 4,
-  }));
-
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
+  const ctx = document.getElementById(id); if (!ctx) return;
   charts[id] = new Chart(ctx, {
-    type: 'line',
-    data: { labels: fechas.map(formatDate), datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
-      scales: {
-        y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid: { color:'#E8E2D9' } },
-        x: { ticks: { font:{size:10} }, grid: { color:'#E8E2D9' } }
-      }
-    }
+    type:'line',
+    data:{ labels:fechas.map(formatDate), datasets:marcas.map((m,i) => ({ label:m, data:fechas.map(f => { const rs = rows.filter(r=>r.marca===m&&r.fecha===f); return rs.length ? Math.round(avgPrice(rs)) : null; }), borderColor:PALETTE[i%PALETTE.length], backgroundColor:PALETTE[i%PALETTE.length]+'22', tension:0.3, fill:false, spanGaps:true, pointRadius:3 })) },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{ y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}}, x:{ticks:{font:{size:9}},grid:{color:'#E8E2D9'}} } }
   });
 }
 
-// ---- COBERTURA ----
+// ═══ COBERTURA ═══
 function renderCobertura() {
   const cadenas = [...new Set(filteredRows.map(r=>r.cadena).filter(Boolean))].sort();
   const cats = [CAT_SALSAS, CAT_HUMMUS, CAT_PANES];
-  const labels = ['Salsas Kansas', 'Kyros Hummus', 'Panificados'];
-
-  let html = `<div class="tbl-wrap"><table><thead><tr><th>Categoría</th>`;
-  cadenas.forEach(c => html += `<th>${c}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  cats.forEach((cat, ci) => {
+  const labels = ['Salsas Kansas','Kyros Hummus','Panificados'];
+  let html = `<div class="tbl-wrap"><table><thead><tr><th>Categoría</th>${cadenas.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+  cats.forEach((cat,ci) => {
     html += `<tr><td style="font-weight:500">${labels[ci]}</td>`;
     cadenas.forEach(cadena => {
       const rows = filteredRows.filter(r => r.categoria === cat && r.cadena === cadena);
       const ok = rows.filter(r => r.precio_regular > 0).length;
-      const of = rows.filter(r => r.en_oferta).length;
       const abs = rows.filter(r => r.estado === 'No visto').length;
       const nst = rows.filter(r => r.estado === 'Sin stock').length;
-      if (!rows.length) {
-        html += `<td><span class="dot dot-gray"></span><span style="font-size:12px;color:var(--muted)">Sin datos</span></td>`;
-      } else {
-        html += `<td>
-          <span class="dot ${ok>0?'dot-green':'dot-red'}"></span>
-          <span style="font-size:12px">${ok} precios</span>
-          ${of>0?`<br><span class="offer-tag">🏷️ ${of} ofertas</span>`:''}
-          ${abs>0?`<br><span class="absent-tag">👁️ ${abs} ausentes</span>`:''}
-          ${nst>0?`<br><span class="nostock-tag">📦 ${nst} sin stock</span>`:''}
-        </td>`;
-      }
+      if (!rows.length) { html += `<td><span class="dot dot-gray"></span><span style="font-size:11px;color:var(--muted)">Sin datos</span></td>`; }
+      else { html += `<td><span class="dot ${ok>0?'dot-green':'dot-red'}"></span><span style="font-size:11px">${ok} precios</span>${abs>0?`<br><span class="absent-tag">👁️ ${abs}</span>`:''}${nst>0?`<br><span class="nostock-tag">📦 ${nst}</span>`:''}</td>`; }
     });
     html += `</tr>`;
   });
@@ -1101,287 +970,434 @@ function renderCobertura() {
   document.getElementById('coberturaTable').innerHTML = html;
 }
 
-// ---- CATEGORÍA ----
-function renderCategoria(tab, cat) {
-  const rows = byCat(filteredRows, cat);
-  const kRows = rows.filter(r => r.es_kansas);
-  const cRows = rows.filter(r => !r.es_kansas);
-
-  // SKU chart (Kansas only)
-  const skuId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Sku';
-  destroyChart(skuId);
-  const skuMap = {};
-  kRows.forEach(r => {
-    if (!skuMap[r.producto] || r.fecha > skuMap[r.producto].fecha) skuMap[r.producto] = r;
-  });
-  const skuLabels = Object.keys(skuMap);
-  const skuData = skuLabels.map(k => skuMap[k].precio_regular);
-
-  if (skuLabels.length && document.getElementById(skuId)) {
-    charts[skuId] = new Chart(document.getElementById(skuId), {
-      type: 'bar',
-      data: {
-        labels: skuLabels,
-        datasets: [{ data: skuData, backgroundColor: '#C8102E', borderRadius: 6 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
-          x: { ticks: { font:{size:10} }, grid:{display:false} }
-        }
-      }
-    });
-  }
-
-  // Comp chart (brand avg)
-  const compId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Comp';
-  destroyChart(compId);
-  const brandMap = {};
-  rows.forEach(r => {
-    if (!brandMap[r.marca]) brandMap[r.marca] = [];
-    if (r.precio_regular > 0) brandMap[r.marca].push(r.precio_regular);
-  });
-  const brandLabels = Object.keys(brandMap).sort((a,b) => avg(brandMap[b]) - avg(brandMap[a]));
-  const brandData = brandLabels.map(b => Math.round(avg(brandMap[b])));
-  const brandColors = brandLabels.map(b => {
-    const isK = rows.find(r=>r.marca===b)?.es_kansas;
-    return isK ? '#C8102E' : '#D0C9C0';
-  });
-
-  if (brandLabels.length && document.getElementById(compId)) {
-    charts[compId] = new Chart(document.getElementById(compId), {
-      type: 'bar',
-      data: {
-        labels: brandLabels,
-        datasets: [{ data: brandData, backgroundColor: brandColors, borderRadius: 6 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
-          y: { ticks: { font:{size:10} }, grid:{display:false} }
-        }
-      }
-    });
-  }
-
-  // Evol chart 2
-  const evolId2 = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'Evol2';
-  if (document.getElementById(evolId2)) renderEvolChart(evolId2, cat, true);
-
-  // Precio por gramo
-  const porGramoId = 'chart' + tab.charAt(0).toUpperCase()+tab.slice(1) + 'PorGramo';
-  renderPorGramo(porGramoId, rows);
-
-  // Gap
-  renderGap('gap' + tab.charAt(0).toUpperCase()+tab.slice(1), rows);
-
-  // Table
-  renderTable('tabla' + tab.charAt(0).toUpperCase()+tab.slice(1), rows);
-}
-
-// ---- GAP ----
+// ═══ GAP ═══
 function renderGap(id, rows) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
+  const el = document.getElementById(id); if (!el) return;
   const kRows = rows.filter(r => r.es_kansas && r.precio_regular > 0);
   const kAvg = avgPrice(kRows);
   if (!kAvg) { el.innerHTML = '<div class="empty"><div class="icon">📊</div>Sin datos suficientes</div>'; return; }
-
   const brandMap = {};
-  rows.filter(r => !r.es_kansas && r.precio_regular > 0).forEach(r => {
-    if (!brandMap[r.marca]) brandMap[r.marca] = [];
-    brandMap[r.marca].push(r.precio_regular);
-  });
-
+  rows.filter(r => !r.es_kansas && r.precio_regular > 0).forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca] = []; brandMap[r.marca].push(r.precio_regular); });
   const maxPrice = Math.max(kAvg, ...Object.values(brandMap).map(v => avg(v)));
-
-  let html = `<div class="gap-row">
-    <div class="gap-brand our-brand">● Nuestro precio promedio</div>
-    <div class="gap-price our-brand">${fmt(kAvg)}</div>
-    <div class="gap-pct">—</div>
-    <div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxPrice*100)}%;background:var(--red)"></div></div>
-  </div>`;
-
-  Object.entries(brandMap)
-    .sort((a,b) => avg(b[1]) - avg(a[1]))
-    .forEach(([marca, prices]) => {
-      const p = avg(prices);
-      const diff = ((kAvg - p) / p * 100).toFixed(1);
-      const isBelow = kAvg < p;
-      const color = isBelow ? 'var(--green)' : '#D0C9C0';
-      const label = isBelow ? `▼ ${Math.abs(diff)}% más barato` : `▲ ${Math.abs(diff)}% más caro`;
-      const pctClass = isBelow ? 'color:var(--green)' : 'color:var(--red)';
-      html += `<div class="gap-row">
-        <div class="gap-brand">${marca}</div>
-        <div class="gap-price">${fmt(p)}</div>
-        <div class="gap-pct" style="${pctClass};font-size:11px">${label}</div>
-        <div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxPrice*100)}%;background:${color}"></div></div>
-      </div>`;
-    });
-
+  let html = `<div class="gap-row"><div class="gap-brand our-brand">● Nuestro precio promedio</div><div class="gap-price our-brand">${fmt(kAvg)}</div><div class="gap-pct">—</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxPrice*100)}%;background:var(--red)"></div></div></div>`;
+  Object.entries(brandMap).sort((a,b) => avg(b[1]) - avg(a[1])).forEach(([marca, prices]) => {
+    const p = avg(prices); const diff = ((kAvg - p) / p * 100).toFixed(1);
+    const isBelow = kAvg < p;
+    html += `<div class="gap-row"><div class="gap-brand">${marca}${isGourmet(marca)?'<span class="gourmet-badge">Gourmet</span>':''}</div><div class="gap-price">${fmt(p)}</div><div class="gap-pct" style="color:${isBelow?'var(--green)':'var(--red)'}; font-size:11px">${isBelow?`▼ ${Math.abs(diff)}% más barato`:`▲ ${Math.abs(diff)}% más caro`}</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxPrice*100)}%;background:${isBelow?'var(--green)':'#D0C9C0'}"></div></div></div>`;
+  });
   el.innerHTML = html;
 }
 
-// ---- TABLE ----
-function renderTable(id, rows) {
-  const tbody = document.querySelector('#' + id + ' tbody');
-  if (!tbody) return;
-  // Last record per marca+producto+cadena
-  const last = lastByKey(rows, r => r.marca+'||'+r.producto+'||'+r.cadena);
-  if (!last.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>`; return; }
-
-  tbody.innerHTML = last.sort((a,b) => (a.es_kansas===b.es_kansas)?0:a.es_kansas?-1:1).map(r => {
-    const isK = r.es_kansas;
-    const estado = r.estado || 'Disponible';
-    let estadoTag = '';
-    if (estado === 'No visto') estadoTag = '<span class="absent-tag">👁️ No visto</span>';
-    else if (estado === 'Sin stock') estadoTag = '<span class="nostock-tag">📦 Sin stock</span>';
-    const prev = getPrevPrice(r.marca, r.producto, r.cadena, r.fecha);
-    const delta = deltaIcon(r.precio_regular, prev);
-    return `<tr>
-      <td class="${isK?'our-brand':''}">${r.marca}</td>
-      <td style="font-size:12px">${r.producto}</td>
-      <td style="font-size:12px">${r.cadena}</td>
-      <td style="font-size:12px;color:var(--muted)">${r.zona||'—'}</td>
-      <td class="price-num">${r.precio_regular>0?fmt(r.precio_regular):'—'} ${delta}</td>
-      <td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td>
-      <td style="font-size:11px;color:var(--muted)">${r.dinamica||'—'}</td>
-      <td style="font-size:11px;color:var(--muted)">${estadoTag||formatDate(r.fecha)}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ---- COMPETENCIA ----
-function renderCompetencia() {
-  [
-    ['chartCompSalsas', CAT_SALSAS],
-    ['chartCompHummus', CAT_HUMMUS],
-    ['chartCompPanes', CAT_PANES]
-  ].forEach(([id, cat]) => {
-    destroyChart(id);
-    const rows = byCat(filteredRows, cat);
-    const brandMap = {};
-    rows.forEach(r => {
-      if (!brandMap[r.marca]) brandMap[r.marca] = [];
-      if (r.precio_regular > 0) brandMap[r.marca].push(r.precio_regular);
+// ═══ PRECIO POR GRAMO ═══
+function renderPorGramo(id, rows, highlightColor) {
+  const wrap = document.getElementById(id); if (!wrap) return;
+  const last = lastByKey(rows.filter(r => r.precio_regular > 0), r => r.marca + '||' + r.producto);
+  const withGrams = last.map(r => { const g = extractGrams(r.producto); const tipo = detectTipo(r.producto); if (!g || g < 50 || g > 5000 || !tipo) return null; return {...r, gramos:g, tipo, precio_por_gr:parseFloat((r.precio_regular/g).toFixed(2))}; }).filter(Boolean);
+  if (!withGrams.length) { wrap.innerHTML = '<div class="empty"><div class="icon">📐</div><p>Sin productos con gramaje identificado aún.</p></div>'; return; }
+  const tipos = [...new Set(withGrams.map(r=>r.tipo))].sort();
+  wrap.innerHTML = '';
+  tipos.forEach(tipo => {
+    const items = withGrams.filter(r=>r.tipo===tipo).sort((a,b)=>a.precio_por_gr-b.precio_por_gr);
+    if (!items.length) return;
+    const sec = document.createElement('div'); sec.style.cssText='margin-bottom:16px';
+    const tit = document.createElement('div'); tit.style.cssText='font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding-top:4px;border-top:1px solid var(--border)'; tit.textContent=tipo; sec.appendChild(tit);
+    const maxPG = Math.max(...items.map(r=>r.precio_por_gr));
+    items.forEach(r => {
+      const isK = r.es_kansas; const isGour = isGourmet(r.marca);
+      const color = isK ? 'var(--red)' : isGour ? 'var(--purple)' : '#B0A898';
+      const pct = Math.round((r.precio_por_gr/maxPG)*100);
+      const row = document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:5px';
+      row.innerHTML = `<div style="min-width:130px;font-size:11px;font-weight:${isK?'600':'400'};color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.marca} ${r.producto}">${r.marca} <span style="font-weight:400;color:var(--muted)">${r.gramos}g</span>${isGour?'<span class="gourmet-badge" style="margin-left:3px">G</span>':''}</div><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:55px;text-align:right;font-size:11px;font-weight:600;color:${color}">$${r.precio_por_gr.toFixed(1)}/g</div><div style="min-width:60px;text-align:right;font-size:10px;color:var(--muted)">${r.precio_regular.toLocaleString('es-AR')}</div>`;
+      sec.appendChild(row);
     });
-    const labels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
-    const data = labels.map(b => Math.round(avg(brandMap[b])));
-    const colors = labels.map(b => rows.find(r=>r.marca===b)?.es_kansas ? '#C8102E' : '#B0A898');
-
-    const ctx = document.getElementById(id);
-    if (!ctx || !labels.length) return;
-    charts[id] = new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 6 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
-          y: { ticks: { font:{size:10} }, grid:{display:false} }
-        }
-      }
-    });
+    wrap.appendChild(sec);
   });
 }
 
-// ---- DETALLE ----
-function renderDetalle() {
-  const cat = document.getElementById('detalleCategoria').value;
-  const marca = document.getElementById('detalleMarca').value;
-
-  let rows = filteredRows.filter(r => r.precio_regular > 0);
-  if (cat) rows = rows.filter(r => r.categoria === cat);
-  if (marca) rows = rows.filter(r => r.marca === marca);
-
-  // Update marcas dropdown
-  const marcas = [...new Set(
-    filteredRows.filter(r => !cat || r.categoria === cat).map(r => r.marca).filter(Boolean)
-  )].sort();
-  fill('detalleMarca', marcas, 'Todas las marcas');
-  if (marca) document.getElementById('detalleMarca').value = marca;
-
-  // Chart: price by cadena for selected brand
-  destroyChart('chartDetalle');
-  const cadenas = [...new Set(rows.map(r => r.cadena).filter(Boolean))].sort();
-  const chartRows = marca ? rows.filter(r => r.marca === marca) : rows;
-  const productos = [...new Set(chartRows.map(r => r.producto).filter(Boolean))];
-
-  document.getElementById('detalleChartTitle').textContent =
-    marca ? `${marca} — precio por cadena` : 'Precio promedio por cadena';
-
-  const datasets = productos.slice(0, 8).map((p, i) => ({
-    label: p,
-    data: cadenas.map(c => {
-      const rs = chartRows.filter(r => r.producto === p && r.cadena === c && r.precio_regular > 0);
-      return rs.length ? Math.round(avgPrice(rs)) : null;
-    }),
-    backgroundColor: PALETTE[i % PALETTE.length] + 'CC',
-    borderColor: PALETTE[i % PALETTE.length],
-    borderRadius: 6,
-  }));
-
-  const ctx = document.getElementById('chartDetalle');
-  if (ctx && cadenas.length) {
-    charts['chartDetalle'] = new Chart(ctx, {
-      type: 'bar',
-      data: { labels: cadenas, datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font:{size:11}, boxWidth:12 } } },
-        scales: {
-          y: { ticks: { callback: v => '$'+v.toLocaleString('es-AR'), font:{size:10} }, grid:{color:'#E8E2D9'} },
-          x: { ticks: { font:{size:11} }, grid:{display:false} }
-        }
-      }
-    });
-  }
-
-  // Table
+// ═══ TABLA GENÉRICA ═══
+function renderTableRows(id, rows) {
+  const tbody = document.querySelector('#' + id + ' tbody'); if (!tbody) return;
   const last = lastByKey(rows, r => r.marca+'||'+r.producto+'||'+r.cadena);
-  const tbody = document.querySelector('#tablaDetalle tbody');
-  if (!tbody) return;
-  if (!last.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>`; return; }
-  tbody.innerHTML = last.map(r => {
-    const isK = r.es_kansas;
-    const estado = r.estado || 'Disponible';
-    return `<tr>
-      <td class="${isK?'our-brand':''}" style="font-size:12px">${r.marca}</td>
-      <td style="font-size:12px">${r.producto}</td>
-      <td style="font-size:12px">${r.cadena}</td>
-      <td style="font-size:12px;color:var(--muted)">${r.zona||'—'}</td>
-      <td class="price-num">${fmt(r.precio_regular)}</td>
-      <td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td>
-      <td style="font-size:11px;color:var(--muted)">${r.dinamica||'—'}</td>
-      <td>${estado!=='Disponible'?`<span class="${estado==='No visto'?'absent-tag':'nostock-tag'}">${estado}</span>`:''}</td>
-      <td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td>
-    </tr>`;
+  if (!last.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>`; return; }
+  tbody.innerHTML = last.sort((a,b) => a.es_kansas===b.es_kansas?0:a.es_kansas?-1:1).map(r => {
+    const isK = r.es_kansas; const estado = r.estado || 'Disponible';
+    let estadoTag = ''; if (estado==='No visto') estadoTag='<span class="absent-tag">👁️ No visto</span>'; else if (estado==='Sin stock') estadoTag='<span class="nostock-tag">📦 Sin stock</span>';
+    const prev = getPrevPrice(r.marca, r.producto, r.cadena, r.fecha);
+    return `<tr><td class="${isK?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td style="color:var(--muted)">${r.zona||'—'}</td><td class="price-num">${r.precio_regular>0?fmt(r.precio_regular):'—'} ${deltaIcon(r.precio_regular,prev)}</td><td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td><td style="color:var(--muted)">${r.dinamica||'—'}</td><td>${estadoTag||formatDate(r.fecha)}</td></tr>`;
   }).join('');
 }
 
-// ---- NAVEGACION MES ----
-function cambiarMes(dir) {
-  const sel = document.getElementById('filterMes');
-  if (!sel || !sel.options.length) return;
-  const opts = [...sel.options].map(o => o.value).filter(Boolean).sort();
-  const cur = sel.value || opts[opts.length - 1];
-  const idx = opts.indexOf(cur);
-  const newIdx = Math.max(0, Math.min(opts.length - 1, idx - dir)); // -1 = anterior (más viejo), +1 = siguiente (más nuevo)
-  if (opts[newIdx]) {
-    sel.value = opts[newIdx];
-    applyFilters();
+// ═══ SALSAS ═══
+function getSalsasRows(cadenaSel) {
+  return filteredRows.filter(r => r.categoria === CAT_SALSAS && (!cadenaSel || r.cadena === cadenaSel));
+}
+
+function renderSalsasGeneral() {
+  const cadSku = document.getElementById('fltSalsasSkuCadena')?.value || '';
+  const cadComp = document.getElementById('fltSalsasCompCadena')?.value || '';
+  const rowsSku = getSalsasRows(cadSku);
+  const rowsComp = getSalsasRows(cadComp);
+
+  // SKU chart
+  destroyChart('chartSalsasSku');
+  const skuMap = {}; rowsSku.filter(r=>r.es_kansas).forEach(r => { if (!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha) skuMap[r.producto]=r; });
+  const skuLabels = Object.keys(skuMap); const skuData = skuLabels.map(k=>skuMap[k].precio_regular);
+  const ctxSku = document.getElementById('chartSalsasSku');
+  if (ctxSku && skuLabels.length) charts['chartSalsasSku'] = new Chart(ctxSku, { type:'bar', data:{labels:skuLabels,datasets:[{data:skuData,backgroundColor:'#C8102E',borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  // Comp chart
+  destroyChart('chartSalsasComp');
+  const brandMap = {}; rowsComp.filter(r=>r.precio_regular>0).forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca]=[]; brandMap[r.marca].push(r.precio_regular); });
+  const bLabels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
+  const bData = bLabels.map(b=>Math.round(avg(brandMap[b])));
+  const bColors = bLabels.map(b => rowsComp.find(r=>r.marca===b)?.es_kansas ? '#C8102E' : '#D0C9C0');
+  const ctxComp = document.getElementById('chartSalsasComp');
+  if (ctxComp && bLabels.length) charts['chartSalsasComp'] = new Chart(ctxComp, { type:'bar', data:{labels:bLabels,datasets:[{data:bData,backgroundColor:bColors,borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},y:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  renderGap('gapSalsas', rowsComp.filter(r=>r.precio_regular>0));
+  renderPorGramo('chartSalsasPorGramo', rowsComp);
+}
+
+function renderSalsasVsProducto() {
+  const tipo = document.getElementById('fltSalsasTipo')?.value || '';
+  const cadena = document.getElementById('fltSalsasVsCadena')?.value || '';
+  let rows = filteredRows.filter(r => r.categoria === CAT_SALSAS && r.precio_regular > 0 && (!cadena || r.cadena === cadena));
+  if (tipo) rows = rows.filter(r => detectTipo(r.producto) === tipo);
+
+  destroyChart('chartSalsasVsProducto');
+  const tiposPresentes = tipo ? [tipo] : [...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
+
+  const kansasAvgByTipo = {};
+  tiposPresentes.forEach(t => { const rs = rows.filter(r => r.es_kansas && detectTipo(r.producto) === t); kansasAvgByTipo[t] = avgPrice(rs) || 0; });
+
+  const marcas = [...new Set(rows.map(r=>r.marca).filter(Boolean))];
+  const ctx = document.getElementById('chartSalsasVsProducto');
+  if (ctx) {
+    charts['chartSalsasVsProducto'] = new Chart(ctx, {
+      type:'bar',
+      data:{ labels:tiposPresentes, datasets:marcas.slice(0,8).map((m,i) => ({ label:m, data:tiposPresentes.map(t => { const rs = rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t); return avgPrice(rs) ? Math.round(avgPrice(rs)) : null; }), backgroundColor: rows.find(r=>r.marca===m)?.es_kansas ? '#C8102E' : PALETTE[i%PALETTE.length]+'99', borderRadius:4 })) },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{ y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}}, x:{ticks:{font:{size:10}},grid:{display:false}} } }
+    });
+  }
+
+  // Tabla vs
+  const last = lastByKey(rows, r=>r.marca+'||'+r.producto+'||'+r.cadena);
+  const tbody = document.querySelector('#tablaSalsasVs tbody'); if (!tbody) return;
+  tbody.innerHTML = last.map(r => {
+    const t = detectTipo(r.producto) || '—';
+    const kAvg = kansasAvgByTipo[t] || 0;
+    const diff = kAvg > 0 ? ((r.precio_regular - kAvg) / kAvg * 100).toFixed(1) : null;
+    return `<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;
+  }).join('');
+}
+
+function renderSalsasEvol2() {
+  const cadena = document.getElementById('fltSalsasEvolCadena')?.value || '';
+  const rows = filteredRows.filter(r => r.es_kansas && r.categoria === CAT_SALSAS && r.precio_regular > 0 && (!cadena || r.cadena === cadena));
+  destroyChart('chartSalsasEvol2');
+  const fechas = [...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();
+  if (!fechas.length) return;
+  const ctx = document.getElementById('chartSalsasEvol2'); if (!ctx) return;
+  charts['chartSalsasEvol2'] = new Chart(ctx, { type:'line', data:{ labels:fechas.map(formatDate), datasets:[{ label:'Kansas Salsas', data:fechas.map(f => { const rs=rows.filter(r=>r.fecha===f); return rs.length?Math.round(avgPrice(rs)):null; }), borderColor:'#C8102E', backgroundColor:'#C8102E22', tension:0.3, fill:true, spanGaps:true, pointRadius:3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}}, x:{ticks:{font:{size:9}},grid:{color:'#E8E2D9'}} } } });
+}
+
+function renderTablaSalsas() {
+  const prod = document.getElementById('fltSalsasTablaProducto')?.value || '';
+  const cad = document.getElementById('fltSalsasTablaCadena')?.value || '';
+  let rows = filteredRows.filter(r => r.categoria === CAT_SALSAS && (!prod || r.producto === prod) && (!cad || r.cadena === cad));
+  renderTableRows('tablaSalsas', rows);
+}
+
+// ═══ HUMMUS ═══
+function getHummusRows(cadenaSel, soloDirecta) {
+  let rows = filteredRows.filter(r => r.categoria === CAT_HUMMUS && (!cadenaSel || r.cadena === cadenaSel));
+  if (soloDirecta) rows = rows.filter(r => r.es_kansas || !isGourmet(r.marca));
+  return rows;
+}
+
+function renderHummusGeneral() {
+  const cadSku = document.getElementById('fltHummusSkuCadena')?.value || '';
+  const cadComp = document.getElementById('fltHummusCompCadena')?.value || '';
+  const gourmetFlt = document.getElementById('fltHummusCompGourmet')?.value || 'directa';
+  const soloDirecta = gourmetFlt === 'directa';
+
+  const rowsSku = getHummusRows(cadSku, false);
+  const rowsComp = getHummusRows(cadComp, soloDirecta);
+
+  destroyChart('chartHummusSku');
+  const skuMap = {}; rowsSku.filter(r=>r.es_kansas).forEach(r => { if (!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha) skuMap[r.producto]=r; });
+  const skuLabels = Object.keys(skuMap); const skuData = skuLabels.map(k=>skuMap[k].precio_regular);
+  const ctxSku = document.getElementById('chartHummusSku');
+  if (ctxSku && skuLabels.length) charts['chartHummusSku'] = new Chart(ctxSku, { type:'bar', data:{labels:skuLabels,datasets:[{data:skuData,backgroundColor:'#D9662E',borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  destroyChart('chartHummusComp');
+  const brandMap = {}; rowsComp.filter(r=>r.precio_regular>0).forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca]=[]; brandMap[r.marca].push(r.precio_regular); });
+  const bLabels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
+  const bColors = bLabels.map(b => { const r = rowsComp.find(rx=>rx.marca===b); return r?.es_kansas ? '#D9662E' : isGourmet(b) ? '#9B72D0' : '#D0C9C0'; });
+  const ctxComp = document.getElementById('chartHummusComp');
+  if (ctxComp && bLabels.length) charts['chartHummusComp'] = new Chart(ctxComp, { type:'bar', data:{labels:bLabels,datasets:[{data:bLabels.map(b=>Math.round(avg(brandMap[b]))),backgroundColor:bColors,borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},y:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  renderGap('gapHummus', getHummusRows(cadComp, false).filter(r=>r.precio_regular>0));
+  renderPorGramo('chartHummusPorGramo', getHummusRows(cadComp, false));
+}
+
+function renderHummusVsProducto() {
+  const sabor = document.getElementById('fltHummusSabor')?.value || '';
+  const cadena = document.getElementById('fltHummusVsCadena')?.value || '';
+  let rows = filteredRows.filter(r => r.categoria === CAT_HUMMUS && r.precio_regular > 0 && (!cadena || r.cadena === cadena));
+  if (sabor) rows = rows.filter(r => detectTipo(r.producto) === sabor);
+
+  const tiposPresentes = sabor ? [sabor] : [...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
+  const kansasAvgByTipo = {};
+  tiposPresentes.forEach(t => { const rs = rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t); kansasAvgByTipo[t] = avgPrice(rs)||0; });
+
+  destroyChart('chartHummusVsProducto');
+  const marcas = [...new Set(rows.map(r=>r.marca).filter(Boolean))];
+  const ctx = document.getElementById('chartHummusVsProducto');
+  if (ctx) {
+    charts['chartHummusVsProducto'] = new Chart(ctx, {
+      type:'bar',
+      data:{ labels:tiposPresentes, datasets:marcas.slice(0,8).map((m,i) => ({ label:m, data:tiposPresentes.map(t => { const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t); return avgPrice(rs)?Math.round(avgPrice(rs)):null; }), backgroundColor: rows.find(r=>r.marca===m)?.es_kansas?'#D9662E':isGourmet(m)?'#9B72D0':PALETTE[i%PALETTE.length]+'99', borderRadius:4 })) },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}} }
+    });
+  }
+
+  const last = lastByKey(rows, r=>r.marca+'||'+r.producto+'||'+r.cadena);
+  const tbody = document.querySelector('#tablaHummusVs tbody'); if (!tbody) return;
+  tbody.innerHTML = last.map(r => {
+    const t = detectTipo(r.producto)||'—'; const kAvg = kansasAvgByTipo[t]||0;
+    const diff = kAvg>0?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;
+    const seg = r.es_kansas?'Propia':isGourmet(r.marca)?'<span class="gourmet-badge">Gourmet</span>':'Directa';
+    return `<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td><td>${seg}</td></tr>`;
+  }).join('');
+}
+
+function renderHummusRanking() {
+  const cadena = document.getElementById('fltHummusRankingCadena')?.value || '';
+  const rows = filteredRows.filter(r => r.categoria === CAT_HUMMUS && r.precio_regular > 0 && (!cadena || r.cadena === cadena));
+  const brandMap = {};
+  rows.forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca]={prices:[],cadenas:new Set()}; brandMap[r.marca].prices.push(r.precio_regular); brandMap[r.marca].cadenas.add(r.cadena); });
+
+  const kAvg = avgPrice(rows.filter(r=>r.es_kansas));
+  const sorted = Object.entries(brandMap).map(([marca,d]) => ({ marca, avg:avg(d.prices), cadenas:[...d.cadenas].join(', ') })).sort((a,b)=>a.avg-b.avg);
+
+  destroyChart('chartHummusRanking');
+  const ctx = document.getElementById('chartHummusRanking');
+  if (ctx) {
+    const colors = sorted.map(({marca}) => rows.find(r=>r.marca===marca)?.es_kansas ? '#D9662E' : isGourmet(marca) ? '#9B72D0' : '#B0A898');
+    charts['chartHummusRanking'] = new Chart(ctx, { type:'bar', data:{ labels:sorted.map(s=>s.marca), datasets:[{data:sorted.map(s=>Math.round(s.avg)),backgroundColor:colors,borderRadius:5}] }, options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}}, y:{ticks:{font:{size:10}},grid:{display:false}} } } });
+  }
+
+  const tbody = document.querySelector('#tablaHummusRanking tbody'); if (!tbody) return;
+  tbody.innerHTML = sorted.map(({marca,avg:p,cadenas},i) => {
+    const isK = rows.find(r=>r.marca===marca)?.es_kansas;
+    const isG = isGourmet(marca);
+    const diff = kAvg>0?((p-kAvg)/kAvg*100).toFixed(1):null;
+    const seg = isK?'<span class="badge badge-red">Propia</span>':isG?'<span class="gourmet-badge">Gourmet</span>':'Directa';
+    return `<tr><td style="font-weight:600">${i+1}</td><td class="${isK?'our-brand':''}">${marca}</td><td>${seg}</td><td class="price-num">${fmt(p)}</td><td>${diff!==null?`<span class="${parseFloat(diff)>0?'delta-up-sm':'delta-down-sm'}">${parseFloat(diff)>0?'+':''}${diff}%</span>`:'—'}</td><td style="font-size:11px;color:var(--muted)">${cadenas}</td></tr>`;
+  }).join('');
+}
+
+function renderHummusEvol2() {
+  const cadena = document.getElementById('fltHummusEvolCadena')?.value || '';
+  const rows = filteredRows.filter(r => r.es_kansas && r.categoria === CAT_HUMMUS && r.precio_regular > 0 && (!cadena || r.cadena === cadena));
+  destroyChart('chartHummusEvol2');
+  const fechas = [...new Set(rows.map(r=>r.fecha).filter(Boolean))].sort();
+  if (!fechas.length) return;
+  const ctx = document.getElementById('chartHummusEvol2'); if (!ctx) return;
+  charts['chartHummusEvol2'] = new Chart(ctx, { type:'line', data:{ labels:fechas.map(formatDate), datasets:[{ label:'Kyros Hummus', data:fechas.map(f => { const rs=rows.filter(r=>r.fecha===f); return rs.length?Math.round(avgPrice(rs)):null; }), borderColor:'#D9662E', backgroundColor:'#D9662E22', tension:0.3, fill:true, spanGaps:true, pointRadius:3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}}, x:{ticks:{font:{size:9}},grid:{color:'#E8E2D9'}} } } });
+}
+
+function renderTablaHummus() {
+  const prod = document.getElementById('fltHummusTablaProducto')?.value || '';
+  const cad = document.getElementById('fltHummusTablaCadena')?.value || '';
+  let rows = filteredRows.filter(r => r.categoria === CAT_HUMMUS && (!prod || r.producto === prod) && (!cad || r.cadena === cad));
+  renderTableRows('tablaHummus', rows);
+}
+
+// ═══ PANES ═══
+function getPanesRows(cadenaSel) {
+  // Solo filas que son genuinamente panificados — excluir hummus que pueda tener categoria mal seteada
+  return filteredRows.filter(r => r.categoria === CAT_PANES && (!cadenaSel || r.cadena === cadenaSel));
+}
+
+function renderPanesGeneral() {
+  const cadSku = document.getElementById('fltPanesSkuCadena')?.value || '';
+  const cadComp = document.getElementById('fltPanesCompCadena')?.value || '';
+  const rowsSku = getPanesRows(cadSku);
+  const rowsComp = getPanesRows(cadComp);
+
+  destroyChart('chartPanesSku');
+  const skuMap = {}; rowsSku.filter(r=>r.es_kansas).forEach(r => { if (!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha) skuMap[r.producto]=r; });
+  const skuLabels = Object.keys(skuMap);
+  const ctxSku = document.getElementById('chartPanesSku');
+  if (ctxSku && skuLabels.length) charts['chartPanesSku'] = new Chart(ctxSku, { type:'bar', data:{labels:skuLabels,datasets:[{data:skuLabels.map(k=>skuMap[k].precio_regular),backgroundColor:'#C8102E',borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  destroyChart('chartPanesComp');
+  const brandMap = {}; rowsComp.filter(r=>r.precio_regular>0).forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca]=[]; brandMap[r.marca].push(r.precio_regular); });
+  const bLabels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
+  const bColors = bLabels.map(b => rowsComp.find(r=>r.marca===b)?.es_kansas ? '#C8102E' : '#D0C9C0');
+  const ctxComp = document.getElementById('chartPanesComp');
+  if (ctxComp && bLabels.length) charts['chartPanesComp'] = new Chart(ctxComp, { type:'bar', data:{labels:bLabels,datasets:[{data:bLabels.map(b=>Math.round(avg(brandMap[b]))),backgroundColor:bColors,borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},y:{ticks:{font:{size:9}},grid:{display:false}}}} });
+
+  renderGap('gapPanes', rowsComp.filter(r=>r.precio_regular>0));
+  renderPorGramo('chartPanesPorGramo', rowsComp);
+}
+
+function renderPanesVsProducto() {
+  const tipo = document.getElementById('fltPanesTipo')?.value || '';
+  const cadena = document.getElementById('fltPanesVsCadena')?.value || '';
+  let rows = getPanesRows(cadena).filter(r=>r.precio_regular>0);
+  if (tipo) rows = rows.filter(r => detectTipo(r.producto) === tipo);
+
+  const tiposPresentes = tipo ? [tipo] : [...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
+  const kansasAvgByTipo = {};
+  tiposPresentes.forEach(t => { const rs = rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t); kansasAvgByTipo[t] = avgPrice(rs)||0; });
+
+  destroyChart('chartPanesVsProducto');
+  const marcas = [...new Set(rows.map(r=>r.marca).filter(Boolean))];
+  const ctx = document.getElementById('chartPanesVsProducto');
+  if (ctx) {
+    charts['chartPanesVsProducto'] = new Chart(ctx, {
+      type:'bar',
+      data:{ labels:tiposPresentes, datasets:marcas.slice(0,8).map((m,i) => ({ label:m, data:tiposPresentes.map(t => { const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t); return avgPrice(rs)?Math.round(avgPrice(rs)):null; }), backgroundColor: rows.find(r=>r.marca===m)?.es_kansas?'#C8102E':PALETTE[i%PALETTE.length]+'99', borderRadius:4 })) },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}} }
+    });
+  }
+
+  const last = lastByKey(rows, r=>r.marca+'||'+r.producto+'||'+r.cadena);
+  const tbody = document.querySelector('#tablaPanesVs tbody'); if (!tbody) return;
+  tbody.innerHTML = last.map(r => {
+    const t = detectTipo(r.producto)||'—'; const kAvg = kansasAvgByTipo[t]||0;
+    const diff = kAvg>0?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;
+    return `<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;
+  }).join('');
+}
+
+function renderTablaPanes() {
+  const prod = document.getElementById('fltPanesTablaProducto')?.value || '';
+  const cad = document.getElementById('fltPanesTablaCadena')?.value || '';
+  let rows = getPanesRows(cad).filter(r => !prod || r.producto === prod);
+  renderTableRows('tablaPanes', rows);
+}
+
+// ═══ ECOMMERCE ═══
+function renderEcommerce() {
+  const ecomRows = allRows.filter(r => String(r.canal||'').toLowerCase() === 'ecommerce' && r.precio_regular > 0 && !isGastro(r));
+  const gondolaRows = allRows.filter(r => String(r.canal||'').toLowerCase() !== 'ecommerce' && r.precio_regular > 0 && !isGastro(r));
+  const compEl = document.getElementById('ecommerceComparativa');
+  if (!ecomRows.length) {
+    compEl.innerHTML = `<div class="insight" style="background:var(--blue-light);border-color:#90CAF9"><strong>🌐 Sin datos de ecommerce aún</strong> Usá la app y seleccioná "Ecommerce" al cargar precios desde las webs de las cadenas.</div>`;
+  } else {
+    const cats = [{cat:CAT_SALSAS,label:'Salsas Kansas'},{cat:CAT_HUMMUS,label:'Kyros Hummus'},{cat:CAT_PANES,label:'Panificados'}];
+    const cards = cats.map(({cat,label}) => {
+      const eAvg = avgPrice(ecomRows.filter(r=>r.es_kansas&&r.categoria===cat));
+      const gAvg = avgPrice(gondolaRows.filter(r=>r.es_kansas&&r.categoria===cat));
+      if (!eAvg) return '';
+      const diff = gAvg?((eAvg-gAvg)/gAvg*100):null;
+      return `<div class="kpi-chip"><div class="kpi-label">${label} — Web</div><div class="kpi-value">${fmt(eAvg)}</div><div class="kpi-sub">${diff!==null?`${diff>0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}% vs góndola`:''}</div></div>`;
+    }).filter(Boolean);
+    compEl.innerHTML = `<div class="kpi-row">${cards.join('')}</div>`;
+  }
+  [['chartEcomSalsas',CAT_SALSAS],['chartEcomHummus',CAT_HUMMUS]].forEach(([id,cat]) => {
+    destroyChart(id);
+    const ctx = document.getElementById(id); if (!ctx) return;
+    const cadenas = [...new Set(allRows.map(r=>r.cadena).filter(Boolean))].sort();
+    charts[id] = new Chart(ctx, { type:'bar', data:{ labels:cadenas, datasets:[{label:'🌐 Ecommerce',data:cadenas.map(c=>Math.round(avgPrice(ecomRows.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#1565C0CC',borderRadius:4},{label:'🛒 Góndola',data:cadenas.map(c=>Math.round(avgPrice(gondolaRows.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#C8102ECC',borderRadius:4}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}} } });
+  });
+  const tbody = document.querySelector('#tablaEcommerce tbody'); if (!tbody) return;
+  const lastEcom = lastByKey(ecomRows, r=>r.marca+'||'+r.producto+'||'+r.cadena);
+  if (!lastEcom.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce aún</td></tr>'; return; }
+  tbody.innerHTML = lastEcom.map(r => {
+    const gondola = gondolaRows.filter(rx=>rx.marca===r.marca&&rx.producto===r.producto&&rx.cadena===r.cadena&&rx.precio_regular>0);
+    const gAvg = gondola.length?Math.round(avgPrice(gondola)):null;
+    const diff = gAvg&&r.precio_regular?((r.precio_regular-gAvg)/gAvg*100):null;
+    return `<tr><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td class="price-num">${gAvg?fmt(gAvg):'—'}</td><td>${diff!==null?`<span class="${diff>0?'delta-up-sm':'delta-down-sm'}">${diff>0?'↑':'↓'} ${Math.abs(diff).toFixed(1)}%</span>`:'—'}</td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;
+  }).join('');
+}
+
+function renderGastro() {
+  const gastroRows = allRows.filter(r => isGastro(r) && r.precio_regular > 0);
+  const tbody = document.getElementById('tablaGastroBody'); if (!tbody) return;
+  if (!gastroRows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos gastronómicos cargados aún.<br><span style="font-size:11px">Usá la app de carga y seleccioná "Gastronomía · Pazzy" o "Gastronomía · Kaliz"</span></td></tr>'; return; }
+  const plataformaFrecuencia = { 'pazzy':'Frecuente', 'kaliz':'Semestral' };
+  tbody.innerHTML = gastroRows.map(r => {
+    const plataforma = Object.keys(plataformaFrecuencia).find(p => String(r.cadena||r.canal||'').toLowerCase().includes(p)) || 'Otro';
+    const freq = plataformaFrecuencia[plataforma.toLowerCase()] || '—';
+    return `<tr><td style="font-weight:600;text-transform:capitalize">${plataforma}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.canal||'—'}</td><td><span class="badge ${freq==='Frecuente'?'badge-green':'badge-warn'}">${freq}</span></td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;
+  }).join('');
+  const gastroKpis = document.getElementById('gastroKpis');
+  if (gastroKpis) {
+    const pazzyRows = gastroRows.filter(r => String(r.cadena||r.canal||'').toLowerCase().includes('pazzy'));
+    const kalizRows = gastroRows.filter(r => String(r.cadena||r.canal||'').toLowerCase().includes('kaliz'));
+    gastroKpis.innerHTML = `<div class="kpi-row">${[{label:'Pazzy — Precio prom.',rows:pazzyRows},{label:'Kaliz — Precio prom.',rows:kalizRows}].map(({label,rows}) => `<div class="kpi-chip"><div class="kpi-label">${label}</div><div class="kpi-value">${fmt(avgPrice(rows.filter(r=>r.es_kansas)))}</div><div class="kpi-sub">${rows.length} productos relevados</div></div>`).join('')}</div>`;
   }
 }
 
-// ---- START ----
+// ═══ COMPETENCIA ═══
+function renderCompetencia() {
+  const cadena = document.getElementById('fltCompCadena')?.value || '';
+  const rows = filteredRows.filter(r => !cadena || r.cadena === cadena);
+  [[CAT_SALSAS,'chartCompSalsas'],[CAT_HUMMUS,'chartCompHummus'],[CAT_PANES,'chartCompPanes']].forEach(([cat,id]) => {
+    destroyChart(id);
+    const catRows = rows.filter(r=>r.categoria===cat&&r.precio_regular>0);
+    const brandMap = {}; catRows.forEach(r => { if (!brandMap[r.marca]) brandMap[r.marca]=[]; brandMap[r.marca].push(r.precio_regular); });
+    const labels = Object.keys(brandMap).sort((a,b)=>avg(brandMap[b])-avg(brandMap[a]));
+    const data = labels.map(b=>Math.round(avg(brandMap[b])));
+    const colors = labels.map(b => { const r=catRows.find(rx=>rx.marca===b); return r?.es_kansas?'#C8102E':isGourmet(b)?'#9B72D0':'#B0A898'; });
+    const ctx = document.getElementById(id); if (!ctx||!labels.length) return;
+    charts[id] = new Chart(ctx, { type:'bar', data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:5}]}, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},y:{ticks:{font:{size:10}},grid:{display:false}}}} });
+  });
+}
+
+// ═══ DETALLE ═══
+function renderDetalle() {
+  const cat = document.getElementById('detalleCategoria').value;
+  const marca = document.getElementById('detalleMarca').value;
+  const producto = document.getElementById('detalleProducto').value;
+  const cadena = document.getElementById('detalleCadena').value;
+  let rows = filteredRows.filter(r => r.precio_regular > 0);
+  if (cat) rows = rows.filter(r => r.categoria === cat);
+  if (marca) rows = rows.filter(r => r.marca === marca);
+  if (producto) rows = rows.filter(r => r.producto === producto);
+  if (cadena) rows = rows.filter(r => r.cadena === cadena);
+
+  const marcas = [...new Set(filteredRows.filter(r=>!cat||r.categoria===cat).map(r=>r.marca).filter(Boolean))].sort();
+  fill('detalleMarca', marcas, 'Todas las marcas');
+  if (marca) document.getElementById('detalleMarca').value = marca;
+  const productos = [...new Set(filteredRows.filter(r=>(!cat||r.categoria===cat)&&(!marca||r.marca===marca)).map(r=>r.producto).filter(Boolean))].sort();
+  fill('detalleProducto', productos, 'Todos los productos');
+  if (producto) document.getElementById('detalleProducto').value = producto;
+
+  destroyChart('chartDetalle');
+  const cadenas = [...new Set(rows.map(r=>r.cadena).filter(Boolean))].sort();
+  const chartRows = rows;
+  const prods = [...new Set(chartRows.map(r=>r.producto).filter(Boolean))];
+  document.getElementById('detalleChartTitle').textContent = marca ? `${marca} — precio por cadena` : 'Precio promedio por cadena';
+  const ctx = document.getElementById('chartDetalle');
+  if (ctx && cadenas.length) {
+    charts['chartDetalle'] = new Chart(ctx, { type:'bar', data:{ labels:cadenas, datasets:prods.slice(0,8).map((p,i) => ({ label:p, data:cadenas.map(c => { const rs=chartRows.filter(r=>r.producto===p&&r.cadena===c&&r.precio_regular>0); return rs.length?Math.round(avgPrice(rs)):null; }), backgroundColor:PALETTE[i%PALETTE.length]+'CC', borderColor:PALETTE[i%PALETTE.length], borderRadius:5 })) }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}, scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString('es-AR'),font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}} } });
+  }
+
+  const last = lastByKey(rows, r=>r.marca+'||'+r.producto+'||'+r.cadena);
+  const tbody = document.querySelector('#tablaDetalle tbody'); if (!tbody) return;
+  if (!last.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>'; return; }
+  tbody.innerHTML = last.map(r => {
+    const isK = r.es_kansas; const estado = r.estado||'Disponible';
+    return `<tr><td class="${isK?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td style="color:var(--muted)">${r.zona||'—'}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td><td style="color:var(--muted)">${r.dinamica||'—'}</td><td>${estado!=='Disponible'?`<span class="${estado==='No visto'?'absent-tag':'nostock-tag'}">${estado}</span>`:''}</td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;
+  }).join('');
+}
+
+// ═══ NAVEGACION MES ═══
+function cambiarMes(dir) {
+  const sel = document.getElementById('filterMes'); if (!sel||!sel.options.length) return;
+  const opts = [...sel.options].map(o=>o.value).filter(Boolean).sort();
+  const cur = sel.value || opts[opts.length-1];
+  const idx = opts.indexOf(cur);
+  const newIdx = Math.max(0, Math.min(opts.length-1, idx-dir));
+  if (opts[newIdx]) { sel.value=opts[newIdx]; applyFilters(); }
+}
+
 loadData();
 </script>
 </body>
