@@ -244,25 +244,6 @@ tr:hover td{background:#FAF8F5;}
     <!-- KPIs anuales -->
     <div class="kpi-row" id="kpiRow"></div>
 
-    <!-- Semáforo de competitividad por cadena -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Competitividad por cadena</div>
-          <div class="chart-sub">🟢 somos más baratos que la categoría &nbsp;·&nbsp; 🟡 dentro del 5% &nbsp;·&nbsp; 🔴 somos más caros</div>
-        </div>
-        <div class="chart-filters">
-          <select class="filter-select" id="fltSemaforoCat" onchange="renderSemaforo()" style="font-size:11px">
-            <option value="">Todas las categorías</option>
-            <option value="Salsas Kansas">Salsas</option>
-            <option value="Kyros Hummus">Hummus</option>
-            <option value="Panificados Kansas">Panes</option>
-          </select>
-        </div>
-      </div>
-      <div id="semaforoGrid" class="semaforo-grid"></div>
-    </div>
-
     <!-- Evolución anual -->
     <div class="grid-2">
       <div class="chart-card">
@@ -297,20 +278,32 @@ tr:hover td{background:#FAF8F5;}
       <div id="skuPorCadenaViz"></div>
     </div>
 
-    <!-- Ausencias con semanas -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div><div class="chart-title">Productos sin presencia</div><div class="chart-sub">Cuántas semanas seguidas sin aparecer en góndola</div></div>
-      </div>
-      <div id="ausenciasPanel"></div>
-    </div>
-
     <!-- Cobertura -->
     <div class="chart-card">
       <div class="chart-title" style="margin-bottom:10px">Cobertura por cadena</div>
       <div id="coberturaTable"></div>
     </div>
-  </div>
+  <!-- Semáforo de competitividad por cadena -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Competitividad por cadena</div>
+          <div class="chart-sub">🟢 somos más baratos que la categoría &nbsp;·&nbsp; 🟡 dentro del 5% &nbsp;·&nbsp; 🔴 somos más caros</div>
+        </div>
+        <div class="chart-filters">
+          <select class="filter-select" id="fltSemaforoCat" onchange="renderSemaforo()" style="font-size:11px">
+            <option value="">Todas las categorías</option>
+            <option value="Salsas Kansas">Salsas</option>
+            <option value="Kyros Hummus">Hummus</option>
+            <option value="Panificados Kansas">Panes</option>
+          </select>
+        </div>
+      </div>
+      <div id="semaforoGrid" class="semaforo-grid"></div>
+    </div>
+
+    
+    </div>
 
   <!-- ══════════════════════════════════════════ SALSAS ══════════════════════════════════════════ -->
   <div class="section" id="sec-salsas">
