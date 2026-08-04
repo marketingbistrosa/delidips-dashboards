@@ -774,10 +774,16 @@ function detectTipo(producto) {
   return null;
 }
 
-function extractGrams(nombre) {
+function extractGrams(nombre, categoria) {
   const upper = String(nombre||'').toUpperCase().trim();
-  const GRAMAJE = {'CLÁSICO':230,'CLASICO':230,'CON ACEITE DE OLIVA':230,'OLIVA':230,'PIMENTÓN':230,'PIMENTON':230,'POROTO NEGRO':230,'AJO AHUMADO':230,'REMOLACHA':230,'BABAGANUSH':230,'TAHINI':300,'CAESAR':260,'CHEDDAR SAUCE':265,'AIOLI SAUCE':265,'BARBACOA':295,'HONEY MUSTARD':280,'VINAGRETA':270,'CHIMICHURRI':280,'KETCHUP CURRY':295,'KETCHUP SPICY':295,'KETCHUP AMERICAN':295};
-  for (const [k,g] of Object.entries(GRAMAJE)) { if (upper.includes(k.toUpperCase())) return g; }
+  // Gramajes específicos por categoría — evita cross-match entre categorías
+  const GRAMAJE_HUMMUS = {'CLÁSICO':230,'CLASICO':230,'CON ACEITE DE OLIVA':230,'OLIVA':230,'PIMENTÓN':230,'PIMENTON':230,'POROTO NEGRO':230,'AJO AHUMADO':230,'REMOLACHA':230,'BABAGANUSH':230,'TAHINI':300};
+  const GRAMAJE_SALSAS = {'CAESAR':260,'CHEDDAR SAUCE':265,'AIOLI SAUCE':265,'AIOLI':265,'BARBACOA':295,'HONEY MUSTARD':280,'VINAGRETA':270,'CHIMICHURRI':280,'KETCHUP CURRY':295,'KETCHUP SPICY':295,'KETCHUP AMERICAN':295,'KETCHUP':295,'MAYONESA':285,'MOSTAZA':285};
+  let dict = {};
+  if (categoria === 'Kyros Hummus') dict = GRAMAJE_HUMMUS;
+  else if (categoria === 'Salsas Kansas') dict = GRAMAJE_SALSAS;
+  // Para panes solo usamos el gramaje del nombre del producto
+  for (const [k,g] of Object.entries(dict)) { if (upper.includes(k.toUpperCase())) return g; }
   const m = upper.match(/(\d+)\s*G(?:R(?:S)?)?(?:\s|$|\/|\-|X)/); if (m) return parseInt(m[1]);
   const m2 = upper.match(/(\d+)\s*G(?:R(?:S)?)?$/); if (m2) return parseInt(m2[1]);
   return null;
@@ -1012,7 +1018,12 @@ function renderGap(id, rows, exclBaba=false) {
   const el = document.getElementById(id); if (!el) return;
   let r = exclBaba?rows.filter(x=>!x.esBaba):rows;
   const kAvg = avgPrice(r.filter(x=>x.es_kansas&&x.precio_regular>0));
-  if (!kAvg){el.innerHTML='<div class="empty"><div class="icon">📊</div>Sin datos</div>';return;}
+  // Debug: if no kansas rows, show what we have
+  if (!kAvg){
+    const total = r.length, kansas = r.filter(x=>x.es_kansas).length;
+    el.innerHTML=`<div class="empty"><div class="icon">📊</div><p>Sin datos de precio propio</p><small style="color:var(--muted)">${total} filas totales, ${kansas} propias</small></div>`;
+    return;
+  }
   const brandMap={};
   r.filter(x=>!x.es_kansas&&x.precio_regular>0).forEach(x=>{if(!brandMap[x.marca])brandMap[x.marca]=[];brandMap[x.marca].push(x.precio_regular);});
   const maxP=Math.max(kAvg,...Object.values(brandMap).map(v=>avg(v)));
@@ -1028,7 +1039,7 @@ function renderGap(id, rows, exclBaba=false) {
 function renderPorGramo(id, rows) {
   const wrap=document.getElementById(id); if(!wrap) return;
   const last=lastByKey(rows.filter(r=>r.precio_regular>0),r=>r.marca+'||'+r.producto);
-  const wg=last.map(r=>{const g=extractGrams(r.producto),tipo=detectTipo(r.producto);if(!g||g<50||g>5000||!tipo)return null;return{...r,gramos:g,tipo,ppg:parseFloat((r.precio_regular/g).toFixed(2))};}).filter(Boolean);
+  const wg=last.map(r=>{const g=extractGrams(r.producto,r.categoria),tipo=detectTipo(r.producto);if(!g||g<50||g>5000||!tipo)return null;return{...r,gramos:g,tipo,ppg:parseFloat((r.precio_regular/g).toFixed(2))};}).filter(Boolean);
   if(!wg.length){wrap.innerHTML='<div class="empty"><p>Sin gramajes identificados aún</p></div>';return;}
   const tipos=[...new Set(wg.map(r=>r.tipo))].sort();
   wrap.innerHTML='';
