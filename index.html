@@ -245,7 +245,7 @@ tr:hover td{background:#FAF8F5;}
     <div class="kpi-row" id="kpiRow"></div>
 
     <!-- Evolución anual -->
-    <div class="grid-2">
+    <div class="grid-3">
       <div class="chart-card">
         <div class="chart-header">
           <div><div class="chart-title">Evolución Salsas Kansas</div><div class="chart-sub">Precio prom. histórico</div></div>
@@ -257,6 +257,12 @@ tr:hover td{background:#FAF8F5;}
           <div><div class="chart-title">Evolución Kyros Hummus</div><div class="chart-sub">Precio prom. histórico (excluye Babaganush)</div></div>
         </div>
         <div class="chart-wrap short"><canvas id="chartHummusEvol"></canvas></div>
+      </div>
+          <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Evolución Kansas Panes</div><div class="chart-sub">Precio prom. histórico</div></div>
+        </div>
+        <div class="chart-wrap short"><canvas id="chartPanesEvol"></canvas></div>
       </div>
     </div>
 
@@ -379,7 +385,7 @@ tr:hover td{background:#FAF8F5;}
     </div>
     <div class="sub-content active" id="hummus-general">
       <div class="insight purple">
-        <strong>🏷️ Marcas gourmet vs competencia directa</strong> — ONNEG, THOLEM, SANTA MARIA y PAMPAGOURMET tienen packaging premium y no compiten directamente con Kyros. Aparecen marcados con <span class="gourmet-badge">G</span>. La comparativa estratégica real es contra KAMMAR, CUSINE &amp; CO y marcas propias de cadena.
+        <strong>🏷️ Marcas gourmet vs competencia directa</strong> — ONNEG, SANTA MARIA, PAMPAGOURMET y MESTIZO tienen packaging premium y no compiten directamente con Kyros. Aparecen marcados con <span class="gourmet-badge">G</span>. La comparativa estratégica real es contra KAMMAR, CUSINE &amp; CO y marcas propias de cadena.
       </div>
       <div class="grid-2">
         <div class="chart-card">
@@ -574,7 +580,7 @@ tr:hover td{background:#FAF8F5;}
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzV6gtIzP9HRVX14SoQKAWeNlMg-tUmd8wDJSyrdiT2RWojEeFN-Lowp9nGLwKuYQOnKA/exec';
 const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
 const CAT_SALSAS = 'Salsas Kansas', CAT_HUMMUS = 'Kyros Hummus', CAT_PANES = 'Panificados Kansas';
-const HUMMUS_GOURMET = ['ONNEG','THOLEM','SANTA MARIA','PAMPAGOURMET'];
+const HUMMUS_GOURMET = ['ONNEG','SANTA MARIA','PAMPAGOURMET','MESTIZO'];
 const BABA_KEYWORDS = ['BABAGANUSH','BABA GANUSH','BABAGANOUSH'];
 const GASTRO_KEYWORDS = ['pazzi','kaliz','gastro','gastronomia'];
 
@@ -804,6 +810,7 @@ function buildAll() {
   renderSemaforo();
   renderEvolChart('chartSalsasEvol', CAT_SALSAS);
   renderEvolChart('chartHummusEvol', CAT_HUMMUS, true); // excluye baba
+renderEvolChart('chartPanesEvol', CAT_PANES);
   renderSkuPorCadena();
   renderAusencias();
   renderCobertura();
@@ -871,8 +878,7 @@ function renderKPIs() {
     {label:'Kyros Hummus',val:fmt(avgH),sub:'sin Babaganush',cls:'accent-warn'},
     {label:'Kyros Babaganush',val:fmt(avgB),sub:'análisis separado',cls:''},
     {label:'Kansas Panes',val:fmt(avgP),sub:'precio prom.',cls:'accent-green'},
-    {label:'Sin presencia',val:sinStock,sub:`de ${total} registros`,cls:''},
-  ].map(k=>`<div class="kpi-chip ${k.cls}"><div class="lbl">${k.label}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
+      ].map(k=>`<div class="kpi-chip ${k.cls}"><div class="lbl">${k.label}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 }
 
 // ═══ SEMÁFORO ═══
@@ -1080,7 +1086,7 @@ function renderSalsasGeneral() {
   const bm={};rowsComp.filter(r=>r.precio_regular>0).forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
   const bL=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
   const ctxComp=document.getElementById('chartSalsasComp');
-  if(ctxComp&&bL.length) charts['chartSalsasComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis,true)});
+  if(ctxComp&&bL.length) charts['chartSalsasComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapSalsas',rowsComp);
   renderPorGramo('chartSalsasPorGramo',rowsComp);
 }
@@ -1134,7 +1140,7 @@ function renderHummusGeneral() {
   const bL=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
   const bColors=bL.map(b=>{const r=rowsComp.find(rx=>rx.marca===b);return r?.es_kansas?'#D9662E':isGourmet(b)?'#9B72D0':'#D0C9C0';});
   const ctxComp=document.getElementById('chartHummusComp');
-  if(ctxComp&&bL.length) charts['chartHummusComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bColors,borderRadius:5}]},options:chartOptions(priceAxis,true)});
+  if(ctxComp&&bL.length) charts['chartHummusComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bColors,borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapHummus',filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&!r.esBaba&&(!cadComp||r.cadena===cadComp)));
   renderPorGramo('chartHummusPorGramo',filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&(!cadComp||r.cadena===cadComp)));
 }
@@ -1149,10 +1155,10 @@ function renderBabaganush() {
     charts['chartBabaCadena']=new Chart(ctx1,{type:'bar',data:{labels:cadenas,datasets:[{label:'Kyros Babaganush',data:kBaba,backgroundColor:'#D9662E',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
   }
   destroyChart('chartBabaComp');
-  const bm={};babaRows.filter(r=>r.precio_regular>0).forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
+  const bm={};babaRows.filter(r=>r.precio_regular>0&&!r.es_kansas).forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
   const bL=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
   const ctx2=document.getElementById('chartBabaComp');
-  if(ctx2&&bL.length) charts['chartBabaComp']=new Chart(ctx2,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>babaRows.find(r=>r.marca===b)?.es_kansas?'#D9662E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis,true)});
+  if(ctx2&&bL.length) charts['chartBabaComp']=new Chart(ctx2,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>babaRows.find(r=>r.marca===b)?.es_kansas?'#D9662E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis)});
   const kBabaAvg=avgPrice(babaRows.filter(r=>r.es_kansas));
   const kHummusAvg=avgPrice(filteredRows.filter(r=>r.es_kansas&&r.categoria===CAT_HUMMUS&&!r.esBaba));
   const diff=kHummusAvg>0?((kBabaAvg-kHummusAvg)/kHummusAvg*100).toFixed(1):null;
@@ -1183,7 +1189,7 @@ function renderHummusRanking() {
   const sorted=Object.entries(bm).map(([m,d])=>({m,avg:avg(d.prices),cadenas:[...d.cadenas].join(', ')})).sort((a,b)=>a.avg-b.avg);
   destroyChart('chartHummusRanking');
   const ctx=document.getElementById('chartHummusRanking');
-  if(ctx) charts['chartHummusRanking']=new Chart(ctx,{type:'bar',data:{labels:sorted.map(s=>s.m),datasets:[{data:sorted.map(s=>Math.round(s.avg)),backgroundColor:sorted.map(({m})=>rows.find(r=>r.marca===m)?.es_kansas?'#D9662E':isGourmet(m)?'#9B72D0':'#B0A898'),borderRadius:5}]},options:chartOptions(priceAxis,true)});
+  if(ctx) charts['chartHummusRanking']=new Chart(ctx,{type:'bar',data:{labels:sorted.map(s=>s.m),datasets:[{data:sorted.map(s=>Math.round(s.avg)),backgroundColor:sorted.map(({m})=>rows.find(r=>r.marca===m)?.es_kansas?'#D9662E':isGourmet(m)?'#9B72D0':'#B0A898'),borderRadius:5}]},options:chartOptions(priceAxis)});
   const tbody=document.querySelector('#tablaHummusRanking tbody');if(!tbody)return;
   tbody.innerHTML=sorted.map(({m,avg:p,cadenas},i)=>{const isK=rows.find(r=>r.marca===m)?.es_kansas,isG=isGourmet(m),diff=kAvg>0?((p-kAvg)/kAvg*100).toFixed(1):null,seg=isK?'<span class="badge badge-red">Propia</span>':isG?'<span class="gourmet-badge">Gourmet</span>':'Directa';return`<tr><td style="font-weight:600">${i+1}</td><td class="${isK?'our-brand':''}">${m}</td><td>${seg}</td><td class="price-num">${fmt(p)}</td><td>${diff!==null?`<span class="${parseFloat(diff)>0?'delta-up-sm':'delta-down-sm'}">${parseFloat(diff)>0?'+':''}${diff}%</span>`:'—'}</td><td style="font-size:11px;color:var(--muted)">${cadenas}</td></tr>`;}).join('');
 }
@@ -1219,7 +1225,7 @@ function renderPanesGeneral() {
   const bm={};rowsComp.filter(r=>r.precio_regular>0).forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
   const bL=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
   const ctx2=document.getElementById('chartPanesComp');
-  if(ctx2&&bL.length) charts['chartPanesComp']=new Chart(ctx2,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis,true)});
+  if(ctx2&&bL.length) charts['chartPanesComp']=new Chart(ctx2,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapPanes',rowsComp.filter(r=>r.precio_regular>0));
   renderPorGramo('chartPanesPorGramo',rowsComp);
 }
@@ -1283,7 +1289,7 @@ function renderCompetencia() {
     const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
     const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
     const ctx=document.getElementById(id);if(!ctx||!labels.length)return;
-    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis,true)});
+    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
   });
 }
 
