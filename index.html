@@ -347,6 +347,10 @@ tr:hover td{background:#FAF8F5;}
         <select class="filter-select" id="fltSalsasTipo" onchange="renderSalsasVsProducto()"><option value="">Todos</option></select>
         <span class="filter-label">Cadena:</span>
         <select class="filter-select" id="fltSalsasVsCadena" onchange="renderSalsasVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Marca:</span>
+        <select class="filter-select" id="fltSalsasVsMarca" onchange="renderSalsasVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Producto:</span>
+        <select class="filter-select" id="fltSalsasVsProducto" onchange="renderSalsasVsProducto()"><option value="">Todos</option></select>
       </div>
       <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kansas vs competencia — mismo tipo de producto</div><div class="chart-wrap tall"><canvas id="chartSalsasVsProducto"></canvas></div></div>
       <div class="tbl-wrap" style="margin-top:12px"><table id="tablaSalsasVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
@@ -385,7 +389,7 @@ tr:hover td{background:#FAF8F5;}
     </div>
     <div class="sub-content active" id="hummus-general">
       <div class="insight purple">
-        <strong>🏷️ Marcas gourmet vs competencia directa</strong> — ONNEG, SANTA MARIA, PAMPA GOURMET y MESTIZO tienen packaging premium y no compiten directamente con Kyros. Aparecen marcados con <span class="gourmet-badge">G</span>. La comparativa estratégica real es contra KAMMAR, CUSINE &amp; CO y marcas propias de cadena.
+        <strong>🏷️ Marcas gourmet vs competencia directa</strong> — SANTA MARIA, PAMPA GOURMET y MESTIZO tienen packaging premium y no compiten directamente con Kyros. Aparecen marcados con <span class="gourmet-badge">G</span>. La comparativa estratégica real es contra KAMMAR, CUSINE &amp; CO y marcas propias de cadena.
       </div>
       <div class="grid-2">
         <div class="chart-card">
@@ -432,6 +436,10 @@ tr:hover td{background:#FAF8F5;}
         <select class="filter-select" id="fltHummusSabor" onchange="renderHummusVsProducto()"><option value="">Todos</option></select>
         <span class="filter-label">Cadena:</span>
         <select class="filter-select" id="fltHummusVsCadena" onchange="renderHummusVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Marca:</span>
+        <select class="filter-select" id="fltHummusVsMarca" onchange="renderHummusVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Producto:</span>
+        <select class="filter-select" id="fltHummusVsProducto" onchange="renderHummusVsProducto()"><option value="">Todos</option></select>
       </div>
       <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kyros vs competencia por sabor</div><div class="chart-wrap tall"><canvas id="chartHummusVsProducto"></canvas></div></div>
       <div class="tbl-wrap" style="margin-top:12px"><table id="tablaHummusVs"><thead><tr><th>Sabor/Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kyros</th><th>Segmento</th></tr></thead><tbody></tbody></table></div>
@@ -505,6 +513,10 @@ tr:hover td{background:#FAF8F5;}
         </select>
         <span class="filter-label">Cadena:</span>
         <select class="filter-select" id="fltPanesVsCadena" onchange="renderPanesVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Marca:</span>
+        <select class="filter-select" id="fltPanesVsMarca" onchange="renderPanesVsProducto()"><option value="">Todas</option></select>
+        <span class="filter-label">Producto:</span>
+        <select class="filter-select" id="fltPanesVsProducto" onchange="renderPanesVsProducto()"><option value="">Todos</option></select>
       </div>
       <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kansas vs competencia por tipo de pan</div><div class="chart-wrap tall"><canvas id="chartPanesVsProducto"></canvas></div></div>
       <div class="tbl-wrap" style="margin-top:12px"><table id="tablaPanesVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
@@ -580,7 +592,7 @@ tr:hover td{background:#FAF8F5;}
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzV6gtIzP9HRVX14SoQKAWeNlMg-tUmd8wDJSyrdiT2RWojEeFN-Lowp9nGLwKuYQOnKA/exec';
 const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
 const CAT_SALSAS = 'Salsas Kansas', CAT_HUMMUS = 'Kyros Hummus', CAT_PANES = 'Panificados Kansas';
-const HUMMUS_GOURMET = ['ONNEG','SANTA MARIA','PAMPA GOURMET','MESTIZO'];
+const HUMMUS_GOURMET = ['SANTA MARIA','PAMPA GOURMET','MESTIZO'];
 const BABA_KEYWORDS = ['BABAGANUSH','BABA GANUSH','BABAGANOUSH'];
 const GASTRO_KEYWORDS = ['pazzi','kaliz','gastro','gastronomia'];
 
@@ -662,6 +674,18 @@ function fillFilters() {
   fill('fltHummusTablaProducto', varHummus, 'Todos');
   const varPanes = [...new Set(allRows.filter(r=>r.categoria===CAT_PANES&&r.es_kansas).map(r=>r.producto).filter(Boolean))].sort();
   fill('fltPanesTablaProducto', varPanes, 'Todos');
+  const marcasSalsas = [...new Set(allRows.filter(r=>r.categoria===CAT_SALSAS).map(r=>r.marca).filter(Boolean))].sort();
+  fill('fltSalsasVsMarca', marcasSalsas, 'Todas');
+  const prodsSalsas = [...new Set(allRows.filter(r=>r.categoria===CAT_SALSAS).map(r=>r.producto).filter(Boolean))].sort();
+  fill('fltSalsasVsProducto', prodsSalsas, 'Todos');
+  const marcasHummus = [...new Set(allRows.filter(r=>r.categoria===CAT_HUMMUS).map(r=>r.marca).filter(Boolean))].sort();
+  fill('fltHummusVsMarca', marcasHummus, 'Todas');
+  const prodsHummus = [...new Set(allRows.filter(r=>r.categoria===CAT_HUMMUS).map(r=>r.producto).filter(Boolean))].sort();
+  fill('fltHummusVsProducto', prodsHummus, 'Todos');
+  const marcasPanes = [...new Set(allRows.filter(r=>r.categoria===CAT_PANES).map(r=>r.marca).filter(Boolean))].sort();
+  fill('fltPanesVsMarca', marcasPanes, 'Todas');
+  const prodsPanes = [...new Set(allRows.filter(r=>r.categoria===CAT_PANES).map(r=>r.producto).filter(Boolean))].sort();
+  fill('fltPanesVsProducto', prodsPanes, 'Todos');
   const marcas = [...new Set(allRows.map(r=>r.marca).filter(Boolean))].sort();
   fill('detalleMarca', marcas, 'Todas las marcas');
   fill('detalleProducto', [], 'Todos los productos');
@@ -686,6 +710,7 @@ function applyFilters() {
     (!fecha || r.fecha === fecha) &&
     (!zona || r.zona === zona) &&
     (!mes || fechaToMes(r.fecha) === mes) &&
+    r.canal !== 'ecommerce' &&
     !isGastro(r)
   );
 
@@ -758,6 +783,10 @@ function detectTipo(producto) {
   if (p.includes('VINAGRETA')) return 'Vinagreta';
   if (p.includes('GOLF')) return 'Golf';
   if (p.includes('COLESLAW')) return 'Coleslaw';
+  if (p.includes('HAMBURGUESA')||p.includes('BURGUER')) return 'Pan Hamburguesa';
+  if (p.includes('PANCHO')||p.includes('HOT DOG')) return 'Pan Pancho';
+  if (p.includes('CAMPO')) return 'Pan de Campo';
+  if (p.includes('MOLDE')||p.includes('BLANCO')) return 'Pan Molde';
   if (p.includes('CLÁSICO')||p.includes('CLASICO')) return 'Hummus Clásico';
   if (p.includes('PIMENTÓN')||p.includes('PIMENTON')) return 'Hummus Pimentón';
   if (p.includes('REMOLACHA')) return 'Hummus Remolacha';
@@ -766,10 +795,6 @@ function detectTipo(producto) {
   if (p.includes('POROTO')) return 'Hummus Poroto Negro';
   if (p.includes('GARBANZO')||p.includes('ARVEJAS')) return 'Hummus Garbanzo';
   if (p.includes('LENTEJAS')) return 'Hummus Lentejas';
-  if (p.includes('HAMBURGUESA')||p.includes('BURGUER')) return 'Pan Hamburguesa';
-  if (p.includes('PANCHO')||p.includes('HOT DOG')) return 'Pan Pancho';
-  if (p.includes('CAMPO')) return 'Pan de Campo';
-  if (p.includes('MOLDE')||p.includes('BLANCO')) return 'Pan Molde';
   return null;
 }
 
@@ -1094,7 +1119,9 @@ function renderSalsasGeneral() {
 function renderSalsasVsProducto() {
   const tipo=document.getElementById('fltSalsasTipo')?.value||'';
   const cadena=document.getElementById('fltSalsasVsCadena')?.value||'';
-  let rows=filteredRows.filter(r=>r.categoria===CAT_SALSAS&&r.precio_regular>0&&(!cadena||r.cadena===cadena));
+  const marcaF=document.getElementById('fltSalsasVsMarca')?.value||'';
+  const prodF=document.getElementById('fltSalsasVsProducto')?.value||'';
+  let rows=filteredRows.filter(r=>r.categoria===CAT_SALSAS&&r.precio_regular>0&&(!cadena||r.cadena===cadena)&&(!marcaF||r.marca===marcaF)&&(!prodF||r.producto===prodF));
   if(tipo) rows=rows.filter(r=>detectTipo(r.producto)===tipo);
   const tipos=tipo?[tipo]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
@@ -1104,7 +1131,7 @@ function renderSalsasVsProducto() {
   if(ctx) charts['chartSalsasVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#C8102E':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaSalsasVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=kAvg>0?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
+  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
 }
 
 function renderSalsasEvol2() {
@@ -1168,7 +1195,9 @@ function renderBabaganush() {
 function renderHummusVsProducto() {
   const sabor=document.getElementById('fltHummusSabor')?.value||'';
   const cadena=document.getElementById('fltHummusVsCadena')?.value||'';
-  let rows=filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&r.precio_regular>0&&(!cadena||r.cadena===cadena));
+  const marcaF=document.getElementById('fltHummusVsMarca')?.value||'';
+  const prodF=document.getElementById('fltHummusVsProducto')?.value||'';
+  let rows=filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&r.precio_regular>0&&(!cadena||r.cadena===cadena)&&(!marcaF||r.marca===marcaF)&&(!prodF||r.producto===prodF));
   if(sabor) rows=rows.filter(r=>detectTipo(r.producto)===sabor);
   const tipos=sabor?[sabor]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
@@ -1178,7 +1207,7 @@ function renderHummusVsProducto() {
   if(ctx) charts['chartHummusVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#D9662E':isGourmet(m)?'#9B72D0':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaHummusVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=kAvg>0?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null,seg=r.es_kansas?'<span class="badge badge-red">Propia</span>':isGourmet(r.marca)?'<span class="gourmet-badge">Gourmet</span>':'Directa';return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td><td>${seg}</td></tr>`;}).join('');
+  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null,seg=r.es_kansas?'<span class="badge badge-red">Propia</span>':isGourmet(r.marca)?'<span class="gourmet-badge">Gourmet</span>':'Directa';return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td><td>${seg}</td></tr>`;}).join('');
 }
 
 function renderHummusRanking() {
@@ -1233,7 +1262,9 @@ function renderPanesGeneral() {
 function renderPanesVsProducto() {
   const tipo=document.getElementById('fltPanesTipo')?.value||'';
   const cadena=document.getElementById('fltPanesVsCadena')?.value||'';
-  let rows=filteredRows.filter(r=>r.categoria===CAT_PANES&&r.precio_regular>0&&(!cadena||r.cadena===cadena));
+  const marcaF=document.getElementById('fltPanesVsMarca')?.value||'';
+  const prodF=document.getElementById('fltPanesVsProducto')?.value||'';
+  let rows=filteredRows.filter(r=>r.categoria===CAT_PANES&&r.precio_regular>0&&(!cadena||r.cadena===cadena)&&(!marcaF||r.marca===marcaF)&&(!prodF||r.producto===prodF));
   if(tipo) rows=rows.filter(r=>detectTipo(r.producto)===tipo);
   const tipos=tipo?[tipo]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
@@ -1243,7 +1274,7 @@ function renderPanesVsProducto() {
   if(ctx) charts['chartPanesVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#C8102E':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaPanesVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=kAvg>0?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
+  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
 }
 
 function renderTablaPanes() {
