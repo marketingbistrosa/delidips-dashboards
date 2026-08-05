@@ -352,8 +352,8 @@ tr:hover td{background:#FAF8F5;}
         <span class="filter-label">Producto:</span>
         <select class="filter-select" id="fltSalsasVsProducto" onchange="renderSalsasVsProducto()"><option value="">Todos</option></select>
       </div>
-      <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kansas vs competencia — mismo tipo de producto</div><div class="chart-wrap tall"><canvas id="chartSalsasVsProducto"></canvas></div></div>
-      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaSalsasVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
+      <div class="chart-card"><div class="chart-title" style="margin-bottom:8px">Kansas vs competencia — mismo tipo de producto</div><div class="chart-sub" style="margin-bottom:12px">Precio promedio por tipo · rojo = Kansas · barras horizontales ordenadas de menor a mayor</div><div id="chartSalsasVsProducto"></div></div>
+      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaSalsasVs"><thead><tr><th onclick="sortTable('tablaSalsasVs',0)" style="cursor:pointer">Tipo ↕</th><th onclick="sortTable('tablaSalsasVs',1)" style="cursor:pointer">Marca ↕</th><th>Producto</th><th>Cadena</th><th onclick="sortTable('tablaSalsasVs',4,'num')" style="cursor:pointer">Precio ↕</th><th onclick="sortTable('tablaSalsasVs',5,'num')" style="cursor:pointer">vs Kansas ↕</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="salsas-evol">
       <div class="chart-card">
@@ -441,8 +441,8 @@ tr:hover td{background:#FAF8F5;}
         <span class="filter-label">Producto:</span>
         <select class="filter-select" id="fltHummusVsProducto" onchange="renderHummusVsProducto()"><option value="">Todos</option></select>
       </div>
-      <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kyros vs competencia por sabor</div><div class="chart-wrap tall"><canvas id="chartHummusVsProducto"></canvas></div></div>
-      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaHummusVs"><thead><tr><th>Sabor/Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kyros</th><th>Segmento</th></tr></thead><tbody></tbody></table></div>
+      <div class="chart-card"><div class="chart-title" style="margin-bottom:8px">Kyros vs competencia por sabor</div><div class="chart-sub" style="margin-bottom:12px">Precio promedio por sabor · naranja = Kyros · violeta = gourmet</div><div id="chartHummusVsProducto"></div></div>
+      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaHummusVs"><thead><tr><th onclick="sortTable('tablaHummusVs',0)" style="cursor:pointer">Sabor/Tipo ↕</th><th onclick="sortTable('tablaHummusVs',1)" style="cursor:pointer">Marca ↕</th><th>Producto</th><th>Cadena</th><th onclick="sortTable('tablaHummusVs',4,'num')" style="cursor:pointer">Precio ↕</th><th onclick="sortTable('tablaHummusVs',5,'num')" style="cursor:pointer">vs Kyros ↕</th><th>Segmento</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="hummus-ranking">
       <div class="section-filters">
@@ -518,8 +518,8 @@ tr:hover td{background:#FAF8F5;}
         <span class="filter-label">Producto:</span>
         <select class="filter-select" id="fltPanesVsProducto" onchange="renderPanesVsProducto()"><option value="">Todos</option></select>
       </div>
-      <div class="chart-card"><div class="chart-title" style="margin-bottom:12px">Kansas vs competencia por tipo de pan</div><div class="chart-wrap tall"><canvas id="chartPanesVsProducto"></canvas></div></div>
-      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaPanesVs"><thead><tr><th>Tipo</th><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio</th><th>vs Kansas</th></tr></thead><tbody></tbody></table></div>
+      <div class="chart-card"><div class="chart-title" style="margin-bottom:8px">Kansas vs competencia por tipo de pan</div><div class="chart-sub" style="margin-bottom:12px">Precio promedio por tipo · rojo = Kansas</div><div id="chartPanesVsProducto"></div></div>
+      <div class="tbl-wrap" style="margin-top:12px"><table id="tablaPanesVs"><thead><tr><th onclick="sortTable('tablaPanesVs',0)" style="cursor:pointer">Tipo ↕</th><th onclick="sortTable('tablaPanesVs',1)" style="cursor:pointer">Marca ↕</th><th>Producto</th><th>Cadena</th><th onclick="sortTable('tablaPanesVs',4,'num')" style="cursor:pointer">Precio ↕</th><th onclick="sortTable('tablaPanesVs',5,'num')" style="cursor:pointer">vs Kansas ↕</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="panes-tabla">
       <div class="section-filters">
@@ -1158,13 +1158,10 @@ function renderSalsasVsProducto() {
   if(tipo) rows=rows.filter(r=>detectTipo(r.producto)===tipo);
   const tipos=tipo?[tipo]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
-  destroyChart('chartSalsasVsProducto');
-  const marcas=[...new Set(rows.map(r=>r.marca).filter(Boolean))];
-  const ctx=document.getElementById('chartSalsasVsProducto');
-  if(ctx) charts['chartSalsasVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#C8102E':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  renderVsProductoViz('chartSalsasVsProducto', rows, 'KANSAS', '#C8102E', null);
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaSalsasVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
+  tbody.innerHTML=last.sort((a,b)=>{const ta=detectTipo(a.producto)||'';const tb=detectTipo(b.producto)||'';return ta.localeCompare(tb,'es')||a.precio_regular-b.precio_regular;}).map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num" data-val="${r.precio_regular}">${fmt(r.precio_regular)}</td><td data-val="${diff||0}">${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
 }
 
 function renderSalsasEvol2() {
@@ -1234,13 +1231,10 @@ function renderHummusVsProducto() {
   if(sabor) rows=rows.filter(r=>detectTipo(r.producto)===sabor);
   const tipos=sabor?[sabor]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
-  destroyChart('chartHummusVsProducto');
-  const marcas=[...new Set(rows.map(r=>r.marca).filter(Boolean))];
-  const ctx=document.getElementById('chartHummusVsProducto');
-  if(ctx) charts['chartHummusVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#D9662E':isGourmet(m)?'#9B72D0':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  renderVsProductoViz('chartHummusVsProducto', rows, 'KYROS', '#D9662E', '#9B72D0');
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaHummusVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null,seg=r.es_kansas?'<span class="badge badge-red">Propia</span>':isGourmet(r.marca)?'<span class="gourmet-badge">Gourmet</span>':'Directa';return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td><td>${seg}</td></tr>`;}).join('');
+  tbody.innerHTML=last.sort((a,b)=>{const ta=detectTipo(a.producto)||'';const tb=detectTipo(b.producto)||'';return ta.localeCompare(tb,'es')||a.precio_regular-b.precio_regular;}).map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null,seg=r.es_kansas?'<span class="badge badge-red">Propia</span>':isGourmet(r.marca)?'<span class="gourmet-badge">Gourmet</span>':'Directa';return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num" data-val="${r.precio_regular}">${fmt(r.precio_regular)}</td><td data-val="${diff||0}">${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td><td>${seg}</td></tr>`;}).join('');
 }
 
 function renderHummusRanking() {
@@ -1301,13 +1295,10 @@ function renderPanesVsProducto() {
   if(tipo) rows=rows.filter(r=>detectTipo(r.producto)===tipo);
   const tipos=tipo?[tipo]:[...new Set(rows.map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
   const kAvgByTipo={};tipos.forEach(t=>{const rs=rows.filter(r=>r.es_kansas&&detectTipo(r.producto)===t);kAvgByTipo[t]=avgPrice(rs)||0;});
-  destroyChart('chartPanesVsProducto');
-  const marcas=[...new Set(rows.map(r=>r.marca).filter(Boolean))];
-  const ctx=document.getElementById('chartPanesVsProducto');
-  if(ctx) charts['chartPanesVsProducto']=new Chart(ctx,{type:'bar',data:{labels:tipos,datasets:marcas.slice(0,8).map((m,i)=>({label:m,data:tipos.map(t=>{const rs=rows.filter(r=>r.marca===m&&detectTipo(r.producto)===t);return avgPrice(rs)?Math.round(avgPrice(rs)):null;}),backgroundColor:rows.find(r=>r.marca===m)?.es_kansas?'#C8102E':PALETTE[i%PALETTE.length]+'99',borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  renderVsProductoViz('chartPanesVsProducto', rows, 'KANSAS', '#C8102E', null);
   const last=lastByKey(rows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   const tbody=document.querySelector('#tablaPanesVs tbody');if(!tbody)return;
-  tbody.innerHTML=last.map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
+  tbody.innerHTML=last.sort((a,b)=>{const ta=detectTipo(a.producto)||'';const tb=detectTipo(b.producto)||'';return ta.localeCompare(tb,'es')||a.precio_regular-b.precio_regular;}).map(r=>{const t=detectTipo(r.producto)||'—',kAvg=kAvgByTipo[t]||0,diff=(kAvg>0&&!r.es_kansas)?((r.precio_regular-kAvg)/kAvg*100).toFixed(1):null;return`<tr><td>${t}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num" data-val="${r.precio_regular}">${fmt(r.precio_regular)}</td><td data-val="${diff||0}">${diff!==null?(parseFloat(diff)>0?`<span class="delta-up-sm">+${diff}%</span>`:`<span class="delta-down-sm">${diff}%</span>`):'—'}</td></tr>`;}).join('');
 }
 
 function renderTablaPanes() {
@@ -1378,6 +1369,71 @@ function renderDetalle() {
   const tbody=document.querySelector('#tablaDetalle tbody');if(!tbody)return;
   if(!last.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Sin datos</td></tr>';return;}
   tbody.innerHTML=last.map(r=>{const isK=r.es_kansas,estado=r.estado||'Disponible';return`<tr><td class="${isK?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td style="color:var(--muted)">${r.zona||'—'}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.en_oferta?`<span class="offer-tag">🏷️ ${fmt(r.precio_oferta)}</span>`:''}</td><td style="color:var(--muted)">${r.dinamica||'—'}</td><td>${estado!=='Disponible'?`<span class="${estado==='No visto'?'absent-tag':'nostock-tag'}">${estado}</span>`:''}</td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
+}
+
+// ═══ HELPER: renderVsProductoViz ═══
+function renderVsProductoViz(wrapId, rows, ownMarca, colorOwn, colorGourmet) {
+  const wrap = document.getElementById(wrapId); if (!wrap) return;
+  const grouped = {};
+  rows.filter(r=>r.precio_regular>0).forEach(r => {
+    const tipo = detectTipo(r.producto); if (!tipo) return;
+    if (!grouped[tipo]) grouped[tipo] = {};
+    if (!grouped[tipo][r.marca]) grouped[tipo][r.marca] = {prices:[], isOwn:r.es_kansas, isGourmet:isGourmet(r.marca)};
+    grouped[tipo][r.marca].prices.push(r.precio_regular);
+  });
+  const tipos = Object.keys(grouped).sort();
+  if (!tipos.length) { wrap.innerHTML='<div class="empty"><p>Sin datos suficientes</p></div>'; return; }
+  wrap.innerHTML = '';
+  tipos.forEach(tipo => {
+    const items = Object.entries(grouped[tipo]).map(([marca, d]) => ({
+      marca, isOwn:d.isOwn, isGourmet:d.isGourmet,
+      precio: Math.round(d.prices.reduce((a,b)=>a+b,0)/d.prices.length),
+      n: d.prices.length
+    })).sort((a,b) => a.precio - b.precio);
+    if (!items.length) return;
+    const ownItem = items.find(i=>i.isOwn);
+    const maxP = Math.max(...items.map(i=>i.precio));
+    const sec = document.createElement('div'); sec.style.cssText='margin-bottom:16px';
+    const tit = document.createElement('div'); tit.style.cssText='font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-top:4px;border-top:1px solid var(--border)'; tit.textContent=tipo; sec.appendChild(tit);
+    items.forEach(item => {
+      const pct = Math.round((item.precio/maxP)*100);
+      const color = item.isOwn ? colorOwn : item.isGourmet ? (colorGourmet||'#9B72D0') : '#B0A898';
+      const diff = ownItem && !item.isOwn ? ((item.precio-ownItem.precio)/ownItem.precio*100) : null;
+      const diffTag = diff!==null ? `<span style="font-size:10px;font-weight:600;color:${diff>0?'var(--green)':'var(--red)'}"> ${diff>0?'+':''}${diff.toFixed(0)}%</span>` : '';
+      const nTag = item.n>1 ? `<span style="font-size:9px;color:var(--muted)"> ·${item.n} cad.</span>` : '';
+      const gTag = item.isGourmet ? '<span class="gourmet-badge" style="font-size:9px;padding:0 4px">G</span>' : '';
+      const row = document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px';
+      row.innerHTML = `<div style="min-width:130px;font-size:11px;font-weight:${item.isOwn?'700':'400'};color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.marca}${gTag}${nTag}</div><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:70px;text-align:right;font-size:12px;font-weight:${item.isOwn?'700':'400'};color:${color}">$${item.precio.toLocaleString('es-AR')}</div><div style="min-width:50px;text-align:right">${diffTag}</div>`;
+      sec.appendChild(row);
+    });
+    wrap.appendChild(sec);
+  });
+}
+
+// ═══ SORT TABLE ═══
+const _sortState = {};
+function sortTable(tableId, colIdx, type='str') {
+  const tbl = document.getElementById(tableId); if (!tbl) return;
+  const tbody = tbl.querySelector('tbody'); if (!tbody) return;
+  const rows = [...tbody.querySelectorAll('tr')];
+  const key = tableId+'-'+colIdx;
+  _sortState[key] = !_sortState[key];
+  const asc = _sortState[key];
+  rows.sort((a,b) => {
+    const getVal = row => {
+      const cell = row.cells[colIdx]; if (!cell) return '';
+      if (type==='num') return parseFloat(cell.dataset.val || cell.textContent.replace(/[^0-9.\-]/g,'')) || 0;
+      return cell.textContent.trim().toLowerCase();
+    };
+    const va=getVal(a), vb=getVal(b);
+    if (typeof va==='number') return asc ? va-vb : vb-va;
+    return asc ? va.localeCompare(vb,'es') : vb.localeCompare(va,'es');
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+  tbl.querySelectorAll('th').forEach((th,i) => {
+    if (!th.onclick) return;
+    th.textContent = th.textContent.replace(/ [↑↓↕]$/,'') + (i===colIdx?(asc?' ↑':' ↓'):' ↕');
+  });
 }
 
 document.getElementById('fltSkuCadenaCategoria').addEventListener('change', updateSkuCadenaProductos);
