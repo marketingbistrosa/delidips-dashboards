@@ -339,7 +339,7 @@ tr:hover td{background:#FAF8F5;}
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kansas vs competencia</div><div id="gapSalsas"></div></div>
-      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr por tipo · rojo = Kansas</div></div></div><div id="chartSalsasPorGramo"></div></div>
+      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr por tipo · rojo = Kansas</div></div><div class="chart-filters"><select class="filter-select" id="fltSalsasGramoMarca" onchange="renderSalsasGeneral()" style="font-size:11px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltSalsasGramoProducto" onchange="renderSalsasGeneral()" style="font-size:11px"><option value="">Todos los productos</option></select></div></div><div id="chartSalsasPorGramo"></div></div>
     </div>
     <div class="sub-content" id="salsas-producto">
       <div class="section-filters">
@@ -414,7 +414,7 @@ tr:hover td{background:#FAF8F5;}
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kyros vs competencia (sin Babaganush)</div><div id="gapHummus"></div></div>
-      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">rojo = Kyros · violeta = gourmet</div></div></div><div id="chartHummusPorGramo"></div></div>
+      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">rojo = Kyros · violeta = gourmet</div></div><div class="chart-filters"><select class="filter-select" id="fltHummusGramoMarca" onchange="renderHummusGeneral()" style="font-size:11px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltHummusGramoProducto" onchange="renderHummusGeneral()" style="font-size:11px"><option value="">Todos los productos</option></select></div></div><div id="chartHummusPorGramo"></div></div>
     </div>
     <div class="sub-content" id="hummus-baba">
       <div class="insight purple"><strong>🥗 Babaganush — análisis separado</strong> — El Babaganush tiene un precio promedio significativamente mayor al resto del portfolio de Kyros. Se analiza acá por separado para no distorsionar el promedio de la línea.</div>
@@ -499,7 +499,7 @@ tr:hover td{background:#FAF8F5;}
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kansas Panes vs competencia</div><div id="gapPanes"></div></div>
-      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div></div></div><div id="chartPanesPorGramo"></div></div>
+      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div></div><div class="chart-filters"><select class="filter-select" id="fltPanesGramoMarca" onchange="renderPanesGeneral()" style="font-size:11px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltPanesGramoProducto" onchange="renderPanesGeneral()" style="font-size:11px"><option value="">Todos los productos</option></select></div></div><div id="chartPanesPorGramo"></div></div>
     </div>
     <div class="sub-content" id="panes-producto">
       <div class="section-filters">
@@ -686,6 +686,12 @@ function fillFilters() {
   fill('fltPanesVsMarca', marcasPanes, 'Todas');
   const prodsPanes = [...new Set(allRows.filter(r=>r.categoria===CAT_PANES).map(r=>r.producto).filter(Boolean))].sort();
   fill('fltPanesVsProducto', prodsPanes, 'Todos');
+  fill('fltSalsasGramoMarca', marcasSalsas, 'Todas');
+  fill('fltSalsasGramoProducto', prodsSalsas, 'Todos');
+  fill('fltHummusGramoMarca', marcasHummus, 'Todas');
+  fill('fltHummusGramoProducto', prodsHummus, 'Todos');
+  fill('fltPanesGramoMarca', marcasPanes, 'Todas');
+  fill('fltPanesGramoProducto', prodsPanes, 'Todos');
   const marcas = [...new Set(allRows.map(r=>r.marca).filter(Boolean))].sort();
   fill('detalleMarca', marcas, 'Todas las marcas');
   fill('detalleProducto', [], 'Todos los productos');
@@ -1062,7 +1068,7 @@ function renderGap(id, rows, exclBaba=false) {
 // ═══ POR GRAMO ═══
 function renderPorGramo(id, rows) {
   const wrap=document.getElementById(id); if(!wrap) return;
-  const last=lastByKey(rows.filter(r=>r.precio_regular>0),r=>r.marca+'||'+r.producto);
+  const last=lastByKey(rows.filter(r=>r.precio_regular>0),r=>r.marca+'||'+String(r.producto||'').toUpperCase().replace(/[-–—]/g,' ').replace(/\d+\s*(GRS|GR|KG|ML|CC|G)\b/g,'').replace(/\s+/g,' ').trim());
   const wg=last.map(r=>{const g=extractGrams(r.producto,r.categoria),tipo=detectTipo(r.producto);if(!g||g<50||g>5000||!tipo)return null;return{...r,gramos:g,tipo,ppg:parseFloat((r.precio_regular/g).toFixed(2))};}).filter(Boolean);
   if(!wg.length){wrap.innerHTML='<div class="empty"><p>Sin gramajes identificados aún</p></div>';return;}
   const tipos=[...new Set(wg.map(r=>r.tipo))].sort();
@@ -1113,7 +1119,7 @@ function renderSalsasGeneral() {
   const ctxComp=document.getElementById('chartSalsasComp');
   if(ctxComp&&bL.length) charts['chartSalsasComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapSalsas',rowsComp);
-  renderPorGramo('chartSalsasPorGramo',rowsComp);
+  renderPorGramo('chartSalsasPorGramo',rowsComp.filter(r=>(!document.getElementById('fltSalsasGramoMarca')?.value||r.marca===document.getElementById('fltSalsasGramoMarca').value)&&(!document.getElementById('fltSalsasGramoProducto')?.value||r.producto===document.getElementById('fltSalsasGramoProducto').value)));
 }
 
 function renderSalsasVsProducto() {
@@ -1169,7 +1175,7 @@ function renderHummusGeneral() {
   const ctxComp=document.getElementById('chartHummusComp');
   if(ctxComp&&bL.length) charts['chartHummusComp']=new Chart(ctxComp,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bColors,borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapHummus',filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&!r.esBaba&&(!cadComp||r.cadena===cadComp)));
-  renderPorGramo('chartHummusPorGramo',filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&(!cadComp||r.cadena===cadComp)));
+  renderPorGramo('chartHummusPorGramo',filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&(!cadComp||r.cadena===cadComp)&&(!document.getElementById('fltHummusGramoMarca')?.value||r.marca===document.getElementById('fltHummusGramoMarca').value)&&(!document.getElementById('fltHummusGramoProducto')?.value||r.producto===document.getElementById('fltHummusGramoProducto').value)));
 }
 
 function renderBabaganush() {
@@ -1256,7 +1262,7 @@ function renderPanesGeneral() {
   const ctx2=document.getElementById('chartPanesComp');
   if(ctx2&&bL.length) charts['chartPanesComp']=new Chart(ctx2,{type:'bar',data:{labels:bL,datasets:[{data:bL.map(b=>Math.round(avg(bm[b]))),backgroundColor:bL.map(b=>rowsComp.find(r=>r.marca===b)?.es_kansas?'#C8102E':'#D0C9C0'),borderRadius:5}]},options:chartOptions(priceAxis)});
   renderGap('gapPanes',rowsComp.filter(r=>r.precio_regular>0));
-  renderPorGramo('chartPanesPorGramo',rowsComp);
+  renderPorGramo('chartPanesPorGramo',rowsComp.filter(r=>(!document.getElementById('fltPanesGramoMarca')?.value||r.marca===document.getElementById('fltPanesGramoMarca').value)&&(!document.getElementById('fltPanesGramoProducto')?.value||r.producto===document.getElementById('fltPanesGramoProducto').value)));
 }
 
 function renderPanesVsProducto() {
