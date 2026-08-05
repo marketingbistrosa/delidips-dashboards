@@ -1068,21 +1068,48 @@ function renderGap(id, rows, exclBaba=false) {
 // ═══ POR GRAMO ═══
 function renderPorGramo(id, rows) {
   const wrap=document.getElementById(id); if(!wrap) return;
-  const last=lastByKey(rows.filter(r=>r.precio_regular>0),r=>r.marca+'||'+String(r.producto||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[-–—]/g,' ').replace(/\d+\s*(GRS|GR|KG|ML|CC|G)\b/g,'').replace(/\s+/g,' ').trim());
-  const wg=last.map(r=>{const g=extractGrams(r.producto,r.categoria),tipo=detectTipo(r.producto);if(!g||g<50||g>5000||!tipo)return null;return{...r,gramos:g,tipo,ppg:parseFloat((r.precio_regular/g).toFixed(2))};}).filter(Boolean);
-  if(!wg.length){wrap.innerHTML='<div class="empty"><p>Sin gramajes identificados aún</p></div>';return;}
-  const tipos=[...new Set(wg.map(r=>r.tipo))].sort();
+
+  // Calcular precio/gramo por fila y agrupar por MARCA + TIPO (no por producto individual)
+  // Así HELLMANS aparece una sola vez por tipo aunque tenga varios productos/cadenas
+  const withGrams = rows.filter(r=>r.precio_regular>0).map(r=>{
+    const g=extractGrams(r.producto,r.categoria), tipo=detectTipo(r.producto);
+    if(!g||g<50||g>5000||!tipo) return null;
+    return {...r, gramos:g, tipo, ppg: r.precio_regular/g};
+  }).filter(Boolean);
+
+  if(!withGrams.length){wrap.innerHTML='<div class="empty"><p>Sin gramajes identificados aún</p></div>';return;}
+
+  // Agrupar por marca + tipo → promedio de ppg
+  const grouped = {};
+  withGrams.forEach(r=>{
+    const key = r.marca+'||'+r.tipo;
+    if(!grouped[key]) grouped[key]={marca:r.marca,tipo:r.tipo,es_kansas:r.es_kansas,categoria:r.categoria,ppgs:[],precio_avg:[]};
+    grouped[key].ppgs.push(r.ppg);
+    grouped[key].precio_avg.push(r.precio_regular);
+  });
+
+  const items = Object.values(grouped).map(g=>({
+    marca:g.marca, tipo:g.tipo, es_kansas:g.es_kansas, categoria:g.categoria,
+    ppg: parseFloat((g.ppgs.reduce((a,b)=>a+b,0)/g.ppgs.length).toFixed(2)),
+    precio_prom: Math.round(g.precio_avg.reduce((a,b)=>a+b,0)/g.precio_avg.length),
+    n: g.ppgs.length
+  }));
+
+  const tipos=[...new Set(items.map(r=>r.tipo))].sort();
   wrap.innerHTML='';
   tipos.forEach(tipo=>{
-    const items=wg.filter(r=>r.tipo===tipo).sort((a,b)=>a.ppg-b.ppg); if(!items.length) return;
+    const tipoItems=items.filter(r=>r.tipo===tipo).sort((a,b)=>a.ppg-b.ppg);
+    if(!tipoItems.length) return;
     const sec=document.createElement('div'); sec.style.cssText='margin-bottom:14px';
-    const tit=document.createElement('div'); tit.style.cssText='font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;padding-top:3px;border-top:1px solid var(--border)'; tit.textContent=tipo; sec.appendChild(tit);
-    const maxPG=Math.max(...items.map(r=>r.ppg));
-    items.forEach(r=>{
-      const isK=r.es_kansas,isG=isGourmet(r.marca),pct=Math.round((r.ppg/maxPG)*100);
+    const tit=document.createElement('div'); tit.style.cssText='font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;padding-top:3px;border-top:1px solid var(--border)';
+    tit.textContent=tipo; sec.appendChild(tit);
+    const maxPG=Math.max(...tipoItems.map(r=>r.ppg));
+    tipoItems.forEach(r=>{
+      const isK=r.es_kansas, isG=isGourmet(r.marca), pct=Math.round((r.ppg/maxPG)*100);
       const color=isK?'var(--red)':isG?'var(--purple)':'#B0A898';
       const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px';
-      row.innerHTML=`<div style="min-width:120px;font-size:11px;font-weight:${isK?'600':'400'};color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.marca}${isG?'<span class="gourmet-badge">G</span>':''} <span style="font-weight:400;color:var(--muted)">${r.gramos}g</span></div><div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:50px;text-align:right;font-size:11px;font-weight:600;color:${color}">$${r.ppg.toFixed(1)}/g</div><div style="min-width:58px;text-align:right;font-size:10px;color:var(--muted)">${r.precio_regular.toLocaleString('es-AR')}</div>`;
+      const nLabel = r.n>1?`<span style="font-size:9px;color:var(--muted)">prom. ${r.n} cad.</span>`:'';
+      row.innerHTML=`<div style="min-width:130px;font-size:11px;font-weight:${isK?'600':'400'};color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.marca}${isG?'<span class="gourmet-badge">G</span>':''}</div><div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:52px;text-align:right;font-size:11px;font-weight:600;color:${color}">$${r.ppg.toFixed(1)}/g</div><div style="min-width:65px;text-align:right;font-size:10px;color:var(--muted)">${r.precio_prom.toLocaleString('es-AR')} ${nLabel}</div>`;
       sec.appendChild(row);
     });
     wrap.appendChild(sec);
