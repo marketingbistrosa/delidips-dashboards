@@ -1142,7 +1142,7 @@ function renderSalsasGeneral() {
   const rowsComp=filteredRows.filter(r=>r.categoria===CAT_SALSAS&&(!cadComp||r.cadena===cadComp));
   destroyChart('chartSalsasSku');
   const skuMap={};rowsSku.filter(r=>r.es_kansas).forEach(r=>{if(!skuMap[r.produto]||r.fecha>skuMap[r.producto]?.fecha)skuMap[r.producto]=r;});
-  const skuLabels=Object.keys(skuMap);
+  const skuLabels=Object.keys(skuMap).filter(k=>skuMap[k].precio_regular>0);
   const ctxSku=document.getElementById('chartSalsasSku');
   if(ctxSku&&skuLabels.length) charts['chartSalsasSku']=new Chart(ctxSku,{type:'bar',data:{labels:skuLabels,datasets:[{data:skuLabels.map(k=>skuMap[k].precio_regular),backgroundColor:'#C8102E',borderRadius:5}]},options:chartOptions(priceAxis)});
   destroyChart('chartSalsasComp');
@@ -1194,7 +1194,7 @@ function renderHummusGeneral() {
   const rowsComp=filteredRows.filter(r=>r.categoria===CAT_HUMMUS&&!r.esBaba&&(!cadComp||r.cadena===cadComp)&&(gourmetFlt==='todas'||r.es_kansas||!isGourmet(r.marca)));
   destroyChart('chartHummusSku');
   const skuMap={};rowsSku.filter(r=>r.es_kansas).forEach(r=>{if(!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha)skuMap[r.producto]=r;});
-  const skuL=Object.keys(skuMap);
+  const skuL=Object.keys(skuMap).filter(k=>skuMap[k].precio_regular>0);
   const ctxSku=document.getElementById('chartHummusSku');
   if(ctxSku&&skuL.length) charts['chartHummusSku']=new Chart(ctxSku,{type:'bar',data:{labels:skuL,datasets:[{data:skuL.map(k=>skuMap[k].precio_regular),backgroundColor:'#D9662E',borderRadius:5}]},options:chartOptions(priceAxis)});
   destroyChart('chartHummusComp');
@@ -1280,7 +1280,7 @@ function renderPanesGeneral() {
   const rowsComp=filteredRows.filter(r=>r.categoria===CAT_PANES&&(!cadComp||r.cadena===cadComp)&&(taccFlt==='todas'||r.es_kansas||!isSinTacc(r.marca)));
   destroyChart('chartPanesSku');
   const skuMap={};rowsSku.filter(r=>r.es_kansas).forEach(r=>{if(!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha)skuMap[r.producto]=r;});
-  const skuL=Object.keys(skuMap);
+  const skuL=Object.keys(skuMap).filter(k=>skuMap[k].precio_regular>0);
   const ctx1=document.getElementById('chartPanesSku');
   if(ctx1&&skuL.length) charts['chartPanesSku']=new Chart(ctx1,{type:'bar',data:{labels:skuL,datasets:[{data:skuL.map(k=>skuMap[k].precio_regular),backgroundColor:'#C8102E',borderRadius:5}]},options:chartOptions(priceAxis)});
   destroyChart('chartPanesComp');
