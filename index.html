@@ -765,7 +765,7 @@ function showSubTab(section, sub, btn) {
 
 // ═══ HELPERS ═══
 function avg(arr) { return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
-function avgPrice(rows) { return avg(rows.filter(r=>r.estado!=='Sin stock').map(r=>r.precio_regular).filter(v=>v>0)); }
+function avgPrice(rows) { const enStock = avg(rows.filter(r=>r.estado!=='Sin stock').map(r=>r.precio_regular).filter(v=>v>0)); if (enStock > 0) return enStock; return avg(rows.map(r=>r.precio_regular).filter(v=>v>0)); }
 function fmt(v) { return v>0?'$'+Math.round(v).toLocaleString('es-AR'):'—'; }
 function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function lastByKey(rows, keyFn) { const map={}; rows.forEach(r=>{map[keyFn(r)]=r;}); return Object.values(map); }
