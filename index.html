@@ -493,7 +493,7 @@ tr:hover td{background:#FAF8F5;}
         <div class="chart-card">
           <div class="chart-header">
             <div><div class="chart-title">Kansas Panes vs competencia</div></div>
-            <div class="chart-filters"><select class="filter-select" id="fltPanesCompCadena" onchange="renderPanesGeneral()"><option value="">Todas las cadenas</option></select></div>
+            <div class="chart-filters"><select class="filter-select" id="fltPanesCompCadena" onchange="renderPanesGeneral()"><option value="">Todas las cadenas</option></select><select class="filter-select" id="fltPanesCompTacc" onchange="renderPanesGeneral()"><option value="directa">Solo directa</option><option value="todas">Todas</option></select></div>
           </div>
           <div class="chart-wrap"><canvas id="chartPanesComp"></canvas></div>
         </div>
@@ -541,6 +541,7 @@ tr:hover td{background:#FAF8F5;}
       <div class="sub-tab" onclick="showSubTab('ecommerce','gastro',this)">🍽️ Gastronomía</div>
     </div>
     <div class="sub-content active" id="ecommerce-online">
+      <div class="insight purple" style="margin-bottom:14px"><strong>🍽️ Pazzi</strong>: canal gastronómico (venta online exclusiva) incluido acá dentro de Mercado Libre. Relevamiento frecuente.</div>
       <div id="ecommerceComparativa" style="margin-bottom:14px"></div>
       <div class="grid-2">
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Salsas</div><div class="chart-wrap"><canvas id="chartEcomSalsas"></canvas></div></div>
@@ -549,7 +550,7 @@ tr:hover td{background:#FAF8F5;}
       <div class="tbl-wrap"><table id="tablaEcommerce"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="ecommerce-gastro">
-      <div class="insight purple"><strong>🍽️ Canal gastronómico</strong> — <strong>Pazzi</strong>: venta online exclusiva, relevamiento frecuente. <strong>Kaliz</strong>: canal gastronómico, relevamiento cada 6 meses. Precios no comparables con góndola de supermercado.</div>
+      <div class="insight purple"><strong>🍽️ Canal gastronómico</strong> — <strong>Kaliz</strong>: canal gastronómico, relevamiento cada 6 meses. Precios no comparables con góndola de supermercado. <strong>Pazzi</strong> se muestra ahora en la pestaña Ecommerce, dentro de Mercado Libre.</div>
       <div id="gastroKpis" style="margin-bottom:14px"></div>
       <div class="tbl-wrap"><table><thead><tr><th>Plataforma</th><th>Marca</th><th>Producto</th><th>Precio</th><th>Canal</th><th>Frecuencia</th><th>Fecha</th></tr></thead><tbody id="tablaGastroBody"><tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos gastronómicos aún.<br><small>Seleccioná "Gastronomía · Pazzi" o "Gastronomía · Kaliz" al cargar</small></td></tr></tbody></table></div>
     </div>
@@ -633,7 +634,11 @@ async function loadData() {
 
 function isBaba(p) { return BABA_KEYWORDS.some(k => p.toUpperCase().includes(k)); }
 function isGastro(r) { const c = String(r.cadena||'').toLowerCase(), canal = String(r.canal||'').toLowerCase(), cat = String(r.categoria||'').toLowerCase(), marca = String(r.marca||'').toLowerCase(); return GASTRO_KEYWORDS.some(g => c.includes(g) || canal.includes(g) || cat.includes(g) || marca.includes(g)); }
+const ECOM_GASTRO_KEYWORDS = ['kaliz','gastro','gastronomia'];
+function isGastroOnly(r) { const c = String(r.cadena||'').toLowerCase(), canal = String(r.canal||'').toLowerCase(), cat = String(r.categoria||'').toLowerCase(), marca = String(r.marca||'').toLowerCase(); return ECOM_GASTRO_KEYWORDS.some(g => c.includes(g) || canal.includes(g) || cat.includes(g) || marca.includes(g)); }
 function isGourmet(marca) { return HUMMUS_GOURMET.some(g => String(marca||'').toUpperCase().includes(g)); }
+const PANES_SIN_TACC = ['BIO'];
+function isSinTacc(marca) { return PANES_SIN_TACC.some(g => String(marca||'').toUpperCase().includes(g)); }
 
 function showApp() { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('mainApp').style.display='block'; }
 function showError(msg) { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('errorScreen').classList.add('show'); document.getElementById('errorMsg').textContent = msg||'Error desconocido'; }
@@ -760,7 +765,7 @@ function showSubTab(section, sub, btn) {
 
 // ═══ HELPERS ═══
 function avg(arr) { return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
-function avgPrice(rows) { return avg(rows.map(r=>r.precio_regular).filter(v=>v>0)); }
+function avgPrice(rows) { return avg(rows.filter(r=>r.estado!=='Sin stock').map(r=>r.precio_regular).filter(v=>v>0)); }
 function fmt(v) { return v>0?'$'+Math.round(v).toLocaleString('es-AR'):'—'; }
 function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function lastByKey(rows, keyFn) { const map={}; rows.forEach(r=>{map[keyFn(r)]=r;}); return Object.values(map); }
@@ -1060,7 +1065,7 @@ function renderGap(id, rows, exclBaba=false) {
   let html=`<div class="gap-row"><div class="gap-brand our-brand">● Nuestro precio promedio</div><div class="gap-price our-brand">${fmt(kAvg)}</div><div class="gap-pct">—</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxP*100)}%;background:var(--red)"></div></div></div>`;
   Object.entries(brandMap).sort((a,b)=>avg(b[1])-avg(a[1])).forEach(([marca,prices])=>{
     const p=avg(prices),diff=((kAvg-p)/p*100).toFixed(1),isBelow=kAvg<p;
-    html+=`<div class="gap-row"><div class="gap-brand">${marca}${isGourmet(marca)?'<span class="gourmet-badge">G</span>':''}</div><div class="gap-price">${fmt(p)}</div><div class="gap-pct" style="color:${isBelow?'var(--green)':'var(--red)'}; font-size:11px">${isBelow?`▼ ${Math.abs(diff)}% más barato`:`▲ ${Math.abs(diff)}% más caro`}</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxP*100)}%;background:${isBelow?'var(--green)':'#D0C9C0'}"></div></div></div>`;
+    html+=`<div class="gap-row"><div class="gap-brand">${marca}${isGourmet(marca)?'<span class="gourmet-badge">G</span>':''}${isSinTacc(marca)?'<span class="gourmet-badge" title="Sin TACC - no comparable directamente">Sin TACC</span>':''}</div><div class="gap-price">${fmt(p)}</div><div class="gap-pct" style="color:${isBelow?'var(--green)':'var(--red)'}; font-size:11px">${isBelow?`▼ ${Math.abs(diff)}% más barato`:`▲ ${Math.abs(diff)}% más caro`}</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxP*100)}%;background:${isBelow?'var(--green)':'#D0C9C0'}"></div></div></div>`;
   });
   el.innerHTML=html;
 }
@@ -1219,7 +1224,7 @@ function renderBabaganush() {
   const kBabaAvg=avgPrice(babaRows.filter(r=>r.es_kansas));
   const kHummusAvg=avgPrice(filteredRows.filter(r=>r.es_kansas&&r.categoria===CAT_HUMMUS&&!r.esBaba));
   const diff=kHummusAvg>0?((kBabaAvg-kHummusAvg)/kHummusAvg*100).toFixed(1):null;
-  document.getElementById('babaKpis').innerHTML=`<div class="kpi-chip accent-warn"><div class="lbl">Kyros Babaganush prom.</div><div class="val">${fmt(kBabaAvg)}</div><div class="sub">${diff?`${diff}% sobre el promedio de Kyros`:''}</div></div><div class="kpi-chip"><div class="lbl">Kyros Hummus base prom.</div><div class="val">${fmt(kHummusAvg)}</div><div class="sub">sin Babaganush</div></div>`;
+  document.getElementById('babaKpis').innerHTML=`<div class="kpi-chip accent-warn"><div class="lbl">Kyros Babaganush prom.</div><div class="val">${fmt(kBabaAvg)}</div><div class="sub">${diff?`${diff}% sobre el promedio de Kyros`:''}</div></div>`;
 }
 
 function renderHummusVsProducto() {
@@ -1270,8 +1275,9 @@ function renderTablaHummus() {
 function renderPanesGeneral() {
   const cadSku=document.getElementById('fltPanesSkuCadena')?.value||'';
   const cadComp=document.getElementById('fltPanesCompCadena')?.value||'';
+  const taccFlt=document.getElementById('fltPanesCompTacc')?.value||'directa';
   const rowsSku=filteredRows.filter(r=>r.categoria===CAT_PANES&&(!cadSku||r.cadena===cadSku));
-  const rowsComp=filteredRows.filter(r=>r.categoria===CAT_PANES&&(!cadComp||r.cadena===cadComp));
+  const rowsComp=filteredRows.filter(r=>r.categoria===CAT_PANES&&(!cadComp||r.cadena===cadComp)&&(taccFlt==='todas'||r.es_kansas||!isSinTacc(r.marca)));
   destroyChart('chartPanesSku');
   const skuMap={};rowsSku.filter(r=>r.es_kansas).forEach(r=>{if(!skuMap[r.producto]||r.fecha>skuMap[r.producto].fecha)skuMap[r.producto]=r;});
   const skuL=Object.keys(skuMap);
@@ -1309,8 +1315,8 @@ function renderTablaPanes() {
 
 // ═══ ECOMMERCE ═══
 function renderEcommerce() {
-  const ecomRows=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastro(r));
-  const gondolaRows=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastro(r));
+  const ecomRows=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
+  const gondolaRows=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
   const compEl=document.getElementById('ecommerceComparativa');
   if(!ecomRows.length){compEl.innerHTML=`<div class="insight blue"><strong>🌐 Sin datos de ecommerce aún</strong> — Usá la app seleccionando "Ecommerce" al cargar precios.</div>`;} else {
     const cats=[{cat:CAT_SALSAS,label:'Salsas'},{cat:CAT_HUMMUS,label:'Hummus'},{cat:CAT_PANES,label:'Panes'}];
@@ -1325,10 +1331,10 @@ function renderEcommerce() {
 }
 
 function renderGastro() {
-const gastroRows=allRows.filter(r=>isGastro(r)&&r.precio_regular>0);
+const gastroRows=allRows.filter(r=>isGastroOnly(r)&&r.precio_regular>0);
 const tbody=document.getElementById('tablaGastroBody');if(!tbody)return;
 if(!gastroRows.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos gastronómicos aún.<br><small>Usá la app: "Gastronomía · Pazzi" o "Gastronomía · Kaliz"</small></td></tr>';return;}
-const pfq={'pazzi':'Frecuente','kaliz':'Semestral'};
+const pfq={'kaliz':'Semestral'};
 const platformOf = r => Object.keys(pfq).find(k => String(r.marca||'').toLowerCase().includes(k) || String(r.cadena||r.canal||'').toLowerCase().includes(k)) || 'otro';
 tbody.innerHTML=gastroRows.map(r=>{const p=platformOf(r),freq=pfq[p]||'—';return`<tr><td style="font-weight:600;text-transform:capitalize">${p}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.canal||'—'}</td><td><span class="badge ${freq==='Frecuente'?'badge-green':'badge-warn'}">${freq}</span></td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
 const kpis=document.getElementById('gastroKpis');if(kpis){const pRows=gastroRows.filter(r=>platformOf(r)==='pazzi'),kRows=gastroRows.filter(r=>platformOf(r)==='kaliz');kpis.innerHTML=`<div class="kpi-row">${[{l:'Pazzi',rows:pRows},{l:'Kaliz',rows:kRows}].map(({l,rows})=>`<div class="kpi-chip"><div class="lbl">${l} — Precio prom.</div><div class="val">${fmt(avgPrice(rows.filter(r=>r.es_kansas)))}</div><div class="sub">${rows.length} productos</div></div>`).join('')}</div>`;}
