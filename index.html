@@ -746,7 +746,9 @@ function showTab(tab) {
   document.querySelectorAll('.nav-tab').forEach((el,i) => el.classList.toggle('active', ['resumen','salsas','hummus','panes','ecommerce','competencia','detalle'][i]===tab));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+tab).classList.add('active');
-  if (tab==='ecommerce') renderEcommerce();
+  const mesSel=document.getElementById('filterMes');
+  if (mesSel) { if (tab==='resumen') { mesSel.value=''; } else { const now=new Date(); const cm=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'); const opts=[...mesSel.options].map(o=>o.value); mesSel.value=opts.includes(cm)?cm:(opts.find(v=>v!=='')||''); } applyFilters(); }
+  if (tab==='ecommerce') { renderEcommerce(); renderPazziCard(); renderGastro(); }
   if (tab==='competencia') renderCompetencia();
   if (tab==='salsas') { renderSalsasGeneral(); renderSalsasVsProducto(); }
   if (tab==='hummus') { renderHummusGeneral(); renderHummusVsProducto(); renderHummusRanking(); renderBabaganush(); }
@@ -1314,7 +1316,17 @@ function renderTablaPanes() {
 }
 
 // ═══ ECOMMERCE ═══
-function renderEcommerce() {
+function renderPazziCard() {
+  const mes=document.getElementById('filterMes')?.value||'';
+  const rows=allRows.filter(r=>String(r.marca||'').toLowerCase()==='pazzi'&&r.precio_regular>0&&(!mes||fechaToMes(r.fecha)===mes));
+  const compEl=document.getElementById('ecommerceComparativa');
+  let el=document.getElementById('pazziKpi');
+  if(!el&&compEl){el=document.createElement('div');el.id='pazziKpi';el.style.marginBottom='14px';compEl.parentElement.insertBefore(el,compEl);}
+  if(!el)return;
+  el.innerHTML=`<div class="kpi-row"><div class="kpi-chip"><div class="lbl">Pazzi (Mercado Libre) — Precio prom.</div><div class="val">${fmt(avgPrice(rows))}</div><div class="sub">${rows.length} productos</div></div></div>`;
+}
+  
+  function renderEcommerce() {
   const ecomRows=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
   const gondolaRows=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
   const compEl=document.getElementById('ecommerceComparativa');
@@ -1331,13 +1343,13 @@ function renderEcommerce() {
 }
 
 function renderGastro() {
-const gastroRows=allRows.filter(r=>isGastroOnly(r)&&r.precio_regular>0);
-const tbody=document.getElementById('tablaGastroBody');if(!tbody)return;
-if(!gastroRows.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos gastronómicos aún.<br><small>Usá la app: "Gastronomía · Pazzi" o "Gastronomía · Kaliz"</small></td></tr>';return;}
-const pfq={'kaliz':'Semestral'};
-const platformOf = r => Object.keys(pfq).find(k => String(r.marca||'').toLowerCase().includes(k) || String(r.cadena||r.canal||'').toLowerCase().includes(k)) || 'otro';
-tbody.innerHTML=gastroRows.map(r=>{const p=platformOf(r),freq=pfq[p]||'—';return`<tr><td style="font-weight:600;text-transform:capitalize">${p}</td><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.canal||'—'}</td><td><span class="badge ${freq==='Frecuente'?'badge-green':'badge-warn'}">${freq}</span></td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
-const kpis=document.getElementById('gastroKpis');if(kpis){const pRows=gastroRows.filter(r=>platformOf(r)==='pazzi'),kRows=gastroRows.filter(r=>platformOf(r)==='kaliz');kpis.innerHTML=`<div class="kpi-row">${[{l:'Pazzi',rows:pRows},{l:'Kaliz',rows:kRows}].map(({l,rows})=>`<div class="kpi-chip"><div class="lbl">${l} — Precio prom.</div><div class="val">${fmt(avgPrice(rows.filter(r=>r.es_kansas)))}</div><div class="sub">${rows.length} productos</div></div>`).join('')}</div>`;}
+const mes=document.getElementById('filterMes')?.value||'';const gastroRows=allRows.filter(r=>String(r.marca||'').toLowerCase()==='kaliz'&&r.precio_regular>0&&(!mes||fechaToMes(r.fecha)===mes));
+const tbody=document.getElementById('tablaGastroBody');if(!tbody)return;let searchEl=document.getElementById('gastroSearch');if(!searchEl){searchEl=document.createElement('input');searchEl.id='gastroSearch';searchEl.type='text';searchEl.placeholder='Buscar producto...';searchEl.style.cssText='width:100%;margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box';searchEl.oninput=renderGastro;const tw=tbody.closest('.tbl-wrap');if(tw&&tw.parentElement)tw.parentElement.insertBefore(searchEl,tw);}const q=(searchEl.value||'').toLowerCase();const rowsForTable=q?gastroRows.filter(r=>String(r.producto).toLowerCase().includes(q)||String(r.marca).toLowerCase().includes(q)):gastroRows;
+if(!gastroRows.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin datos de Kaliz aún.<br><small>Usá la app: "Gastronomía · Kaliz"</small></td></tr>';}else if(!rowsForTable.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin resultados para esa búsqueda.</td></tr>';}else{tbody.innerHTML=rowsForTable.map(r=>`<tr><td style="font-weight:600;text-transform:capitalize">kaliz</td><td>${r.marca}</td><td>${r.producto}</td><td class="price-num">${fmt(r.precio_regular)}</td><td>${r.canal||'—'}</td><td><span class="badge badge-warn">Semestral</span></td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`).join('');}
+
+
+
+const kpis=document.getElementById('gastroKpis');if(kpis){const unidadRows=gastroRows.filter(r=>/\(unidad\)/i.test(r.producto));kpis.innerHTML=`<div class="kpi-row"><div class="kpi-chip"><div class="lbl">Kaliz — Precio prom. (por unidad)</div><div class="val">${fmt(avgPrice(unidadRows))}</div><div class="sub">${gastroRows.length} productos</div></div></div>`;}
 }
 
 // ═══ COMPETENCIA ═══
