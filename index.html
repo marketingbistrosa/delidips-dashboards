@@ -541,13 +541,25 @@ tr:hover td{background:#FAF8F5;}
       <div class="sub-tab" onclick="showSubTab('ecommerce','gastro',this)">🍽️ Gastronomía</div>
     </div>
     <div class="sub-content active" id="ecommerce-online">
+      <div class="section-filters">
+        <span class="filter-label">Categoría:</span>
+        <select class="filter-select" id="fltEcomCategoria" onchange="renderEcommerce()">
+          <option value="">Todas las categorías</option>
+          <option value="Salsas Kansas">Salsas Kansas</option>
+          <option value="Kyros Hummus">Kyros Hummus</option>
+          <option value="Panificados Kansas">Panificados Kansas</option>
+        </select>
+        <span class="filter-label">Cadena:</span>
+        <select class="filter-select" id="fltEcomCadena" onchange="renderEcommerce()"><option value="">Todas</option></select>
+      </div>
       <div class="insight purple" style="margin-bottom:14px"><strong>🍽️ Pazzi</strong>: canal gastronómico (venta online exclusiva) incluido acá dentro de Mercado Libre. Relevamiento frecuente.</div>
       <div id="ecommerceComparativa" style="margin-bottom:14px"></div>
-      <div class="grid-2">
+      <div class="grid-3">
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Salsas</div><div class="chart-wrap"><canvas id="chartEcomSalsas"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Hummus</div><div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Panes</div><div class="chart-wrap"><canvas id="chartEcomPanes"></canvas></div></div>
       </div>
-      <div class="tbl-wrap"><table id="tablaEcommerce"><thead><tr><th>Marca</th><th>Producto</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
+      <div class="tbl-wrap"><table id="tablaEcommerce"><thead><tr><th>Marca</th><th>Producto</th><th>Categoría</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="ecommerce-gastro">
       <div class="insight purple"><strong>🍽️ Canal gastronómico</strong> — <strong>Kaliz</strong>: canal gastronómico, relevamiento cada 6 meses. Precios no comparables con góndola de supermercado. <strong>Pazzi</strong> se muestra ahora en la pestaña Ecommerce, dentro de Mercado Libre.</div>
@@ -666,7 +678,7 @@ function fillFilters() {
   fill('filterZona', zonas, 'Todas las zonas');
   fill('filterFecha', fechas, 'Todas las fechas');
 
-  const selsToFill = ['fltSalsasSkuCadena','fltSalsasCompCadena','fltSalsasEvolCadena','fltSalsasVsCadena','fltSalsasTablaCadena','fltHummusSkuCadena','fltHummusCompCadena','fltHummusEvolCadena','fltHummusVsCadena','fltHummusRankingCadena','fltHummusTablaCadena','fltPanesSkuCadena','fltPanesCompCadena','fltPanesVsCadena','fltPanesTablaCadena','fltCompCadena','detalleCadena'];
+  const selsToFill = ['fltSalsasSkuCadena','fltSalsasCompCadena','fltSalsasEvolCadena','fltSalsasVsCadena','fltSalsasTablaCadena','fltHummusSkuCadena','fltHummusCompCadena','fltHummusEvolCadena','fltHummusVsCadena','fltHummusRankingCadena','fltHummusTablaCadena','fltPanesSkuCadena','fltPanesCompCadena','fltPanesVsCadena','fltPanesTablaCadena','fltCompCadena','detalleCadena','fltEcomCadena'];
   selsToFill.forEach(id => fill(id, cadenas, 'Todas las cadenas'));
 
   const tiposSalsas = [...new Set(allRows.filter(r=>r.categoria===CAT_SALSAS).map(r=>detectTipo(r.producto)).filter(Boolean))].sort();
@@ -1327,19 +1339,23 @@ function renderPazziCard() {
 }
   
   function renderEcommerce() {
-  const ecomRows=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
-  const gondolaRows=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
+  const fCat=document.getElementById('fltEcomCategoria')?.value||'';
+  const fCad=document.getElementById('fltEcomCadena')?.value||'';
+  const ecomRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
+  const gondolaRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
+  const ecomRows=ecomRowsAll.filter(r=>(!fCat||r.categoria===fCat)&&(!fCad||r.cadena===fCad));
+  const gondolaRows=gondolaRowsAll.filter(r=>(!fCat||r.categoria===fCat)&&(!fCad||r.cadena===fCad));
   const compEl=document.getElementById('ecommerceComparativa');
-  if(!ecomRows.length){compEl.innerHTML=`<div class="insight blue"><strong>🌐 Sin datos de ecommerce aún</strong> — Usá la app seleccionando "Ecommerce" al cargar precios.</div>`;} else {
-    const cats=[{cat:CAT_SALSAS,label:'Salsas'},{cat:CAT_HUMMUS,label:'Hummus'},{cat:CAT_PANES,label:'Panes'}];
+  if(!ecomRows.length){compEl.innerHTML=`<div class="insight blue"><strong>🌐 Sin datos de ecommerce aún</strong> — Usá la app seleccionando "Ecommerce" al cargar precios, o revisá los filtros de categoría/cadena.</div>`;} else {
+    const cats=[{cat:CAT_SALSAS,label:'Salsas'},{cat:CAT_HUMMUS,label:'Hummus'},{cat:CAT_PANES,label:'Panes'}].filter(c=>!fCat||c.cat===fCat);
     const cards=cats.map(({cat,label})=>{const eAvg=avgPrice(ecomRows.filter(r=>r.es_kansas&&r.categoria===cat));const gAvg=avgPrice(gondolaRows.filter(r=>r.es_kansas&&r.categoria===cat));if(!eAvg)return '';const diff=gAvg?((eAvg-gAvg)/gAvg*100):null;return`<div class="kpi-chip"><div class="lbl">${label} — Web</div><div class="val">${fmt(eAvg)}</div><div class="sub">${diff!==null?`${diff>0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}% vs góndola`:''}</div></div>`;}).filter(Boolean);
     compEl.innerHTML=`<div class="kpi-row">${cards.join('')}</div>`;
   }
-  [['chartEcomSalsas',CAT_SALSAS],['chartEcomHummus',CAT_HUMMUS]].forEach(([id,cat])=>{destroyChart(id);const ctx=document.getElementById(id);if(!ctx)return;const cadenas=[...new Set(allRows.map(r=>r.cadena).filter(Boolean))].sort();charts[id]=new Chart(ctx,{type:'bar',data:{labels:cadenas,datasets:[{label:'🌐 Web',data:cadenas.map(c=>Math.round(avgPrice(ecomRows.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#1565C0CC',borderRadius:4},{label:'🛒 Góndola',data:cadenas.map(c=>Math.round(avgPrice(gondolaRows.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#C8102ECC',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});});
+  [['chartEcomSalsas',CAT_SALSAS],['chartEcomHummus',CAT_HUMMUS],['chartEcomPanes',CAT_PANES]].forEach(([id,cat])=>{destroyChart(id);const ctx=document.getElementById(id);if(!ctx)return;const card=ctx.closest('.chart-card');if(card)card.style.display=(fCat&&fCat!==cat)?'none':'';if(fCat&&fCat!==cat)return;const cadenas=[...new Set(allRows.map(r=>r.cadena).filter(Boolean))].filter(c=>!fCad||c===fCad).sort();charts[id]=new Chart(ctx,{type:'bar',data:{labels:cadenas,datasets:[{label:'🌐 Web',data:cadenas.map(c=>Math.round(avgPrice(ecomRowsAll.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#1565C0CC',borderRadius:4},{label:'🛒 Góndola',data:cadenas.map(c=>Math.round(avgPrice(gondolaRowsAll.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#C8102ECC',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});});
   const tbody=document.querySelector('#tablaEcommerce tbody');if(!tbody)return;
   const lastEcom=lastByKey(ecomRows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
-  if(!lastEcom.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce aún</td></tr>';return;}
-  tbody.innerHTML=lastEcom.map(r=>{const gondola=gondolaRows.filter(rx=>rx.marca===r.marca&&rx.producto===r.producto&&rx.cadena===r.cadena&&rx.precio_regular>0);const gAvg=gondola.length?Math.round(avgPrice(gondola)):null;const diff=gAvg&&r.precio_regular?((r.precio_regular-gAvg)/gAvg*100):null;return`<tr><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td class="price-num">${gAvg?fmt(gAvg):'—'}</td><td>${diff!==null?`<span class="${diff>0?'delta-up-sm':'delta-down-sm'}">${diff>0?'↑':'↓'} ${Math.abs(diff).toFixed(1)}%</span>`:'—'}</td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
+  if(!lastEcom.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce para este filtro</td></tr>';return;}
+  tbody.innerHTML=lastEcom.map(r=>{const gondola=gondolaRowsAll.filter(rx=>rx.marca===r.marca&&rx.producto===r.producto&&rx.cadena===r.cadena&&rx.precio_regular>0);const gAvg=gondola.length?Math.round(avgPrice(gondola)):null;const diff=gAvg&&r.precio_regular?((r.precio_regular-gAvg)/gAvg*100):null;return`<tr><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.categoria||'—'}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td class="price-num">${gAvg?fmt(gAvg):'—'}</td><td>${diff!==null?`<span class="${diff>0?'delta-up-sm':'delta-down-sm'}">${diff>0?'↑':'↓'} ${Math.abs(diff).toFixed(1)}%</span>`:'—'}</td><td style="font-size:11px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
 }
 
 function renderGastro() {
