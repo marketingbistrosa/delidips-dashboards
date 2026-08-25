@@ -573,12 +573,19 @@ tr:hover td{background:#FAF8F5;}
     <div class="section-title">Vista de Competencia</div>
     <div class="section-sub">Precios de todas las marcas por categoría</div>
     <div class="section-filters">
+      <span class="filter-label">Categoría:</span>
+      <select class="filter-select" id="fltCompCategoria" onchange="renderCompetencia()">
+        <option value="">Todas las categorías</option>
+        <option value="Salsas Kansas">Salsas Kansas</option>
+        <option value="Kyros Hummus">Kyros Hummus</option>
+        <option value="Panificados Kansas">Panificados Kansas</option>
+      </select>
       <span class="filter-label">Cadena:</span>
       <select class="filter-select" id="fltCompCadena" onchange="renderCompetencia()"><option value="">Todas</option></select>
     </div>
-    <div class="chart-card"><div class="chart-title">Salsas</div><div class="chart-wrap" style="height:300px"><canvas id="chartCompSalsas"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartCompHummus"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">Panificados</div><div class="chart-wrap" style="height:220px"><canvas id="chartCompPanes"></canvas></div></div>
+    <div class="chart-card" data-comp-cat="Salsas Kansas"><div class="chart-title">Salsas</div><div class="chart-wrap" style="height:300px"><canvas id="chartCompSalsas"></canvas></div></div>
+    <div class="chart-card" data-comp-cat="Kyros Hummus"><div class="chart-title">Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartCompHummus"></canvas></div></div>
+    <div class="chart-card" data-comp-cat="Panificados Kansas"><div class="chart-title">Panificados</div><div class="chart-wrap" style="height:220px"><canvas id="chartCompPanes"></canvas></div></div>
   </div>
 
   <!-- ══════════════════════════════════════════ DETALLE ══════════════════════════════════════════ -->
@@ -1371,13 +1378,18 @@ const kpis=document.getElementById('gastroKpis');if(kpis){const unidadRows=gastr
 // ═══ COMPETENCIA ═══
 function renderCompetencia() {
   const cadena=document.getElementById('fltCompCadena')?.value||'';
+  const fCat=document.getElementById('fltCompCategoria')?.value||'';
   const rows=filteredRows.filter(r=>!cadena||r.cadena===cadena);
   [[CAT_SALSAS,'chartCompSalsas'],[CAT_HUMMUS,'chartCompHummus'],[CAT_PANES,'chartCompPanes']].forEach(([cat,id])=>{
+    const ctx=document.getElementById(id);
+    const card=ctx?ctx.closest('.chart-card'):null;
+    if(card)card.style.display=(fCat&&fCat!==cat)?'none':'';
     destroyChart(id);
+    if(fCat&&fCat!==cat)return;
     const catRows=rows.filter(r=>r.categoria===cat&&r.precio_regular>0);
     const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
     const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
-    const ctx=document.getElementById(id);if(!ctx||!labels.length)return;
+    if(!ctx||!labels.length)return;
     charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
   });
 }
