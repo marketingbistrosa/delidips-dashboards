@@ -559,6 +559,12 @@ tr:hover td{background:#FAF8F5;}
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Hummus</div><div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Panes</div><div class="chart-wrap"><canvas id="chartEcomPanes"></canvas></div></div>
       </div>
+      <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; Gris: competencia directa</div>
+      <div class="grid-3">
+        <div class="chart-card" data-comp-cat="Salsas Kansas"><div class="chart-title">Competencia Web — Salsas</div><div class="chart-wrap" style="height:260px"><canvas id="chartEcomCompSalsas"></canvas></div></div>
+        <div class="chart-card" data-comp-cat="Kyros Hummus"><div class="chart-title">Competencia Web — Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartEcomCompHummus"></canvas></div></div>
+        <div class="chart-card" data-comp-cat="Panificados Kansas"><div class="chart-title">Competencia Web — Panes</div><div class="chart-wrap" style="height:260px"><canvas id="chartEcomCompPanes"></canvas></div></div>
+      </div>
       <div class="tbl-wrap"><table id="tablaEcommerce"><thead><tr><th>Marca</th><th>Producto</th><th>Categoría</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="sub-content" id="ecommerce-gastro">
@@ -583,6 +589,7 @@ tr:hover td{background:#FAF8F5;}
       <span class="filter-label">Cadena:</span>
       <select class="filter-select" id="fltCompCadena" onchange="renderCompetencia()"><option value="">Todas</option></select>
     </div>
+    <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; Gris: competencia directa</div>
     <div class="chart-card" data-comp-cat="Salsas Kansas"><div class="chart-title">Salsas</div><div class="chart-wrap" style="height:300px"><canvas id="chartCompSalsas"></canvas></div></div>
     <div class="chart-card" data-comp-cat="Kyros Hummus"><div class="chart-title">Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartCompHummus"></canvas></div></div>
     <div class="chart-card" data-comp-cat="Panificados Kansas"><div class="chart-title">Panificados</div><div class="chart-wrap" style="height:220px"><canvas id="chartCompPanes"></canvas></div></div>
@@ -613,6 +620,7 @@ const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz_1JCBFjkZvipPKWo-P
 const PALETTE = ['#C8102E','#2A6040','#B8860B','#1565C0','#6B3FA0','#E65100','#00695C','#AD1457','#4527A0','#2E7D32'];
 const CAT_SALSAS = 'Salsas Kansas', CAT_HUMMUS = 'Kyros Hummus', CAT_PANES = 'Panificados Kansas';
 const HUMMUS_GOURMET = ['SANTA MARIA','PAMPA GOURMET','MESTIZO'];
+const SALSAS_GOURMET = ['ARITZA'];
 const BABA_KEYWORDS = ['BABAGANUSH','BABA GANUSH','BABAGANOUSH'];
 const GASTRO_KEYWORDS = ['pazzi','kaliz','gastro','gastronomia'];
 
@@ -655,9 +663,10 @@ function isBaba(p) { return BABA_KEYWORDS.some(k => p.toUpperCase().includes(k))
 function isGastro(r) { const c = String(r.cadena||'').toLowerCase(), canal = String(r.canal||'').toLowerCase(), cat = String(r.categoria||'').toLowerCase(), marca = String(r.marca||'').toLowerCase(); return GASTRO_KEYWORDS.some(g => c.includes(g) || canal.includes(g) || cat.includes(g) || marca.includes(g)); }
 const ECOM_GASTRO_KEYWORDS = ['kaliz','gastro','gastronomia'];
 function isGastroOnly(r) { const c = String(r.cadena||'').toLowerCase(), canal = String(r.canal||'').toLowerCase(), cat = String(r.categoria||'').toLowerCase(), marca = String(r.marca||'').toLowerCase(); return ECOM_GASTRO_KEYWORDS.some(g => c.includes(g) || canal.includes(g) || cat.includes(g) || marca.includes(g)); }
-function isGourmet(marca) { return HUMMUS_GOURMET.some(g => String(marca||'').toUpperCase().includes(g)); }
+function isGourmet(marca) { return [...HUMMUS_GOURMET, ...SALSAS_GOURMET].some(g => String(marca||'').toUpperCase().includes(g)); }
 const PANES_SIN_TACC = ['BIO'];
 function isSinTacc(marca) { return PANES_SIN_TACC.some(g => String(marca||'').toUpperCase().includes(g)); }
+function isElaboracionPropia(marca) { return /ELABORACI[OÓ]N PROPIA/i.test(String(marca||'')); }
 
 function showApp() { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('mainApp').style.display='block'; }
 function showError(msg) { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('errorScreen').classList.add('show'); document.getElementById('errorMsg').textContent = msg||'Error desconocido'; }
@@ -872,8 +881,18 @@ renderEvolChart('chartPanesEvol', CAT_PANES);
   renderAusencias();
   renderCobertura();
   renderSalsasGeneral();
+  renderSalsasVsProducto();
+  renderSalsasEvol2();
+  renderTablaSalsas();
   renderHummusGeneral();
+  renderBabaganush();
+  renderHummusVsProducto();
+  renderHummusRanking();
+  renderHummusEvol2();
+  renderTablaHummus();
   renderPanesGeneral();
+  renderPanesVsProducto();
+  renderTablaPanes();
   renderCompetencia();
   renderDetalle();
 }
@@ -1359,6 +1378,18 @@ function renderPazziCard() {
     compEl.innerHTML=`<div class="kpi-row">${cards.join('')}</div>`;
   }
   [['chartEcomSalsas',CAT_SALSAS],['chartEcomHummus',CAT_HUMMUS],['chartEcomPanes',CAT_PANES]].forEach(([id,cat])=>{destroyChart(id);const ctx=document.getElementById(id);if(!ctx)return;const card=ctx.closest('.chart-card');if(card)card.style.display=(fCat&&fCat!==cat)?'none':'';if(fCat&&fCat!==cat)return;const cadenas=[...new Set(allRows.map(r=>r.cadena).filter(Boolean))].filter(c=>!fCad||c===fCad).sort();charts[id]=new Chart(ctx,{type:'bar',data:{labels:cadenas,datasets:[{label:'🌐 Web',data:cadenas.map(c=>Math.round(avgPrice(ecomRowsAll.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#1565C0CC',borderRadius:4},{label:'🛒 Góndola',data:cadenas.map(c=>Math.round(avgPrice(gondolaRowsAll.filter(r=>r.es_kansas&&r.categoria===cat&&r.cadena===c)))||null),backgroundColor:'#C8102ECC',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:priceAxis,font:{size:9}},grid:{color:'#E8E2D9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});});
+  [['chartEcomCompSalsas',CAT_SALSAS],['chartEcomCompHummus',CAT_HUMMUS],['chartEcomCompPanes',CAT_PANES]].forEach(([id,cat])=>{
+    const ctxc=document.getElementById(id);
+    const cardc=ctxc?ctxc.closest('.chart-card'):null;
+    if(cardc)cardc.style.display=(fCat&&fCat!==cat)?'none':'';
+    destroyChart(id);
+    if(fCat&&fCat!==cat)return;
+    const catRows=ecomRows.filter(r=>r.categoria===cat&&r.precio_regular>0);
+    const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
+    const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
+    if(!ctxc||!labels.length)return;
+    charts[id]=new Chart(ctxc,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
+  });
   const tbody=document.querySelector('#tablaEcommerce tbody');if(!tbody)return;
   const lastEcom=lastByKey(ecomRows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
   if(!lastEcom.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce para este filtro</td></tr>';return;}
@@ -1390,7 +1421,7 @@ function renderCompetencia() {
     const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
     const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
     if(!ctx||!labels.length)return;
-    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
+    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
   });
 }
 
