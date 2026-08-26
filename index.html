@@ -559,7 +559,7 @@ tr:hover td{background:#FAF8F5;}
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Hummus</div><div class="chart-wrap"><canvas id="chartEcomHummus"></canvas></div></div>
         <div class="chart-card"><div class="chart-title">Ecommerce vs Góndola — Panes</div><div class="chart-wrap"><canvas id="chartEcomPanes"></canvas></div></div>
       </div>
-      <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; Gris: competencia directa</div>
+      <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; 🟡 Sin TACC &nbsp;·&nbsp; Gris: competencia directa</div>
       <div class="grid-3">
         <div class="chart-card" data-comp-cat="Salsas Kansas"><div class="chart-title">Competencia Web — Salsas</div><div class="chart-wrap" style="height:260px"><canvas id="chartEcomCompSalsas"></canvas></div></div>
         <div class="chart-card" data-comp-cat="Kyros Hummus"><div class="chart-title">Competencia Web — Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartEcomCompHummus"></canvas></div></div>
@@ -589,7 +589,7 @@ tr:hover td{background:#FAF8F5;}
       <span class="filter-label">Cadena:</span>
       <select class="filter-select" id="fltCompCadena" onchange="renderCompetencia()"><option value="">Todas</option></select>
     </div>
-    <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; Gris: competencia directa</div>
+    <div class="chart-sub" style="margin:2px 0 10px">🔴 Kansas &nbsp;·&nbsp; 🟣 Gourmet &nbsp;·&nbsp; 🟢 Elaboración propia &nbsp;·&nbsp; 🟡 Sin TACC &nbsp;·&nbsp; Gris: competencia directa</div>
     <div class="chart-card" data-comp-cat="Salsas Kansas"><div class="chart-title">Salsas</div><div class="chart-wrap" style="height:300px"><canvas id="chartCompSalsas"></canvas></div></div>
     <div class="chart-card" data-comp-cat="Kyros Hummus"><div class="chart-title">Hummus</div><div class="chart-wrap" style="height:260px"><canvas id="chartCompHummus"></canvas></div></div>
     <div class="chart-card" data-comp-cat="Panificados Kansas"><div class="chart-title">Panificados</div><div class="chart-wrap" style="height:220px"><canvas id="chartCompPanes"></canvas></div></div>
@@ -1388,7 +1388,7 @@ function renderPazziCard() {
     const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
     const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
     if(!ctxc||!labels.length)return;
-    charts[id]=new Chart(ctxc,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
+    charts[id]=new Chart(ctxc,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isSinTacc(b)?'#B8860B':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
   });
   const tbody=document.querySelector('#tablaEcommerce tbody');if(!tbody)return;
   const lastEcom=lastByKey(ecomRows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
@@ -1421,7 +1421,7 @@ function renderCompetencia() {
     const bm={};catRows.forEach(r=>{if(!bm[r.marca])bm[r.marca]=[];bm[r.marca].push(r.precio_regular);});
     const labels=Object.keys(bm).sort((a,b)=>avg(bm[b])-avg(bm[a]));
     if(!ctx||!labels.length)return;
-    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
+    charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:labels.map(b=>Math.round(avg(bm[b]))),backgroundColor:labels.map(b=>{const r=catRows.find(rx=>rx.marca===b);return r?.es_kansas?'#C8102E':isSinTacc(b)?'#B8860B':isElaboracionPropia(b)?'#00695C':isGourmet(b)?'#9B72D0':'#B0A898';}),borderRadius:5}]},options:chartOptions(priceAxis)});
   });
 }
 
