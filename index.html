@@ -847,7 +847,7 @@ function deltaIcon(cur, prev) { if(!prev||!cur) return ''; const d=((cur-prev)/p
 function detectTipo(producto) {
   const p = String(producto||'').toUpperCase();
   if (isBaba(p)) return 'Babaganush';
-  if (p.includes('KETCHUP')) return 'Ketchup';
+  if (p.includes('KETCHUP')) return /HONEY|HONNEY|MIEL|CURRY|SPICY|PICANTE|HOT/.test(p) ? 'Ketchup saborizado' : 'Ketchup clásico';
   if (p.includes('MAYONESA')||p.includes('MAYO')) return 'Mayonesa';
   // Mostaza con miel y Honey Mustard son el mismo producto: se comparan juntos
   if ((p.includes('MOSTAZA')&&(p.includes('MIEL')||p.includes('HONEY')))||((p.includes('HONEY')||p.includes('HONNEY'))&&p.includes('MUSTARD'))) return 'Mostaza c/Miel · Honey Mustard';
@@ -877,6 +877,14 @@ function detectTipo(producto) {
   return null;
 }
 
+// En tipos donde tenemos varias versiones propias (ej. Ketchup American/Curry/Spicy),
+// mostramos cada versión por separado en vez de promediarlas
+const TIPOS_VARIANTE_PROPIA = ['Ketchup clásico','Ketchup saborizado'];
+function marcaLabel(r, tipo) {
+  if (!r.es_kansas || !TIPOS_VARIANTE_PROPIA.includes(tipo)) return r.marca;
+  const v = String(r.producto||'').toUpperCase().replace(/KETCHUP|KANSAS|[-\d]+\s*G(R|RS)?\b/g,'').replace(/\s+/g,' ').trim();
+  return r.marca + (v ? ' ' + v.charAt(0) + v.slice(1).toLowerCase() : '');
+}
 function extractGrams(nombre, categoria) {
   const upper = String(nombre||'').toUpperCase().trim();
   // Gramajes específicos por categoría — evita cross-match entre categorías
@@ -1168,8 +1176,8 @@ function renderPorGramo(id, rows) {
   // Agrupar por marca + tipo → promedio de ppg
   const grouped = {};
   withGrams.forEach(r=>{
-    const key = r.marca+'||'+r.tipo;
-    if(!grouped[key]) grouped[key]={marca:r.marca,tipo:r.tipo,es_kansas:r.es_kansas,categoria:r.categoria,ppgs:[],precio_avg:[],rows:[]};
+    const lbl = marcaLabel(r, r.tipo), key = lbl+'||'+r.tipo;
+    if(!grouped[key]) grouped[key]={marca:lbl,tipo:r.tipo,es_kansas:r.es_kansas,categoria:r.categoria,ppgs:[],precio_avg:[],rows:[]};
     grouped[key].ppgs.push(r.ppg);
     grouped[key].precio_avg.push(r.precio_regular);
     grouped[key].rows.push(r);
@@ -1499,9 +1507,10 @@ function renderVsProductoViz(wrapId, rows, ownMarca, colorOwn, colorGourmet) {
   rows.filter(r=>r.precio_regular>0).forEach(r => {
     const tipo = detectTipo(r.producto); if (!tipo) return;
     if (!grouped[tipo]) grouped[tipo] = {};
-    if (!grouped[tipo][r.marca]) grouped[tipo][r.marca] = {prices:[], rows:[], isOwn:r.es_kansas, isGourmet:isGourmet(r.marca)};
-    grouped[tipo][r.marca].prices.push(r.precio_regular);
-    grouped[tipo][r.marca].rows.push(r);
+    const lbl = marcaLabel(r, tipo);
+    if (!grouped[tipo][lbl]) grouped[tipo][lbl] = {prices:[], rows:[], isOwn:r.es_kansas, isGourmet:isGourmet(r.marca)};
+    grouped[tipo][lbl].prices.push(r.precio_regular);
+    grouped[tipo][lbl].rows.push(r);
   });
   const catMed = median(rows.filter(r=>r.precio_regular>0).map(r=>r.precio_regular));
   const tipos = Object.keys(grouped).sort();
