@@ -849,12 +849,14 @@ function detectTipo(producto) {
   if (isBaba(p)) return 'Babaganush';
   if (p.includes('KETCHUP')) return 'Ketchup';
   if (p.includes('MAYONESA')||p.includes('MAYO')) return 'Mayonesa';
-  if (p.includes('MOSTAZA')) return 'Mostaza';
+  // Mostaza con miel y Honey Mustard son el mismo producto: se comparan juntos
+  if ((p.includes('MOSTAZA')&&(p.includes('MIEL')||p.includes('HONEY')))||((p.includes('HONEY')||p.includes('HONNEY'))&&p.includes('MUSTARD'))) return 'Mostaza c/Miel · Honey Mustard';
+  if (p.includes('MOSTAZA')||p.includes('MUSTARD')) return 'Mostaza';
   if (p.includes('CHIMICHURRI')) return 'Chimichurri';
   if (p.includes('CAESAR')||p.includes('CESAR')) return 'Caesar';
   if (p.includes('BARBACOA')||p.includes('BBQ')) return 'Barbacoa';
   if (p.includes('RANCH')) return 'Ranch';
-  if (p.includes('HONEY')||p.includes('MIEL')) return 'Honey Mustard';
+  if (p.includes('HONEY')||p.includes('HONNEY')||p.includes('MIEL')) return 'Mostaza c/Miel · Honey Mustard';
   if (p.includes('AIOLI')||p.includes('ALIOLI')) return 'Aioli';
   if (p.includes('CHEDDAR')) return 'Cheddar';
   if (p.includes('VINAGRETA')) return 'Vinagreta';
