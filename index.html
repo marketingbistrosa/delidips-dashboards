@@ -181,6 +181,20 @@ tr:hover td{background:#FAF8F5;}
 .insight.blue{background:var(--blue-light);border:1px solid #90CAF9;}
 .empty{text-align:center;padding:40px 20px;color:var(--muted);}
 .empty .icon{font-size:32px;margin-bottom:10px;}
+.drill-row{cursor:pointer;border-radius:4px;transition:background .15s;}
+.drill-row:hover{background:rgba(0,0,0,.035);}
+.drill-caret{display:inline-block;width:10px;font-size:9px;color:var(--muted);transition:transform .15s;}
+.drill-row.open .drill-caret{transform:rotate(90deg);}
+.drill-box{display:none;margin:2px 0 8px 12px;padding:6px 8px;background:var(--bg,#faf8f5);border:1px solid var(--border);border-radius:6px;font-size:11px;}
+.drill-box.open{display:block;}
+.drill-box table{width:100%;border-collapse:collapse;}
+.drill-box th{text-align:left;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:3px 6px;border-bottom:1px solid var(--border);}
+.drill-box td{padding:3px 6px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;}
+.drill-box tr:last-child td{border-bottom:none;}
+.drill-box td.num{text-align:right;}
+.drill-box tr.outlier td{background:#fdecec;color:var(--red);font-weight:600;}
+.drill-foot{margin-top:4px;font-size:10px;color:var(--muted);}
+.drill-warn{color:var(--red);font-weight:600;margin-left:4px;font-size:10px;}
 </style>
 </head>
 <body>
@@ -796,6 +810,28 @@ function showSubTab(section, sub, btn) {
 // ═══ HELPERS ═══
 function avg(arr) { return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
 function avgPrice(rows) { const enStock = avg(rows.filter(r=>r.estado!=='Sin stock').map(r=>r.precio_regular).filter(v=>v>0)); if (enStock > 0) return enStock; return avg(rows.map(r=>r.precio_regular).filter(v=>v>0)); }
+// ═══ DRILL-DOWN: ver los precios que forman cada promedio ═══
+function median(arr){ if(!arr.length) return 0; const a=[...arr].sort((x,y)=>x-y), m=Math.floor(a.length/2); return a.length%2?a[m]:(a[m-1]+a[m])/2; }
+// Un precio es sospechoso si está a más de 3x (o menos de 1/3) de la mediana de su grupo de referencia
+function isOutlier(v, ref){ return ref>0 && (v>ref*3 || v<ref/3); }
+function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function drillBoxHTML(rows, opts={}) {
+  const refMed = opts.refMedian || median(rows.map(r=>r.precio_regular));
+  const sorted=[...rows].sort((a,b)=>b.precio_regular-a.precio_regular);
+  const showPpg = !!opts.ppg;
+  let h='<table><thead><tr><th>Producto</th><th>Cadena</th><th>Fecha</th>'+(showPpg?'<th class="num">$/g</th>':'')+'<th class="num">Precio</th></tr></thead><tbody>';
+  sorted.forEach(r=>{
+    const out=isOutlier(r.precio_regular, refMed);
+    h+=`<tr class="${out?'outlier':''}" ${out?'title="Precio fuera de rango: posible error de carga"':''}><td>${out?'⚠ ':''}${esc(r.producto)}${r.estado==='Sin stock'?' <span style="color:var(--muted)">(sin stock)</span>':''}</td><td>${esc(r.cadena)}</td><td>${formatDate(r.fecha)}</td>${showPpg?`<td class="num">$${(r.ppg||0).toFixed(1)}</td>`:''}<td class="num">${fmt(r.precio_regular)}</td></tr>`;
+  });
+  const nOut=sorted.filter(r=>isOutlier(r.precio_regular, refMed)).length;
+  h+=`</tbody></table><div class="drill-foot">${rows.length} registro${rows.length!==1?'s':''} · mediana ${fmt(median(rows.map(r=>r.precio_regular)))}${nOut?` · <span style="color:var(--red)">${nOut} fuera de rango (resaltado)</span>`:''}</div>`;
+  return h;
+}
+function drillWarn(rows, refMed){ const ref=refMed||median(rows.map(r=>r.precio_regular)); return rows.some(r=>isOutlier(r.precio_regular, ref))?'<span class="drill-warn" title="Hay precios fuera de rango en este promedio">⚠</span>':''; }
+function toggleDrill(el){ el.classList.toggle('open'); const b=el.nextElementSibling; if(b&&b.classList.contains('drill-box')) b.classList.toggle('open'); }
+const CARET='<span class="drill-caret">▶</span>';
+
 function fmt(v) { return v>0?'$'+Math.round(v).toLocaleString('es-AR'):'—'; }
 function formatDate(s) { if(!s||s.length<10)return s; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function lastByKey(rows, keyFn) { const map={}; rows.forEach(r=>{map[keyFn(r)]=r;}); return Object.values(map); }
@@ -1100,12 +1136,15 @@ function renderGap(id, rows, exclBaba=false) {
     return;
   }
   const brandMap={};
-  r.filter(x=>!x.es_kansas&&x.precio_regular>0).forEach(x=>{if(!brandMap[x.marca])brandMap[x.marca]=[];brandMap[x.marca].push(x.precio_regular);});
+  const rowMap={};
+  r.filter(x=>!x.es_kansas&&x.precio_regular>0).forEach(x=>{if(!brandMap[x.marca]){brandMap[x.marca]=[];rowMap[x.marca]=[];}brandMap[x.marca].push(x.precio_regular);rowMap[x.marca].push(x);});
+  const ownRows=r.filter(x=>x.es_kansas&&x.precio_regular>0);
+  const catMed=median(r.filter(x=>x.precio_regular>0).map(x=>x.precio_regular));
   const maxP=Math.max(kAvg,...Object.values(brandMap).map(v=>avg(v)));
-  let html=`<div class="gap-row"><div class="gap-brand our-brand">● Nuestro precio promedio</div><div class="gap-price our-brand">${fmt(kAvg)}</div><div class="gap-pct">—</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxP*100)}%;background:var(--red)"></div></div></div>`;
+  let html=`<div class="gap-row drill-row" onclick="toggleDrill(this)"><div class="gap-brand our-brand">${CARET}● Nuestro precio promedio${drillWarn(ownRows,catMed)}</div><div class="gap-price our-brand">${fmt(kAvg)}</div><div class="gap-pct">—</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(kAvg/maxP*100)}%;background:var(--red)"></div></div></div><div class="drill-box">${drillBoxHTML(ownRows,{refMedian:catMed})}</div>`;
   Object.entries(brandMap).sort((a,b)=>avg(b[1])-avg(a[1])).forEach(([marca,prices])=>{
     const p=avg(prices),diff=((kAvg-p)/p*100).toFixed(1),isBelow=kAvg<p;
-    html+=`<div class="gap-row"><div class="gap-brand">${marca}${isGourmet(marca)?'<span class="gourmet-badge">G</span>':''}${isSinTacc(marca)?'<span class="gourmet-badge" title="Sin TACC - no comparable directamente">Sin TACC</span>':''}</div><div class="gap-price">${fmt(p)}</div><div class="gap-pct" style="color:${isBelow?'var(--green)':'var(--red)'}; font-size:11px">${isBelow?`▼ ${Math.abs(diff)}% más barato`:`▲ ${Math.abs(diff)}% más caro`}</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxP*100)}%;background:${isBelow?'var(--green)':'#D0C9C0'}"></div></div></div>`;
+    html+=`<div class="gap-row drill-row" onclick="toggleDrill(this)"><div class="gap-brand">${CARET}${marca}${drillWarn(rowMap[marca],catMed)}${isGourmet(marca)?'<span class="gourmet-badge">G</span>':''}${isSinTacc(marca)?'<span class="gourmet-badge" title="Sin TACC - no comparable directamente">Sin TACC</span>':''}</div><div class="gap-price">${fmt(p)}</div><div class="gap-pct" style="color:${isBelow?'var(--green)':'var(--red)'}; font-size:11px">${isBelow?`▼ ${Math.abs(diff)}% más barato`:`▲ ${Math.abs(diff)}% más caro`}</div><div class="gap-bar-wrap"><div class="gap-bar" style="width:${Math.round(p/maxP*100)}%;background:${isBelow?'var(--green)':'#D0C9C0'}"></div></div></div><div class="drill-box">${drillBoxHTML(rowMap[marca],{refMedian:catMed})}</div>`;
   });
   el.innerHTML=html;
 }
@@ -1128,18 +1167,20 @@ function renderPorGramo(id, rows) {
   const grouped = {};
   withGrams.forEach(r=>{
     const key = r.marca+'||'+r.tipo;
-    if(!grouped[key]) grouped[key]={marca:r.marca,tipo:r.tipo,es_kansas:r.es_kansas,categoria:r.categoria,ppgs:[],precio_avg:[]};
+    if(!grouped[key]) grouped[key]={marca:r.marca,tipo:r.tipo,es_kansas:r.es_kansas,categoria:r.categoria,ppgs:[],precio_avg:[],rows:[]};
     grouped[key].ppgs.push(r.ppg);
     grouped[key].precio_avg.push(r.precio_regular);
+    grouped[key].rows.push(r);
   });
 
   const items = Object.values(grouped).map(g=>({
     marca:g.marca, tipo:g.tipo, es_kansas:g.es_kansas, categoria:g.categoria,
     ppg: parseFloat((g.ppgs.reduce((a,b)=>a+b,0)/g.ppgs.length).toFixed(2)),
     precio_prom: Math.round(g.precio_avg.reduce((a,b)=>a+b,0)/g.precio_avg.length),
-    n: g.ppgs.length
+    n: g.ppgs.length, rows: g.rows
   }));
 
+  const catMed=median(withGrams.map(r=>r.precio_regular));
   const tipos=[...new Set(items.map(r=>r.tipo))].sort();
   wrap.innerHTML='';
   tipos.forEach(tipo=>{
@@ -1152,10 +1193,11 @@ function renderPorGramo(id, rows) {
     tipoItems.forEach(r=>{
       const isK=r.es_kansas, isG=isGourmet(r.marca), pct=Math.round((r.ppg/maxPG)*100);
       const color=isK?'var(--red)':isG?'var(--purple)':'#B0A898';
-      const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px';
+      const row=document.createElement('div'); row.className='drill-row'; row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px'; row.onclick=()=>toggleDrill(row);
       const nLabel = r.n>1?`<span style="font-size:9px;color:var(--muted)">prom. ${r.n} cad.</span>`:'';
-      row.innerHTML=`<div style="min-width:130px;font-size:11px;font-weight:${isK?'600':'400'};color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.marca}${isG?'<span class="gourmet-badge">G</span>':''}</div><div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:52px;text-align:right;font-size:11px;font-weight:600;color:${color}">$${r.ppg.toFixed(1)}/g</div><div style="min-width:65px;text-align:right;font-size:10px;color:var(--muted)">${r.precio_prom.toLocaleString('es-AR')} ${nLabel}</div>`;
+      row.innerHTML=`<div style="min-width:130px;font-size:11px;font-weight:${isK?'600':'400'};color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${CARET}${r.marca}${isG?'<span class="gourmet-badge">G</span>':''}${drillWarn(r.rows,catMed)}</div><div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:52px;text-align:right;font-size:11px;font-weight:600;color:${color}">$${r.ppg.toFixed(1)}/g</div><div style="min-width:65px;text-align:right;font-size:10px;color:var(--muted)">${r.precio_prom.toLocaleString('es-AR')} ${nLabel}</div>`;
       sec.appendChild(row);
+      const box=document.createElement('div'); box.className='drill-box'; box.innerHTML=drillBoxHTML(r.rows,{ppg:true,refMedian:catMed}); sec.appendChild(box);
     });
     wrap.appendChild(sec);
   });
@@ -1455,9 +1497,11 @@ function renderVsProductoViz(wrapId, rows, ownMarca, colorOwn, colorGourmet) {
   rows.filter(r=>r.precio_regular>0).forEach(r => {
     const tipo = detectTipo(r.producto); if (!tipo) return;
     if (!grouped[tipo]) grouped[tipo] = {};
-    if (!grouped[tipo][r.marca]) grouped[tipo][r.marca] = {prices:[], isOwn:r.es_kansas, isGourmet:isGourmet(r.marca)};
+    if (!grouped[tipo][r.marca]) grouped[tipo][r.marca] = {prices:[], rows:[], isOwn:r.es_kansas, isGourmet:isGourmet(r.marca)};
     grouped[tipo][r.marca].prices.push(r.precio_regular);
+    grouped[tipo][r.marca].rows.push(r);
   });
+  const catMed = median(rows.filter(r=>r.precio_regular>0).map(r=>r.precio_regular));
   const tipos = Object.keys(grouped).sort();
   if (!tipos.length) { wrap.innerHTML='<div class="empty"><p>Sin datos suficientes</p></div>'; return; }
   wrap.innerHTML = '';
@@ -1465,7 +1509,7 @@ function renderVsProductoViz(wrapId, rows, ownMarca, colorOwn, colorGourmet) {
     const items = Object.entries(grouped[tipo]).map(([marca, d]) => ({
       marca, isOwn:d.isOwn, isGourmet:d.isGourmet,
       precio: Math.round(d.prices.reduce((a,b)=>a+b,0)/d.prices.length),
-      n: d.prices.length
+      n: d.prices.length, rows: d.rows
     })).sort((a,b) => a.precio - b.precio);
     if (!items.length) return;
     const ownItem = items.find(i=>i.isOwn);
@@ -1479,9 +1523,10 @@ function renderVsProductoViz(wrapId, rows, ownMarca, colorOwn, colorGourmet) {
       const diffTag = diff!==null ? `<span style="font-size:10px;font-weight:600;color:${diff>0?'var(--green)':'var(--red)'}"> ${diff>0?'+':''}${diff.toFixed(0)}%</span>` : '';
       const nTag = item.n>1 ? `<span style="font-size:9px;color:var(--muted)"> ·${item.n} cad.</span>` : '';
       const gTag = item.isGourmet ? '<span class="gourmet-badge" style="font-size:9px;padding:0 4px">G</span>' : '';
-      const row = document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px';
-      row.innerHTML = `<div style="min-width:130px;font-size:11px;font-weight:${item.isOwn?'700':'400'};color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.marca}${gTag}${nTag}</div><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:70px;text-align:right;font-size:12px;font-weight:${item.isOwn?'700':'400'};color:${color}">$${item.precio.toLocaleString('es-AR')}</div><div style="min-width:50px;text-align:right">${diffTag}</div>`;
+      const row = document.createElement('div'); row.className='drill-row'; row.style.cssText='display:flex;align-items:center;gap:7px;margin-bottom:4px'; row.onclick=()=>toggleDrill(row);
+      row.innerHTML = `<div style="min-width:130px;font-size:11px;font-weight:${item.isOwn?'700':'400'};color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${CARET}${item.marca}${gTag}${nTag}${drillWarn(item.rows,catMed)}</div><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div></div><div style="min-width:70px;text-align:right;font-size:12px;font-weight:${item.isOwn?'700':'400'};color:${color}">$${item.precio.toLocaleString('es-AR')}</div><div style="min-width:50px;text-align:right">${diffTag}</div>`;
       sec.appendChild(row);
+      const box=document.createElement('div'); box.className='drill-box'; box.innerHTML=drillBoxHTML(item.rows,{refMedian:catMed}); sec.appendChild(box);
     });
     wrap.appendChild(sec);
   });
