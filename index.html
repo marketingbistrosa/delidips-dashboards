@@ -217,7 +217,7 @@ tr:hover td{background:#FAF8F5;}
     <div class="header-logo">DeliDips <span>· Precios en Góndola</span></div>
     <div class="header-right">
       <div class="last-update" id="lastUpdate">—</div>
-      <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+      <span id="dataStatus" style="font-size:11px;color:var(--muted);margin-right:8px"></span><button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
     </div>
   </div>
 
@@ -647,30 +647,75 @@ function normCadena(c) {
 }
 
 // ═══ LOAD ═══
-async function loadData() {
-  document.getElementById('loadMsg').textContent = 'Conectando...';
+// ═══ CARGA DE DATOS con reintentos + copia local ═══
+// Google Apps Script a veces tarda o devuelve una página de error (HTML) en vez de JSON.
+// Reintentamos solo, y si igual falla abrimos con la última copia buena guardada en este navegador.
+const CACHE_KEY = 'delidips_precios_cache_v1';
+function setLoadMsg(t){ const el=document.getElementById('loadMsg'); if(el) el.textContent=t; }
+function setStatus(t, warn){ const el=document.getElementById('dataStatus'); if(!el) return; el.textContent=t||''; el.style.color=warn?'var(--red)':'var(--muted)'; }
+async function fetchJsonOnce(timeoutMs){
+  const ctrl = new AbortController(); const tm = setTimeout(()=>ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(WEBAPP_URL + '?v=' + Date.now());
-    const json = await res.json();
+    const res = await fetch(WEBAPP_URL + '?v=' + Date.now(), {signal: ctrl.signal, cache:'no-store'});
+    const txt = await res.text();
+    if (!txt.trim().startsWith('{')) throw new Error('Google devolvió una página de error ('+res.status+')');
+    const json = JSON.parse(txt);
     if (json.status !== 'ok') throw new Error(json.message || 'Error del servidor');
-    allRows = json.rows.map(r => ({
-      ...r,
-      cadena: normCadena(r.cadena),
-      precio_regular: parseFloat(r.precio_regular) || 0,
-      precio_oferta: parseFloat(r.precio_oferta) || 0,
-      fecha: String(r.fecha || r.timestamp || '').substring(0,10),
-      categoria: String(r['categoría'] || r.categoria || ''),
-      es_kansas: String(r.es_kansas || '').toUpperCase() === 'SI',
-      en_oferta: String(r.en_oferta || '').toUpperCase() === 'SI',
-      canal: String(r.canal || 'gondola').toLowerCase(),
-      esBaba: isBaba(String(r.producto || '')),
-    })).filter(r => r.precio_regular > 0 || r.estado === 'No visto' || r.estado === 'Sin stock');
-    meta = json.meta || {};
-    fillFilters();
-    applyFilters();
-    showApp();
-    updateLastUpdate();
-  } catch(e) { showError(e.message); }
+    return {json, txt};
+  } catch(e) { if (e.name==='AbortError') throw new Error('Google tardó demasiado en responder'); throw e; }
+  finally { clearTimeout(tm); }
+}
+async function fetchJsonRetry(onAttempt){
+  const waits=[0,2000,5000,10000]; let lastErr;
+  for (let i=0;i<waits.length;i++){
+    if (waits[i]) await new Promise(r=>setTimeout(r,waits[i]));
+    onAttempt && onAttempt(i+1, waits.length);
+    try { return await fetchJsonOnce(25000); } catch(e){ lastErr=e; }
+  }
+  throw lastErr;
+}
+function applyJson(json){
+  allRows = json.rows.map(r => ({
+    ...r,
+    cadena: normCadena(r.cadena),
+    precio_regular: parseFloat(r.precio_regular) || 0,
+    precio_oferta: parseFloat(r.precio_oferta) || 0,
+    fecha: String(r.fecha || r.timestamp || '').substring(0,10),
+    categoria: String(r['categoría'] || r.categoria || ''),
+    es_kansas: String(r.es_kansas || '').toUpperCase() === 'SI',
+    en_oferta: String(r.en_oferta || '').toUpperCase() === 'SI',
+    canal: String(r.canal || 'gondola').toLowerCase(),
+    esBaba: isBaba(String(r.producto || '')),
+  })).filter(r => r.precio_regular > 0 || r.estado === 'No visto' || r.estado === 'Sin stock');
+  meta = json.meta || {};
+  fillFilters();
+  applyFilters();
+  showApp();
+  updateLastUpdate();
+}
+function readCache(){ try { const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null'); return c&&c.txt?c:null; } catch(e){ return null; } }
+function writeCache(txt){ try { localStorage.setItem(CACHE_KEY, JSON.stringify({txt, savedAt: Date.now()})); } catch(e){} }
+function fmtHora(ts){ const d=new Date(ts); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+let _loading=false, _lastTxt=null;
+async function loadData() {
+  if (_loading) return; _loading=true;
+  const appVisible = document.getElementById('mainApp').style.display==='block';
+  // 1) Abrir al instante con la copia guardada, si existe
+  if (!appVisible) {
+    const c = readCache();
+    if (c) { try { applyJson(JSON.parse(c.txt)); _lastTxt=c.txt; setStatus('Datos guardados del '+fmtHora(c.savedAt)+' · actualizando…'); } catch(e){} }
+  } else setStatus('Actualizando…');
+  const showingData = document.getElementById('mainApp').style.display==='block';
+  // 2) Buscar datos frescos con reintentos
+  try {
+    const {json, txt} = await fetchJsonRetry((n,tot)=>{ if(n>1){ setLoadMsg(`Google no respondió, reintentando (${n}/${tot})…`); if(showingData) setStatus(`Actualizando… reintento ${n}/${tot}`); } });
+    if (txt !== _lastTxt) applyJson(json);
+    _lastTxt = txt; writeCache(txt);
+    setStatus('Actualizado '+fmtHora(Date.now()));
+  } catch(e) {
+    if (showingData) { const c=readCache(); setStatus('No se pudo actualizar ('+e.message+'). Mostrando datos del '+(c?fmtHora(c.savedAt):'último intento')+' · tocá ↻ Actualizar', true); }
+    else showError(e.message + '. Probá de nuevo en un minuto.');
+  } finally { _loading=false; }
 }
 
 function isBaba(p) { return BABA_KEYWORDS.some(k => p.toUpperCase().includes(k)); }
