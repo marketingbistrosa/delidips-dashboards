@@ -128,29 +128,37 @@ def guardar(fechas, filas):
 
 def descargar_nuevos(eans):
     estado = json.load(open(STATE)) if os.path.exists(STATE) else {}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,application/zip,*/*;q=0.8',
+        'Accept-Language': 'es-AR,es;q=0.9',
+        'Referer': 'https://datos.produccion.gob.ar/dataset/sepa-precios',
+    }
     for dia, ruta in RECURSOS.items():
         url = BASE + ruta
         try:
-            head = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'}), timeout=60)
-            mod = head.headers.get('Last-Modified', '')
+            r = urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=900)
         except Exception as e:
-            print(f'{dia}: no se pudo consultar ({e})')
+            print(f'{dia}: no se pudo descargar ({e})')
             continue
+        mod = r.headers.get('Last-Modified', '')
         if mod and estado.get(dia) == mod:
             print(f'{dia}: sin cambios ({mod})')
+            r.close()
             continue
         print(f'{dia}: descargando ({mod})')
         with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
             try:
-                with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'}), timeout=900) as r:
-                    while True:
-                        chunk = r.read(1 << 20)
-                        if not chunk:
-                            break
-                        tmp.write(chunk)
+                while True:
+                    chunk = r.read(1 << 20)
+                    if not chunk:
+                        break
+                    tmp.write(chunk)
             except Exception as e:
                 print(f'{dia}: error al descargar ({e})')
                 continue
+            finally:
+                r.close()
         try:
             fechas, filas = procesar_zip(tmp.name, eans)
             if filas:
@@ -159,7 +167,6 @@ def descargar_nuevos(eans):
         finally:
             os.unlink(tmp.name)
     json.dump(estado, open(STATE, 'w'), indent=1, ensure_ascii=False)
-
 
 if __name__ == '__main__':
     eans = leer_eans()
