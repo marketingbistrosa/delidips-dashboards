@@ -12,10 +12,10 @@ así el archivo queda liviano.
 import csv, io, json, os, statistics, sys, tempfile, urllib.request, zipfile, datetime as dt
 from collections import defaultdict
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EANS = os.path.join(ROOT, 'data', 'sepa_eans.csv')
-OUT = os.path.join(ROOT, 'data', 'sepa_diario.csv')
-STATE = os.path.join(ROOT, 'data', 'sepa_estado.json')
+ROOT = os.path.dirname(os.path.abspath(__file__))  # archivos en la raiz del repo
+EANS = os.path.join(ROOT, 'sepa_eans.csv')
+OUT = os.path.join(ROOT, 'sepa_diario.csv')
+STATE = os.path.join(ROOT, 'sepa_estado.json')
 
 BASE = 'https://datos.produccion.gob.ar/dataset/6f47ec76-d1ce-4e34-a7e1-621fe9b1d0b5/resource/'
 RECURSOS = {
