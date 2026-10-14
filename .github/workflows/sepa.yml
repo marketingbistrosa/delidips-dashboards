@@ -1,0 +1,38 @@
+name: SEPA diario
+
+on:
+  schedule:
+    - cron: '0 15 * * *'   # 12:00 Argentina
+    - cron: '0 1 * * *'    # 22:00 Argentina (por si el portal publica tarde)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sepa
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Descargar y procesar SEPA
+        run: python scripts/sepa_update.py --download
+      - name: Guardar cambios
+        run: |
+          git config user.name "sepa-bot"
+          git config user.email "sepa-bot@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "Sin datos nuevos"
+          else
+            git commit -m "SEPA: actualización $(date -u +%Y-%m-%d)"
+            git pull --rebase
+            git push
+          fi
