@@ -322,6 +322,12 @@ tr:hover td{background:#FAF8F5;}
       <div id="semaforoGrid" class="semaforo-grid"></div>
     </div>
 
+    <div class="gap-card" style="margin-top:14px">
+      <div class="gap-title">Precio en góndola vs precio objetivo comercial</div>
+      <div style="font-size:11px;color:var(--muted);margin:-6px 0 10px">Último precio relevado en el período filtrado · ✅ en objetivo (±2%) · 🟡 hasta 8% abajo · 🔴 más de 8% abajo · ⬆ más de 2% arriba</div>
+      <div class="tbl-wrap"><table id="tablaObjetivos"></table></div>
+    </div>
+
     
     </div>
 
@@ -965,6 +971,7 @@ function buildAll() {
   renderAlertas();
   renderKPIs();
   renderSemaforo();
+  renderObjetivos();
   renderEvolChart('chartSalsasEvol', CAT_SALSAS);
   renderEvolChart('chartHummusEvol', CAT_HUMMUS, true); // excluye baba
 renderEvolChart('chartPanesEvol', CAT_PANES);
@@ -1049,6 +1056,48 @@ function renderKPIs() {
 }
 
 // ═══ SEMÁFORO ═══
+// ═══ PRECIOS OBJETIVO (lista comercial) ═══
+// Para actualizar: cambiar el valor 'obj' de cada fila.
+const OBJETIVOS = [
+  {grupo:'Hummus Kyros',          obj:4900, cat:'Kyros Hummus',        match:p=>!isBaba(p)},
+  {grupo:'Babaganush',            obj:7500, cat:'Kyros Hummus',        match:p=>isBaba(p)},
+  {grupo:'Caesar',                obj:4975, cat:'Salsas Kansas',       match:p=>/CAESAR|CESAR/.test(p)},
+  {grupo:'Cheddar',               obj:4500, cat:'Salsas Kansas',       match:p=>/CHEDDAR/.test(p)},
+  {grupo:'Aioli',                 obj:4500, cat:'Salsas Kansas',       match:p=>/AIOLI|ALIOLI/.test(p)},
+  {grupo:'Barbacoa',              obj:4500, cat:'Salsas Kansas',       match:p=>/BARBACOA|BBQ/.test(p)},
+  {grupo:'Honey Mustard',         obj:4500, cat:'Salsas Kansas',       match:p=>/HONEY|MIEL/.test(p)},
+  {grupo:'Chimichurri',           obj:4500, cat:'Salsas Kansas',       match:p=>/CHIMI/.test(p)},
+  {grupo:'Vinagreta',             obj:4500, cat:'Salsas Kansas',       match:p=>/VINAGR/.test(p)},
+  {grupo:'Ketchups (Am./Curry/Spicy)', obj:4200, cat:'Salsas Kansas', match:p=>/KETCHUP/.test(p)},
+  {grupo:'Mayonesa / Golf',       obj:4200, cat:'Salsas Kansas',       match:p=>/MAYO|GOLF/.test(p)},
+  {grupo:'Pan Hamb. Clásico',     obj:3900, cat:'Panificados Kansas',  match:p=>/HAMBURG/.test(p)&&!/S[EÉ]SAMO|QUESO|REGGI/.test(p)},
+  {grupo:'Pan Hamb. Sésamo',      obj:4300, cat:'Panificados Kansas',  match:p=>/S[EÉ]SAMO/.test(p)},
+  {grupo:'Pan Hamb. Queso',       obj:4500, cat:'Panificados Kansas',  match:p=>/QUESO|REGGI/.test(p)},
+  {grupo:'Pan Pancho',            obj:3000, cat:'Panificados Kansas',  match:p=>/PANCHO/.test(p)},
+  {grupo:'Pan de Campo',          obj:3000, cat:'Panificados Kansas',  match:p=>/CAMPO/.test(p)},
+];
+function renderObjetivos() {
+  const t = document.getElementById('tablaObjetivos'); if (!t) return;
+  const own = filteredRows.filter(r=>r.es_kansas&&r.precio_regular>0&&!isGastro(r)&&!/ecom|online|mercado/i.test(r.canal||''));
+  const cadenas = [...new Set(own.map(r=>r.cadena).filter(Boolean))].filter(c=>!/gastro|mercado libre/i.test(c)).sort();
+  const cell = (obj, rows) => {
+    if (!rows.length) return '<td style="text-align:center;color:var(--muted)">—</td>';
+    const last = rows.map(r=>r.fecha).sort().pop();
+    const p = avg(rows.filter(r=>r.fecha===last).map(r=>r.precio_regular));
+    const d = (p-obj)/obj*100;
+    const icon = d>2?'⬆':d>=-2?'✅':d>=-8?'🟡':'🔴';
+    const col = d>2||d>=-2?'var(--green)':d>=-8?'#B7791F':'var(--red)';
+    return `<td style="text-align:right;white-space:nowrap" title="Último relevamiento: ${formatDate(last)}">${fmt(p)} <span style="font-size:10px;font-weight:600;color:${col}">${icon} ${d>0?'+':''}${d.toFixed(0)}%</span></td>`;
+  };
+  let h = '<thead><tr><th>Producto</th><th style="text-align:right">Objetivo</th>'+cadenas.map(c=>`<th style="text-align:right">${c}</th>`).join('')+'</tr></thead><tbody>';
+  OBJETIVOS.forEach(o=>{
+    const rows = own.filter(r=>r.categoria===o.cat && o.match(String(r.producto||'').toUpperCase()));
+    if (!rows.length) return;
+    h += `<tr><td>${o.grupo}</td><td style="text-align:right;font-weight:600">${fmt(o.obj)}</td>` + cadenas.map(c=>cell(o.obj, rows.filter(r=>r.cadena===c))).join('') + '</tr>';
+  });
+  t.innerHTML = h + '</tbody>';
+}
+
 function renderSemaforo() {
   const catFlt = document.getElementById('fltSemaforoCat')?.value || '';
   const cats = catFlt ? [catFlt] : [CAT_SALSAS, CAT_HUMMUS, CAT_PANES];
