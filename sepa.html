@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Procesar SEPA · DeliDips</title>
+<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+<style>
+:root{--bg:#F6F2EC;--surface:#fff;--text:#2B2420;--muted:#8A7F75;--border:#E6DFD6;--red:#C8102E;--green:#2E6B47}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+ol{margin:0;padding-left:20px}ol li{margin:4px 0}
+#drop{border:2px dashed var(--border);border-radius:12px;padding:34px 16px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+#drop.over{border-color:var(--red);background:#fdf3f4;color:var(--text)}
+#drop strong{color:var(--text)}
+.btn{display:inline-block;background:var(--red);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+.btn[disabled]{opacity:.4;cursor:default}
+#log{font:12px/1.6 ui-monospace,Consolas,monospace;white-space:pre-wrap;max-height:260px;overflow:auto;background:#FAF8F5;border-radius:8px;padding:10px;margin-top:12px;display:none}
+.ok{color:var(--green);font-weight:600}.err{color:var(--red);font-weight:600}
+a{color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Procesar SEPA</h1>
+  <p class="sub">Rutina semanal · los archivos se procesan en tu navegador, no se suben a ningún lado.</p>
+
+  <div class="card">
+    <ol>
+      <li>Bajá los 7 ZIP de <a href="https://datos.produccion.gob.ar/dataset/sepa-precios" target="_blank" rel="noopener">datos.produccion.gob.ar · SEPA</a> (lunes a domingo).</li>
+      <li>Arrastralos acá abajo (todos juntos) y esperá a que termine.</li>
+      <li>Tocá <strong>Descargar sepa_diario.csv</strong>.</li>
+      <li>En GitHub: <strong>Add file → Upload files</strong>, subí ese archivo y <strong>Commit changes</strong> (reemplaza al anterior).</li>
+      <li>Borrá los ZIP de tu compu.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div id="drop"><strong>Arrastrá los ZIP de SEPA acá</strong><br>o hacé clic para elegirlos</div>
+    <input id="file" type="file" accept=".zip" multiple hidden>
+    <div id="log"></div>
+    <div id="result" style="margin-top:14px;display:none">
+      <p id="summary" style="margin:0 0 10px"></p>
+      <a id="dl" class="btn" download="sepa_diario.csv">Descargar sepa_diario.csv</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const logEl = $('log');
+function log(msg, cls){ logEl.style.display='block'; const d=document.createElement('div'); if(cls) d.className=cls; d.textContent=msg; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
+
+function grupoCadena(n){
+  n=(n||'').trim(); const u=n.toUpperCase();
+  if(['Market','Express','Maxi','Hipermercado Carrefour'].includes(n)||u.includes('CARREFOUR')) return 'Carrefour';
+  if(u.split(/\s+/).includes('DIA')||u.includes('SUPERMERCADOS DIA')) return 'DIA';
+  if(u.includes('CHANGO')) return 'Changomás';
+  if(u.includes('COTO')) return 'Coto';
+  if(u.includes('JUMBO')) return 'Jumbo';
+  if(u.includes('DISCO')) return 'Disco';
+  if(u==='VEA'||u.startsWith('VEA ')) return 'Vea';
+  return n;
+}
+const median = a => { const s=[...a].sort((x,y)=>x-y), m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+const num = x => { const v=parseFloat(String(x||'').replace(',','.')); return v>0?v:null; };
+function parseCSV(t){ const L=t.trim().split(/\r?\n/), h=L[0].split(','); return L.slice(1).map(l=>{ const c=l.split(','); const o={}; h.forEach((k,i)=>o[k]=c[i]??''); return o; }); }
+
+// Lectura de ZIP vía directorio central (soporta data descriptors); lee de a pedazos sin cargar todo en memoria
+async function zipEntries(blob){
+  const len = blob.size, tailLen = Math.min(len, 66000);
+  const tail = new DataView(await blob.slice(len-tailLen).arrayBuffer());
+  let e = -1; for (let k=tailLen-22; k>=0; k--) if (tail.getUint32(k,true)===0x06054b50) { e=k; break; }
+  if (e<0) throw new Error('ZIP inválido');
+  let n = tail.getUint16(e+10,true), cdSize = tail.getUint32(e+12,true), cdOff = tail.getUint32(e+16,true);
+  if (cdOff===0xFFFFFFFF || n===0xFFFF) { // ZIP64
+    const lo = e-20; if (lo>=0 && tail.getUint32(lo,true)===0x07064b50) {
+      const z64 = Number(tail.getBigUint64(lo+8,true)); const r = new DataView(await blob.slice(z64, z64+56).arrayBuffer());
+      n = Number(r.getBigUint64(32,true)); cdSize = Number(r.getBigUint64(40,true)); cdOff = Number(r.getBigUint64(48,true));
+    }
+  }
+  const cd = new DataView(await blob.slice(cdOff, cdOff+cdSize).arrayBuffer()); const dec = new TextDecoder();
+  const out = []; let o = 0;
+  for (let k=0; k<n && o+46<=cd.byteLength; k++) {
+    const method = cd.getUint16(o+10,true); let csize = cd.getUint32(o+20,true), usize = cd.getUint32(o+24,true);
+    const nl = cd.getUint16(o+28,true), xl = cd.getUint16(o+30,true), cl = cd.getUint16(o+32,true); let lho = cd.getUint32(o+42,true);
+    const name = dec.decode(new Uint8Array(cd.buffer, cd.byteOffset+o+46, nl));
+    if (csize===0xFFFFFFFF || usize===0xFFFFFFFF || lho===0xFFFFFFFF) { // extra ZIP64
+      let x = o+46+nl, end = x+xl;
+      while (x+4<=end) { const id=cd.getUint16(x,true), sz=cd.getUint16(x+2,true); if (id===1) { let y=x+4;
+        if (usize===0xFFFFFFFF){usize=Number(cd.getBigUint64(y,true));y+=8;} if (csize===0xFFFFFFFF){csize=Number(cd.getBigUint64(y,true));y+=8;} if (lho===0xFFFFFFFF){lho=Number(cd.getBigUint64(y,true));} } x+=4+sz; }
+    }
+    out.push({name, method, csize, usize, lho}); o += 46+nl+xl+cl;
+  }
+  return out;
+}
+async function entryBlob(blob, ent){
+  const h = new DataView(await blob.slice(ent.lho, ent.lho+30).arrayBuffer());
+  const start = ent.lho + 30 + h.getUint16(26,true) + h.getUint16(28,true);
+  return blob.slice(start, start + ent.csize);
+}
+// Descomprime una entrada en streaming y pasa los pedazos a onChunk(chunk, final)
+async function readEntry(blob, ent, onChunk){
+  const data = await entryBlob(blob, ent);
+  let inf = null, err = null;
+  if (ent.method === 8) inf = new fflate.Inflate((chunk, final) => { try { onChunk(chunk, final); } catch(e){ err = e; } });
+  else if (ent.method !== 0) throw new Error('compresión no soportada');
+  const reader = data.stream().getReader(); let n = 0;
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) { if (inf) inf.push(new Uint8Array(0), true); else onChunk(new Uint8Array(0), true); break; }
+    if (inf) inf.push(value); else onChunk(value, false);
+    if (err) throw err;
+    if (++n % 64 === 0) await new Promise(r=>setTimeout(r));
+  }
+  if (err) throw err;
+}
+
+function lineReader(onLine){
+  const dec = new TextDecoder('utf-8'); let rest = '';
+  return (chunk, final) => {
+    const txt = rest + dec.decode(chunk, {stream: !final});
+    const lines = txt.split('\n'); rest = final ? '' : lines.pop();
+    for (const l of lines) if (l) onLine(l.replace(/\r$/, '').replace(/^﻿/, ''));
+  };
+}
+
+async function procesarInner(blob, fecha, eans, acc){
+  const banderas = {}; const hits = []; let hdr = null;
+  const ents = await zipEntries(blob);
+  const byBase = n => ents.find(x => x.name.split('/').pop() === n);
+  const com = byBase('comercio.csv'), prod = byBase('productos.csv');
+  if (!com || !prod) return;
+  { let h=null; await readEntry(blob, com, lineReader(l => { const c=l.split('|'); if(!h){h=c;return;} const o={}; h.forEach((k,i)=>o[k]=c[i]); banderas[o.id_comercio+'|'+o.id_bandera]=o.comercio_bandera_nombre; })); }
+  await readEntry(blob, prod, lineReader(l => {
+      if (!hdr) { hdr = l.split('|'); hdr.iEAN=hdr.indexOf('id_producto'); hdr.iL=hdr.indexOf('productos_precio_lista'); hdr.iP=hdr.indexOf('productos_precio_unitario_promo1'); return; }
+      let p=-1; for(let k=0;k<hdr.iEAN;k++){ p=l.indexOf('|',p+1); if(p<0) return; }
+      const q=l.indexOf('|',p+1); const ean=l.slice(p+1,q).trim().replace(/^0+/,'');
+      if (!eans.has(ean)) return;
+      const c=l.split('|'); hits.push([c[0]+'|'+c[1], ean, num(c[hdr.iL]), num(c[hdr.iP])]);
+  }));
+  for (const [band, ean, lista, promo] of hits) {
+    if (!lista) continue;
+    const k = fecha+'\t'+grupoCadena(banderas[band] || band.split('|')[0])+'\t'+ean;
+    const a = acc.get(k) || {l:[], p:[], np:0}; a.l.push(lista);
+    if (promo && promo < lista*0.99) { a.p.push(promo); a.np++; }
+    acc.set(k, a);
+  }
+}
+
+async function procesarDiario(file, eans, acc, fechas){
+  const ents = (await zipEntries(file)).filter(x => x.name.endsWith('.zip') && x.csize > 0);
+  let i = 0;
+  for (const ent of ents) {
+    i++;
+    const fecha = /^\d{4}-\d{2}-\d{2}/.test(ent.name) ? ent.name.slice(0,10) : (ent.name.match(/(\d{4}-\d{2}-\d{2})/)||[])[1];
+    if (!fecha) continue;
+    fechas.add(fecha);
+    try {
+      let inner;
+      if (ent.method === 0) inner = await entryBlob(file, ent);
+      else { const parts=[]; await readEntry(file, ent, c => parts.push(c)); inner = new Blob(parts); }
+      await procesarInner(inner, fecha, eans, acc);
+    } catch(e){ log('  ! '+ent.name.split('/').pop()+': '+e.message, 'err'); }
+  }
+}
+
+async function run(files){
+  files = [...files].filter(f=>/\.zip$/i.test(f.name));
+  if (!files.length) return;
+  $('result').style.display='none'; logEl.innerHTML='';
+  log('Cargando listas de productos e histórico…');
+  const [eansTxt, histTxt] = await Promise.all([
+    fetch('sepa_eans.csv?v='+Date.now()).then(r=>r.text()),
+    fetch('sepa_diario.csv?v='+Date.now()).then(r=>r.ok?r.text():'fecha,cadena,EAN,precio_lista,precio_promo,sucursales,sucursales_promo\n'),
+  ]);
+  const eans = new Set(parseCSV(eansTxt).map(r=>String(r.EAN).replace(/^0+/,'')));
+  const acc = new Map(), fechas = new Set();
+  for (const f of files) {
+    log(`Procesando ${f.name} (${(f.size/1048576).toFixed(0)} MB)…`);
+    const antes = acc.size;
+    try { await procesarDiario(f, eans, acc, fechas); log(`  ✓ ${acc.size-antes} registros`, 'ok'); }
+    catch(e){ log(`  ✗ ${e.message}`, 'err'); }
+  }
+  if (!acc.size) { log('No se encontraron datos de nuestros productos en esos archivos.', 'err'); return; }
+  const nuevas = [...acc].map(([k,a]) => { const [fecha,cadena,EAN]=k.split('\t'); return {fecha,cadena,EAN,precio_lista:+median(a.l).toFixed(2),precio_promo:a.p.length?+median(a.p).toFixed(2):'',sucursales:a.l.length,sucursales_promo:a.np}; });
+  const hist = parseCSV(histTxt).filter(r=>r.fecha && !fechas.has(r.fecha));
+  const todas = hist.concat(nuevas).sort((a,b)=>(a.fecha+a.cadena+a.EAN).localeCompare(b.fecha+b.cadena+b.EAN));
+  const cols=['fecha','cadena','EAN','precio_lista','precio_promo','sucursales','sucursales_promo'];
+  const csv = cols.join(',')+'\n'+todas.map(r=>cols.map(c=>r[c]).join(',')).join('\n')+'\n';
+  const dias=[...new Set(todas.map(r=>r.fecha))].sort();
+  $('dl').href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  $('summary').innerHTML = `<span class="ok">Listo.</span> Días nuevos: <strong>${[...fechas].sort().join(', ')}</strong>.<br>Histórico: ${dias.length} días (${dias[0]} a ${dias[dias.length-1]}).`;
+  $('result').style.display='block';
+  log('Terminado.', 'ok');
+}
+
+const drop=$('drop');
+drop.onclick=()=>$('file').click();
+$('file').onchange=e=>run(e.target.files);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over');};
+drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');run(e.dataTransfer.files);};
+</script>
+</body>
+</html>
