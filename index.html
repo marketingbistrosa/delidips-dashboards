@@ -324,7 +324,7 @@ tr:hover td{background:#FAF8F5;}
 
     <div class="gap-card" style="margin-top:14px">
       <div class="gap-title">Precio en góndola vs precio objetivo comercial</div>
-      <div style="font-size:11px;color:var(--muted);margin:-6px 0 10px">Último precio relevado en el período filtrado · ✅ en objetivo (±2%) · 🟡 hasta 8% abajo · 🔴 más de 8% abajo · ⬆ más de 2% arriba</div>
+      <div style="font-size:11px;color:var(--muted);margin:-6px 0 10px">Último precio relevado en el período filtrado · ✅ en objetivo (±2%) · 🟡 hasta 8% abajo · 🔴 más de 8% abajo · ⬆ más de 2% arriba<br><b>* Cencosud (Jumbo, Disco, Vea):</b> por política de la cadena posicionan su PVP por encima del sugerido. 🔵 encima de nuestro objetivo pero dentro de lo normal (hasta +5%) · ⬆ se pasan del 5%, hay que avisar.</div>
       <div class="tbl-wrap"><table id="tablaObjetivos"></table></div>
     </div>
 
@@ -1058,6 +1058,11 @@ function renderKPIs() {
 // ═══ SEMÁFORO ═══
 // ═══ PRECIOS OBJETIVO (lista comercial) ═══
 // Para actualizar: cambiar el valor 'obj' de cada fila.
+// Cencosud (Jumbo/Disco/Vea) posiciona su PVP por encima del sugerido: se tolera hasta +5% sobre el objetivo.
+const TOL_ARRIBA_DEFAULT = 2;   // % arriba del objetivo que se considera "en objetivo"
+const TOL_ARRIBA_CENCOSUD = 5;  // acordado con Comercial (mail 10/11/2026)
+const esCencosud = c => /JUMBO|DISCO|VEA/i.test(String(c||''));
+const tolArriba = c => esCencosud(c) ? TOL_ARRIBA_CENCOSUD : TOL_ARRIBA_DEFAULT;
 const OBJETIVOS = [
   {grupo:'Hummus Kyros',          obj:4900, cat:'Kyros Hummus',        match:p=>!isBaba(p)},
   {grupo:'Babaganush',            obj:7500, cat:'Kyros Hummus',        match:p=>isBaba(p)},
@@ -1080,20 +1085,25 @@ function renderObjetivos() {
   const t = document.getElementById('tablaObjetivos'); if (!t) return;
   const own = filteredRows.filter(r=>r.es_kansas&&r.precio_regular>0&&!isGastro(r)&&!/ecom|online|mercado/i.test(r.canal||''));
   const cadenas = [...new Set(own.map(r=>r.cadena).filter(Boolean))].filter(c=>!/gastro|mercado libre/i.test(c)).sort();
-  const cell = (obj, rows) => {
+  const cell = (obj, rows, cadena) => {
     if (!rows.length) return '<td style="text-align:center;color:var(--muted)">—</td>';
     const last = rows.map(r=>r.fecha).sort().pop();
     const p = avg(rows.filter(r=>r.fecha===last).map(r=>r.precio_regular));
     const d = (p-obj)/obj*100;
-    const icon = d>2?'⬆':d>=-2?'✅':d>=-8?'🟡':'🔴';
-    const col = d>2||d>=-2?'var(--green)':d>=-8?'#B7791F':'var(--red)';
-    return `<td style="text-align:right;white-space:nowrap" title="Último relevamiento: ${formatDate(last)}">${fmt(p)} <span style="font-size:10px;font-weight:600;color:${col}">${icon} ${d>0?'+':''}${d.toFixed(0)}%</span></td>`;
+    const tol = tolArriba(cadena);
+    const cenco = esCencosud(cadena);
+    const arribaNormal = cenco && d>TOL_ARRIBA_DEFAULT && d<=tol; // encima del objetivo, pero normal en Cencosud
+    const icon = d>tol?'⬆':arribaNormal?'🔵':d>=-2?'✅':d>=-8?'🟡':'🔴';
+    const col = d>tol?(cenco?'var(--red)':'var(--green)'):arribaNormal?'#2B6CB0':d>=-2?'var(--green)':d>=-8?'#B7791F':'var(--red)';
+    const estado = d>tol&&cenco?`Se pasa del +${tol}% que es normal en Cencosud`:arribaNormal?`Encima de nuestro objetivo, pero dentro de lo normal en Cencosud (hasta +${tol}%)`:'';
+    const tip = `Último relevamiento: ${formatDate(last)}` + (cenco?` · Cencosud: normal hasta +${tol}% (${fmt(obj*(1+tol/100))})`:'') + (estado?` · ${estado}`:'');
+    return `<td style="text-align:right;white-space:nowrap" title="${tip}">${fmt(p)} <span style="font-size:10px;font-weight:600;color:${col}">${icon} ${d>0?'+':''}${d.toFixed(0)}%</span></td>`;
   };
-  let h = '<thead><tr><th>Producto</th><th style="text-align:right">Objetivo</th>'+cadenas.map(c=>`<th style="text-align:right">${c}</th>`).join('')+'</tr></thead><tbody>';
+  let h = '<thead><tr><th>Producto</th><th style="text-align:right">Objetivo</th>'+cadenas.map(c=>`<th style="text-align:right" ${esCencosud(c)?'title="Cencosud: se acepta hasta +5% sobre el objetivo"':''}>${c}${esCencosud(c)?' *':''}</th>`).join('')+'</tr></thead><tbody>';
   OBJETIVOS.forEach(o=>{
     const rows = own.filter(r=>r.categoria===o.cat && o.match(String(r.producto||'').toUpperCase()));
     if (!rows.length) return;
-    h += `<tr><td>${o.grupo}</td><td style="text-align:right;font-weight:600">${fmt(o.obj)}</td>` + cadenas.map(c=>cell(o.obj, rows.filter(r=>r.cadena===c))).join('') + '</tr>';
+    h += `<tr><td>${o.grupo}</td><td style="text-align:right;font-weight:600">${fmt(o.obj)}</td>` + cadenas.map(c=>cell(o.obj, rows.filter(r=>r.cadena===c), c)).join('') + '</tr>';
   });
   t.innerHTML = h + '</tbody>';
 }
