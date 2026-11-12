@@ -426,7 +426,19 @@ body[data-tab="hummus"] .header,body[data-tab="salsas"] .header,body[data-tab="p
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kansas vs competencia</div><div id="gapSalsas"></div></div>
-      <details class="more"><summary>Ver precio por gramo</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr por tipo · rojo = Kansas</div></div><div class="chart-filters"><select class="filter-select" id="fltSalsasGramoMarca" onchange="renderSalsasGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltSalsasGramoProducto" onchange="renderSalsasGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartSalsasPorGramo"></div></div></div></details>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo — Kansas vs competencia</div><div class="chart-sub" id="sgbSub">Compara el precio por gramo para que los distintos tamaños de envase sean comparables</div></div>
+          <div class="chart-filters">
+            <select class="filter-select" id="fltSGBTipo" onchange="renderSalsasGramoBar()"><option value="">Todas las variedades</option></select>
+            <select class="filter-select" id="fltSGBCadena" onchange="renderSalsasGramoBar()"><option value="">Todas las cadenas</option></select>
+            <select class="filter-select" id="fltSGBMarca" onchange="renderSalsasGramoBar()"><option value="">Todas las marcas</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap" id="sgbWrap" style="height:320px"><canvas id="chartSalsasGramoBar"></canvas></div>
+        <div id="sgbResumen" style="font-size:14px;margin-top:10px;color:var(--muted)"></div>
+      </div>
+      <details class="more"><summary>Ver precio por gramo en lista (detalle por marca)</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">$/gr por tipo · rojo = Kansas</div></div><div class="chart-filters"><select class="filter-select" id="fltSalsasGramoMarca" onchange="renderSalsasGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltSalsasGramoProducto" onchange="renderSalsasGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartSalsasPorGramo"></div></div></div></details>
     </div>
     <div class="sub-content" id="salsas-producto">
       <div class="section-filters">
@@ -498,7 +510,19 @@ body[data-tab="hummus"] .header,body[data-tab="salsas"] .header,body[data-tab="p
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kyros vs competencia (sin Babaganush)</div><div id="gapHummus"></div></div>
-      <details class="more"><summary>Ver precio por gramo</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">rojo = Kyros · violeta = gourmet</div></div><div class="chart-filters"><select class="filter-select" id="fltHummusGramoMarca" onchange="renderHummusGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltHummusGramoProducto" onchange="renderHummusGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartHummusPorGramo"></div></div></div></details>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo — Kyros vs competencia</div><div class="chart-sub" id="hgbSub">Compara el precio por gramo para que los distintos tamaños de envase sean comparables</div></div>
+          <div class="chart-filters">
+            <select class="filter-select" id="fltHGBTipo" onchange="renderGramoBar('hummus')"><option value="">Todas las variedades</option></select>
+            <select class="filter-select" id="fltHGBCadena" onchange="renderGramoBar('hummus')"><option value="">Todas las cadenas</option></select>
+            <select class="filter-select" id="fltHGBMarca" onchange="renderGramoBar('hummus')"><option value="">Todas las marcas</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap" id="hgbWrap" style="height:320px"><canvas id="chartHummusGramoBar"></canvas></div>
+        <div id="hgbResumen" style="font-size:14px;margin-top:10px;color:var(--muted)"></div>
+      </div>
+      <details class="more"><summary>Ver precio por gramo en lista (detalle por marca)</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div><div class="chart-sub">rojo = Kyros · violeta = gourmet</div></div><div class="chart-filters"><select class="filter-select" id="fltHummusGramoMarca" onchange="renderHummusGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltHummusGramoProducto" onchange="renderHummusGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartHummusPorGramo"></div></div></div></details>
     </div>
     <div class="sub-content" id="hummus-baba">
       <div class="q-sub">Se analiza aparte porque su precio es mucho más alto y movería el promedio de Kyros.</div>
@@ -583,7 +607,19 @@ body[data-tab="hummus"] .header,body[data-tab="salsas"] .header,body[data-tab="p
         </div>
       </div>
       <div class="gap-card"><div class="gap-title">Gap de precio — Kansas Panes vs competencia</div><div id="gapPanes"></div></div>
-      <details class="more"><summary>Ver precio por gramo</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div></div><div class="chart-filters"><select class="filter-select" id="fltPanesGramoMarca" onchange="renderPanesGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltPanesGramoProducto" onchange="renderPanesGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartPanesPorGramo"></div></div></div></details>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Precio por gramo — Kansas Panes vs competencia</div><div class="chart-sub" id="pgbSub">Compara el precio por gramo para que los distintos tamaños de envase sean comparables</div></div>
+          <div class="chart-filters">
+            <select class="filter-select" id="fltPGBTipo" onchange="renderGramoBar('panes')"><option value="">Todas las variedades</option></select>
+            <select class="filter-select" id="fltPGBCadena" onchange="renderGramoBar('panes')"><option value="">Todas las cadenas</option></select>
+            <select class="filter-select" id="fltPGBMarca" onchange="renderGramoBar('panes')"><option value="">Todas las marcas</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap" id="pgbWrap" style="height:320px"><canvas id="chartPanesGramoBar"></canvas></div>
+        <div id="pgbResumen" style="font-size:14px;margin-top:10px;color:var(--muted)"></div>
+      </div>
+      <details class="more"><summary>Ver precio por gramo en lista (detalle por marca)</summary><div class="more-body"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Precio por gramo</div></div><div class="chart-filters"><select class="filter-select" id="fltPanesGramoMarca" onchange="renderPanesGeneral()" style="font-size:13px"><option value="">Todas las marcas</option></select><select class="filter-select" id="fltPanesGramoProducto" onchange="renderPanesGeneral()" style="font-size:13px"><option value="">Todos los productos</option></select></div></div><div id="chartPanesPorGramo"></div></div></div></details>
     </div>
     <div class="sub-content" id="panes-producto">
       <div class="section-filters">
@@ -1008,7 +1044,48 @@ function marcaLabel(r, tipo) {
   const v = String(r.producto||'').toUpperCase().replace(/KETCHUP|KANSAS|[-\d]+\s*G(R|RS)?\b/g,'').replace(/\s+/g,' ').trim();
   return r.marca + (v ? ' ' + v.charAt(0) + v.slice(1).toLowerCase() : '');
 }
-function extractGrams(nombre, categoria) {
+// Gramajes de panes: el relevamiento no trae el peso en el nombre, así que se cargan acá.
+// Fuente: descripciones SEPA (sepa_eans.csv). Formato: 'MARCA|palabras del producto' → gramos.
+// Para sumar una marca: agregar una línea. Si no está acá, ese pan no aparece en precio por gramo.
+const GRAMAJE_PANES = [
+  ['KANSAS','HAMBURGUESA','QUESO',340], ['KANSAS','HAMBURGUESA','SESAMO',330], ['KANSAS','HAMBURGUESA','SÉSAMO',330],
+  ['KANSAS','HAMBURGUESA','',320], ['KANSAS','PANCHO','',330], ['KANSAS','CAMPO','',340],
+  ['LACTAL','HAMBURGUESA','',210], ['LACTAL','PANCHO','',210],
+  ['BIMBO','HAMBURGUESA','ARTESANO',240],
+];
+function gramajePan(marca, nombre) {
+  const m=String(marca||'').toUpperCase(), n=String(nombre||'').toUpperCase();
+  const hit=GRAMAJE_PANES.find(([mk,a,b])=>m.includes(mk)&&n.includes(a)&&(!b||n.includes(b)));
+  return hit?hit[3]:null;
+}
+// Gramajes de la COMPETENCIA cuando el nombre relevado no trae el peso (fuente: SEPA, presentación más común).
+// Antes se usaba el gramaje de Kansas/Kyros para todas las marcas y eso inflaba el $/g de la competencia.
+const GRAMAJE_COMP = {
+  'DOS ANCLAS': {'Aioli':340,'Caesar':350,'Cheddar':350,'Chimichurri':380,'Ranch':340},
+  'TAU':        {'Barbacoa':340,'Caesar':300,'Cheddar':300,'Chimichurri':310,'Coleslaw':310,'Mayonesa':300,'Ranch':300,'Mostaza c/Miel · Honey Mustard':320},
+  'CASALTA':    {'Barbacoa':335},
+  'ARITZA':     {'Chimichurri':360},
+  'KAMMAR':     {'*':230},
+  'CUSINE':     {'*':230,'Babaganush':175},
+  'CUISIN':     {'*':230,'Babaganush':175},
+  'CARREFOUR CLASSIC': {'*':230},
+  'SANTA MARIA':{'*':180},
+  'PAMPA':      {'*':180},
+};
+function gramajeComp(marca, nombre) {
+  const m=String(marca||'').toUpperCase(), t=detectTipo(nombre);
+  const k=Object.keys(GRAMAJE_COMP).find(x=>m.includes(x)); if(!k||!t) return null;
+  const tb=GRAMAJE_COMP[k]; return tb[t] || (t.startsWith('Hummus')?tb['*']:null) || null;
+}
+const esPropia = m => /KANSAS|KYROS/i.test(String(m||''));
+function extractGrams(nombre, categoria, marca) {
+  if (categoria === 'Panificados Kansas' && marca) { const gp = gramajePan(marca, nombre); if (gp) return gp; }
+  if (marca && !esPropia(marca)) {
+    // Competencia: 1) peso escrito en el nombre, 2) tabla de gramajes, 3) sin dato (no se compara)
+    const up=String(nombre||'').toUpperCase();
+    const mm = up.match(/(\d+)\s*G(?:R(?:S|M)?)?(?:\s|$|\/|\-|X|\.)/); if (mm) return parseInt(mm[1]);
+    return gramajeComp(marca, nombre);
+  }
   const upper = String(nombre||'').toUpperCase().trim();
   // Gramajes específicos por categoría — evita cross-match entre categorías
   const GRAMAJE_HUMMUS = {'CLÁSICO':230,'CLASICO':230,'CON ACEITE DE OLIVA':230,'OLIVA':230,'PIMENTÓN':230,'PIMENTON':230,'POROTO NEGRO':230,'AJO AHUMADO':230,'REMOLACHA':230,'BABAGANUSH':230,'TAHINI':300};
@@ -1342,7 +1419,7 @@ function renderPorGramo(id, rows) {
   // Calcular precio/gramo por fila y agrupar por MARCA + TIPO (no por producto individual)
   // Así HELLMANS aparece una sola vez por tipo aunque tenga varios productos/cadenas
   const withGrams = rows.filter(r=>r.precio_regular>0).map(r=>{
-    const g=extractGrams(r.producto,r.categoria), tipo=detectTipo(r.producto);
+    const g=extractGrams(r.producto,r.categoria,r.marca), tipo=detectTipo(r.producto);
     if(!g||g<50||g>5000||!tipo) return null;
     return {...r, gramos:g, tipo, ppg: r.precio_regular/g};
   }).filter(Boolean);
@@ -1403,7 +1480,68 @@ function renderTableRows(id, rows) {
 }
 
 // ═══ SALSAS ═══
+
+// ═══ PRECIO POR GRAMO EN BARRAS (Salsas) ═══
+const fmtPPG = v => '$' + Number(v).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const GB_CFG = {
+  salsas:{cat:CAT_SALSAS, color:'#C8102E', marca:'Kansas', canvas:'chartSalsasGramoBar', p:'SGB', sub:'sgbSub', wrap:'sgbWrap', res:'sgbResumen'},
+  hummus:{cat:CAT_HUMMUS, color:'#D9662E', marca:'Kyros',  canvas:'chartHummusGramoBar', p:'HGB', sub:'hgbSub', wrap:'hgbWrap', res:'hgbResumen'},
+  panes: {cat:CAT_PANES,  color:'#C98A16', marca:'Kansas', canvas:'chartPanesGramoBar',  p:'PGB', sub:'pgbSub', wrap:'pgbWrap', res:'pgbResumen'},
+};
+function renderSalsasGramoBar(){ renderGramoBar('salsas'); }
+function renderHummusGramoBar(){ renderGramoBar('hummus'); }
+function renderPanesGramoBar(){ renderGramoBar('panes'); }
+function renderGramoBar(key) {
+  const G=GB_CFG[key];
+  const id=G.canvas, ctx=document.getElementById(id); if(!ctx) return;
+  const selT=document.getElementById('flt'+G.p+'Tipo'), selC=document.getElementById('flt'+G.p+'Cadena'), selM=document.getElementById('flt'+G.p+'Marca');
+  const base=filteredRows.filter(r=>r.categoria===G.cat&&r.precio_regular>0&&!isGastro(r)&&!(G.cat===CAT_HUMMUS&&r.esBaba));
+  const all=base.map(r=>{const g=extractGrams(r.producto,r.categoria,r.marca),tipo=detectTipo(r.producto);if(!g||g<50||g>5000||!tipo)return null;return {...r,gramos:g,tipo,ppg:r.precio_regular/g};}).filter(Boolean);
+  // opciones de filtros (se mantienen las elegidas)
+  const tiposK=[...new Set(all.filter(r=>r.es_kansas).map(r=>r.tipo))].sort();
+  fill('flt'+G.p+'Tipo',tiposK,'Todas las variedades');
+  fill('flt'+G.p+'Cadena',[...new Set(all.map(r=>r.cadena).filter(Boolean))].sort(),'Todas las cadenas');
+  const tipo=selT.value, cad=selC.value;
+  let rows=all.filter(r=>(!cad||r.cadena===cad));
+  fill('flt'+G.p+'Marca',[...new Set(rows.filter(r=>!tipo||r.tipo===tipo).map(r=>r.marca))].sort(),'Todas las marcas');
+  const marca=selM.value;
+  destroyChart(id);
+  const wrap=document.getElementById(G.wrap), res=document.getElementById(G.res);
+  const tip={callbacks:{label:c=>' '+fmtPPG(c.raw)+' por gramo'+(c.dataset._extra?.[c.dataIndex]?' · '+c.dataset._extra[c.dataIndex]:'')}};
+  const axis=v=>fmtPPG(v);
+  if(!rows.length){wrap.style.height='120px';res.textContent='Sin productos con gramaje identificado para este filtro.';return;}
+  if(!tipo){
+    // Vista general: nuestra marca vs promedio de la competencia, por variedad
+    const labels=tiposK.filter(t=>rows.some(r=>r.tipo===t&&r.es_kansas));
+    const kV=labels.map(t=>avg(rows.filter(r=>r.tipo===t&&r.es_kansas).map(r=>r.ppg)));
+    const cV=labels.map(t=>{const c=rows.filter(r=>r.tipo===t&&!r.es_kansas&&!isGourmet(r.marca)&&(!marca||r.marca===marca)).map(r=>r.ppg);return c.length?avg(c):null;});
+    wrap.style.height='340px';
+    const wrapL=t=>{const w=t.replace(' · ',' / ').split(' ');const out=[];let cur='';w.forEach(x=>{if((cur+' '+x).trim().length>13&&cur){out.push(cur);cur=x;}else cur=(cur+' '+x).trim();});if(cur)out.push(cur);return out;};
+    charts[id]=new Chart(ctx,{type:'bar',data:{labels:labels.map(wrapL),datasets:[
+      {label:G.marca,data:kV,backgroundColor:G.color,borderRadius:4},
+      {label:marca?marca:'Competencia directa (promedio)',data:cV,backgroundColor:'#8F877E',borderRadius:4}]},
+      options:{...chartOptions(axis),scales:{...chartOptions(axis).scales,x:{ticks:{autoSkip:false,maxRotation:0,font:{size:12}},grid:{display:false}}},plugins:{legend:{display:true,position:'top',align:'start'},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+(c.raw==null?'sin dato':fmtPPG(c.raw)+' por gramo')}}}}});
+    const cmp=labels.map((t,i)=>cV[i]?{t,d:(kV[i]/cV[i]-1)*100}:null).filter(Boolean);
+    res.innerHTML=cmp.length?G.marca+' vs '+(marca||'competencia')+': '+cmp.map(x=>`<b style="color:var(--text)">${x.t}</b> ${x.d<0?'▼ '+Math.abs(x.d).toFixed(0)+'% más barato':'▲ '+x.d.toFixed(0)+'% más caro'}`).join(' · '):'';
+    document.getElementById(G.sub).textContent=G.marca+' contra el promedio de la competencia directa, por variedad (sin marcas gourmet). Elegí una variedad para ver marca por marca.';
+    return;
+  }
+  // Una variedad: marca por marca
+  const r2=rows.filter(r=>r.tipo===tipo);
+  const g={};r2.forEach(r=>{const l=marcaLabel(r,tipo);(g[l]=g[l]||{l,k:r.es_kansas,gm:isGourmet(r.marca),marca:r.marca,ppg:[],pr:[],gr:new Set()});g[l].ppg.push(r.ppg);g[l].pr.push(r.precio_regular);g[l].gr.add(r.gramos);});
+  let items=Object.values(g).map(x=>({...x,v:avg(x.ppg),p:Math.round(avg(x.pr))})).filter(x=>x.k||!marca||x.marca===marca).sort((a,b)=>a.v-b.v);
+  wrap.style.height=Math.max(160,items.length*42+50)+'px';
+  const ds={data:items.map(x=>+x.v.toFixed(2)),backgroundColor:items.map(x=>x.k?G.color:x.gm?'#9B72D0':'#8F877E'),borderRadius:4,_extra:items.map(x=>'precio prom. '+fmt(x.p)+' · '+[...x.gr].join('/')+' g')};
+  charts[id]=new Chart(ctx,{type:'bar',data:{labels:items.map(x=>x.l),datasets:[ds]},options:{...chartOptions(axis,true),indexAxis:'y',layout:{padding:{right:70}},plugins:{legend:{display:false},tooltip:tip}},plugins:[{id:'valEnd',afterDatasetsDraw(ch){const c=ch.ctx;c.save();c.font='600 13px Inter, system-ui, sans-serif';c.fillStyle='#1D2128';c.textBaseline='middle';ch.getDatasetMeta(0).data.forEach((b,i)=>c.fillText(fmtPPG(ch.data.datasets[0].data[i])+'/g',b.x+6,b.y));c.restore();}}]});
+  const k=items.filter(x=>x.k), c=items.filter(x=>!x.k&&!x.gm);
+  if(k.length&&c.length){const kv=avg(k.map(x=>x.v)),cv=avg(c.map(x=>x.v)),d=(kv/cv-1)*100;
+    res.innerHTML=`${G.marca} ${tipo}: <b style="color:var(--text)">${fmtPPG(kv)}/g</b> · competencia directa: <b style="color:var(--text)">${fmtPPG(cv)}/g</b> → ${G.marca} ${d<0?'<b style="color:var(--green)">'+Math.abs(d).toFixed(0)+'% más barato</b>':'<b style="color:var(--red)">'+d.toFixed(0)+'% más caro</b>'} por gramo.`;}
+  else res.textContent='';
+  document.getElementById(G.sub).textContent='Precio por gramo de cada marca en '+tipo+' · color = '+G.marca+' · gris = competencia · violeta = gourmet · ordenado de más barato a más caro';
+}
+
 function renderSalsasGeneral() {
+  renderSalsasGramoBar();
   const cadSku=document.getElementById('fltSalsasSkuCadena')?.value||'';
   const cadComp=document.getElementById('fltSalsasCompCadena')?.value||'';
   const rowsSku=filteredRows.filter(r=>r.categoria===CAT_SALSAS&&(!cadSku||r.cadena===cadSku));
@@ -1455,6 +1593,7 @@ function renderTablaSalsas() {
 
 // ═══ HUMMUS ═══
 function renderHummusGeneral() {
+  renderHummusGramoBar();
   const cadSku=document.getElementById('fltHummusSkuCadena')?.value||'';
   const cadComp=document.getElementById('fltHummusCompCadena')?.value||'';
   const gourmetFlt=document.getElementById('fltHummusCompGourmet')?.value||'directa';
@@ -1541,6 +1680,7 @@ function renderTablaHummus() {
 
 // ═══ PANES ═══
 function renderPanesGeneral() {
+  renderPanesGramoBar();
   const cadSku=document.getElementById('fltPanesSkuCadena')?.value||'';
   const cadComp=document.getElementById('fltPanesCompCadena')?.value||'';
   const taccFlt=document.getElementById('fltPanesCompTacc')?.value||'directa';
