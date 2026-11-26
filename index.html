@@ -687,7 +687,7 @@ body[data-tab="hummus"] .header,body[data-tab="salsas"] .header,body[data-tab="p
       </div>
       <div class="tbl-wrap"><table id="tablaEcommerce"><thead><tr><th>Marca</th><th>Producto</th><th>Categoría</th><th>Cadena</th><th>Precio Web</th><th>Precio Góndola</th><th>Diferencia</th><th>Fecha</th></tr></thead><tbody></tbody></table></div>
       </div></details>
-      <div class="q-sub" style="margin-top:4px">Pazzi (canal gastronómico online) se incluye dentro de Mercado Libre.</div>
+      <div class="q-sub" style="margin-top:4px">Pazzi (canal gastronómico online) se incluye dentro de Mercado Libre. Rappi y Pedidos Ya vienen del reporte de Trade Marketing y se actualizan una vez por día.</div>
     </div>
     <div class="sub-content" id="ecommerce-gastro">
       <div class="insight purple"><strong>🍽️ Canal gastronómico</strong> — <strong>Kaliz</strong>: canal gastronómico, relevamiento cada 6 meses. Precios no comparables con góndola de supermercado. <strong>Pazzi</strong> se muestra ahora en la pestaña Ecommerce, dentro de Mercado Libre.</div>
@@ -785,8 +785,15 @@ async function fetchJsonRetry(onAttempt){
   }
   throw lastErr;
 }
+// ═══ RAPPI / PEDIDOS YA (del reporte de Trade Marketing, se actualiza solo una vez por día) ═══
+let DELIVERY_ROWS = [], _lastJson = null;
+fetch('delivery.json?v=' + Date.now(), {cache:'no-store'})
+  .then(r => r.ok ? r.json() : null)
+  .then(d => { if (d && Array.isArray(d.rows)) { DELIVERY_ROWS = d.rows; if (_lastJson) applyJson(_lastJson); } })
+  .catch(() => {});
 function applyJson(json){
-  allRows = json.rows.map(r => ({
+  _lastJson = json;
+  allRows = json.rows.concat(DELIVERY_ROWS).map(r => ({
     ...r,
     cadena: normCadena(r.cadena),
     precio_regular: parseFloat(r.precio_regular) || 0,
@@ -1142,6 +1149,7 @@ renderEvolChart('chartPanesEvol', CAT_PANES);
   renderTablaPanes();
   renderCompetencia();
   renderDetalle();
+  if (document.body.dataset.tab==='ecommerce') { renderEcommerce(); renderPazziCard(); renderGastro(); }
 }
 
 // ═══ ALERTAS COMPACTAS ═══
@@ -1735,8 +1743,10 @@ function renderPazziCard() {
   function renderEcommerce() {
   const fCat=document.getElementById('fltEcomCategoria')?.value||'';
   const fCad=document.getElementById('fltEcomCadena')?.value||'';
-  const ecomRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
-  const gondolaRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r));
+  const fMes=document.getElementById('filterMes')?.value||'';
+  const enMes=r=>!fMes||fechaToMes(r.fecha)===fMes;
+  const ecomRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()==='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r)&&enMes(r));
+  const gondolaRowsAll=allRows.filter(r=>String(r.canal||'').toLowerCase()!=='ecommerce'&&r.precio_regular>0&&!isGastroOnly(r)&&enMes(r));
   const ecomRows=ecomRowsAll.filter(r=>(!fCat||r.categoria===fCat)&&(!fCad||r.cadena===fCad));
   const gondolaRows=gondolaRowsAll.filter(r=>(!fCat||r.categoria===fCat)&&(!fCad||r.cadena===fCad));
   const compEl=document.getElementById('ecommerceComparativa');
@@ -1760,8 +1770,8 @@ function renderPazziCard() {
   });
   const tbody=document.querySelector('#tablaEcommerce tbody');if(!tbody)return;
   const lastEcom=lastByKey(ecomRows,r=>r.marca+'||'+r.producto+'||'+r.cadena);
-  if(!lastEcom.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce para este filtro</td></tr>';return;}
-  tbody.innerHTML=lastEcom.map(r=>{const gondola=gondolaRowsAll.filter(rx=>rx.marca===r.marca&&rx.producto===r.producto&&rx.cadena===r.cadena&&rx.precio_regular>0);const gAvg=gondola.length?Math.round(avgPrice(gondola)):null;const diff=gAvg&&r.precio_regular?((r.precio_regular-gAvg)/gAvg*100):null;return`<tr><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.categoria||'—'}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td class="price-num">${gAvg?fmt(gAvg):'—'}</td><td>${diff!==null?`<span class="${diff>0?'delta-up-sm':'delta-down-sm'}">${diff>0?'↑':'↓'} ${Math.abs(diff).toFixed(1)}%</span>`:'—'}</td><td style="font-size:13px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
+  if(!lastEcom.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Sin datos ecommerce ${fMes?'en '+mesLabel(fMes):'para este filtro'}</td></tr>`;return;}
+  tbody.innerHTML=lastEcom.map(r=>{const appDelivery=/^(RAPPI|PEDIDOS YA)$/i.test(r.cadena);const gondola=gondolaRowsAll.filter(rx=>rx.marca===r.marca&&rx.producto===r.producto&&(appDelivery||rx.cadena===r.cadena)&&rx.precio_regular>0);const gAvg=gondola.length?Math.round(avgPrice(gondola)):null;const diff=gAvg&&r.precio_regular?((r.precio_regular-gAvg)/gAvg*100):null;return`<tr><td class="${r.es_kansas?'our-brand':''}">${r.marca}</td><td>${r.producto}</td><td>${r.categoria||'—'}</td><td>${r.cadena}</td><td class="price-num">${fmt(r.precio_regular)}</td><td class="price-num">${gAvg?fmt(gAvg)+(appDelivery?'<div style="font-size:11px;color:var(--muted)">prom. cadenas</div>':''):'—'}</td><td>${diff!==null?`<span class="${diff>0?'delta-up-sm':'delta-down-sm'}">${diff>0?'↑':'↓'} ${Math.abs(diff).toFixed(1)}%</span>`:'—'}</td><td style="font-size:13px;color:var(--muted)">${formatDate(r.fecha)}</td></tr>`;}).join('');
 }
 
 function renderGastro() {
